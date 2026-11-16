@@ -1,0 +1,10 @@
+node_modules/
+dist/
+playwright-report/
+test-results/
+.env
+.env.local
+.env.*.local
+supabase/.temp/
+.codex-remote-attachments/
+.vercel/

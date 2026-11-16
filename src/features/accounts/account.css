@@ -1,0 +1,229 @@
+main.account-shell {
+  inline-size: min(100% - 2 * var(--gutter), 1000px);
+  margin-inline: auto;
+  padding-block: clamp(24px, 6vh, 64px) var(--space-5);
+}
+.account-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, .93fr); gap: var(--space-4); align-items: start }
+.account-shell .panel { padding: clamp(18px, 4vw, 36px) }
+.account-shell h1 { font-size: clamp(1.85rem, 4vw, 2.65rem) }
+.account-intro { color: var(--muted); margin-block: var(--space-1) 0 }
+.auth-switch { min-inline-size: 0; touch-action: pan-y pinch-zoom }
+.auth-view { --auth-shift: 18px }
+.auth-view[data-mode="signin"], .auth-view:dir(rtl) { --auth-shift: -18px }
+.auth-view[data-mode="signin"]:dir(rtl) { --auth-shift: 18px }
+@media (prefers-reduced-motion: no-preference) {
+  .auth-view[data-switched="true"] { animation: auth-fade 260ms var(--motion-out) }
+}
+@keyframes auth-fade {
+  from { opacity: .25; transform: translateX(var(--auth-shift)) }
+  to { opacity: 1; transform: translateX(0) }
+}
+
+.account-story {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding: clamp(24px, 4vw, 42px);
+  min-block-size: 460px;
+  --panel-fill: var(--lavender-panel);
+}
+.account-story-brand {
+  display: inline-flex;
+  margin-block: 0 var(--space-5);
+  border: var(--stroke);
+  border-radius: var(--pill);
+  padding: 4px 12px;
+  background: var(--mint);
+  color: var(--ink);
+  font-weight: 850;
+}
+.account-story h2 { font-size: clamp(2.15rem, 4.5vw, 3.8rem); max-inline-size: 12ch }
+.account-story > p:last-of-type { max-inline-size: 31ch; font-weight: 600 }
+.account-art { position: absolute; z-index: -1; inset-block-end: 0; inset-inline-end: 0; inline-size: 100%; block-size: 170px }
+.account-art::before { content: ""; position: absolute; inset-block-end: -70px; inset-inline-end: -30px; inline-size: 195px; block-size: 195px; border: var(--stroke); border-radius: 50%; background: var(--orange) }
+.account-art::after { content: ""; position: absolute; inset-block-end: 46px; inset-inline-end: 170px; inline-size: 42px; block-size: 42px; background: var(--text); clip-path: polygon(50% 0, 59% 40%, 100% 50%, 59% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%) }
+.account-ticket {
+  display: grid;
+  gap: var(--space-2);
+  position: absolute;
+  z-index: 1;
+  inset-block-end: 20px;
+  inset-inline-end: 48px;
+  padding: 18px 20px;
+  inline-size: 132px;
+  background: var(--yellow);
+  color: var(--ink);
+  border: var(--stroke);
+  box-shadow: var(--shadow);
+  border-radius: var(--radius-sm);
+  rotate: -11deg;
+}
+.account-ticket:dir(rtl) { rotate: 11deg }
+.account-ticket i { block-size: 2px; background: currentColor; opacity: .7 }
+.account-ticket i:last-child { inline-size: 60% }
+
+.account-form { display: grid; gap: var(--space-3); margin-block: var(--space-4) var(--space-3) }
+/* Keep a field’s validation message from shifting its neighbor. */
+.signup-names { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-2); align-items: start }
+.account-form small { margin-block-start: -8px; color: var(--muted) }
+.account-form label, .account-field { display: grid; gap: 6px }
+.account-form label { font-weight: 700 }
+.account-field a { font-size: .875rem }
+.account-form input { inline-size: 100% }
+.password-input { position: relative }
+.account-form .password-input input { padding-inline-end: 48px }
+.password-input input::-ms-reveal { display: none }
+.password-input button {
+  position: absolute;
+  inset-block: 2px;
+  inset-inline-end: 2px;
+  inline-size: 44px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+.password-eye {
+  display: grid;
+  place-items: center;
+  inline-size: 30px;
+  block-size: 30px;
+  border-radius: 8px;
+  color: var(--text);
+}
+.password-input button:active .password-eye { translate: 0 1px }
+.password-input[data-visible="true"] .password-eye { background: var(--mint); color: var(--ink) }
+@media (prefers-reduced-motion: no-preference) {
+  .password-input { --spotlight-origin: right 22px center }
+  .password-input:dir(rtl) { --spotlight-origin: left 22px center }
+  .password-input[data-visible="true"]::before {
+    content: "";
+    position: absolute;
+    inset: 2px;
+    border-radius: var(--radius-sm);
+    pointer-events: none;
+    background-image: radial-gradient(ellipse at var(--spotlight-origin), color-mix(in srgb, var(--mint) 35%, transparent), transparent 72%);
+    background-repeat: no-repeat;
+    background-position: right center;
+    animation: password-spotlight 420ms var(--motion-out) forwards;
+  }
+  .password-input:dir(rtl)[data-visible="true"]::before { background-position: left center }
+}
+@keyframes password-spotlight {
+  from { background-size: 15% 100%; opacity: .7 }
+  55% { opacity: 1 }
+  to { background-size: 150% 220%; opacity: 0 }
+}
+
+.account-form .primary { min-block-size: 48px }
+.account-field-error { color: var(--invalid); font-size: .875rem; font-weight: 650 }
+.account-field-error:empty { position: absolute }
+.account-field-feedback { font-size: .875rem; font-weight: 650; }
+.account-field-feedback:empty { position: absolute; }
+.account-links { margin-block-start: var(--space-4); padding-block-start: var(--space-3); border-block-start: 1px solid var(--line); text-align: center }
+.account-links p { margin: 0 }
+.account-links a { display: inline-flex; align-items: center; font-weight: 750 }
+.account-links .account-switch {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-1);
+  padding: 8px 10px;
+  border: 1px solid var(--edge);
+  border-radius: var(--radius-sm);
+  background: var(--lavender-panel);
+  text-align: start;
+}
+.account-switch a { gap: 6px; border-radius: 9px; padding-inline: 10px }
+.account-switch a:dir(rtl) svg { transform: scaleX(-1) }
+.profile-layout { display: grid; gap: var(--space-4) }
+.profile-header {
+  display: grid;
+  gap: 8px;
+  padding: 12px 16px;
+}
+.profile-intro, .profile-meta { min-inline-size: 0 }
+.profile-intro { display: flex; align-items: center; gap: 12px }
+.profile-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 16px;
+  padding-block-start: 8px;
+  border-block-start: 1px solid var(--line);
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+.profile-avatar {
+  display: grid;
+  place-items: center;
+  flex: none;
+  inline-size: 46px;
+  aspect-ratio: 1;
+  background: var(--mint);
+  color: var(--ink);
+  border: var(--stroke);
+  border-radius: var(--radius-sm);
+  font-size: 1.4rem;
+  font-weight: 850;
+}
+.profile-identity { min-inline-size: 0; overflow-wrap: anywhere }
+.profile-identity h1 { margin: 0; font-size: clamp(1.25rem, 3vw, 1.65rem) }
+.profile-handle { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-weight: 750 }
+.profile-handle .profile-copy { inline-size: 34px; min-block-size: 32px; padding: 0 }
+.profile-email { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 7px; margin: 0; font-size: .875rem }
+.profile-email svg { flex: none }
+.profile-member { display: flex; align-items: center; gap: 7px; margin: 0; font-size: .875rem }
+.profile-member svg { flex: none }
+.profile-security {
+  --panel-fill: var(--mint-panel);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-3);
+}
+.profile-security > .icon-tile {
+  --icon-fill: var(--yellow);
+  inline-size: 48px;
+  block-size: 48px;
+  box-shadow: var(--shadow-control);
+}
+.profile-security-copy h2 { margin: 0 0 4px; font-size: 1.125rem }
+.profile-security-copy p { margin: 0; color: var(--muted); font-size: .875rem }
+@media (max-width: 540px) {
+  .profile-security { grid-template-columns: auto minmax(0, 1fr); gap: var(--space-2) }
+  .profile-security > button { grid-column: 1 / -1 }
+}
+.profile-details .icon-tile { --icon-fill: var(--mint) }
+.profile-details .account-form { margin-block: var(--space-3) 0; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: end }
+.profile-details .account-form .primary { grid-column: 1 / -1; justify-self: end }
+.profile-details .account-form label:first-child { grid-column: 1 / -1 }
+.profile-actions { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--space-2) }
+.profile-shortcut { display: inline-flex; align-items: center; gap: 7px; text-decoration: none }
+.profile-actions button { display: inline-flex; align-items: center; gap: 7px }
+@media (hover: hover) {
+  .profile-actions .secondary:hover:not(:disabled) { background: var(--peach-panel); color: var(--text) }
+}
+@media (max-width: 540px) {
+  .profile-details .account-form { grid-template-columns: minmax(0, 1fr) }
+  .profile-details .account-form .primary { justify-self: stretch }
+}
+
+@media (max-width: 820px) and (min-width: 721px) {
+  .signup-names { grid-template-columns: minmax(0, 1fr) }
+}
+@media (max-width: 720px) {
+  main.account-shell { max-inline-size: 490px }
+  .account-layout { grid-template-columns: minmax(0, 1fr) }
+  .account-story { min-block-size: 0; padding-inline-end: 100px }
+  .account-story-brand { margin-block-end: var(--space-2) }
+  .account-story h2 { font-size: 1.8rem }
+  .account-art::before { inline-size: 125px; block-size: 125px; inset-inline-end: -54px; inset-block-end: -30px }
+  .account-art::after { display: none }
+  .account-ticket { inline-size: 56px; padding: 8px; gap: 5px; inset-inline-end: 13px }
+}
+@media (max-width: 420px) { .signup-names { grid-template-columns: minmax(0, 1fr) } }

@@ -1,0 +1,40 @@
+project_id = "spend"
+
+[api]
+enabled = true
+port = 54321
+
+[db]
+port = 54322
+major_version = 17
+
+[local_smtp]
+enabled = true
+port = 54324
+
+[auth]
+enabled = true
+site_url = "http://127.0.0.1:5173"
+enable_signup = true
+minimum_password_length = 8
+
+[auth.hook.custom_access_token]
+enabled = true
+uri = "pg-functions://postgres/public/spend_review_access"
+
+[auth.email]
+enable_signup = true
+enable_confirmations = true
+
+[auth.email.template.confirmation]
+subject = "Confirm your Spend account | أكّد إيميلك على Spend"
+content_path = "./supabase/templates/confirmation.html"
+
+[auth.email.template.recovery]
+subject = "Reset your Spend password | اختار كلمة سر جديدة لحسابك على Spend"
+content_path = "./supabase/templates/recovery.html"
+
+[functions.manual-recovery]
+verify_jwt = false
+
+

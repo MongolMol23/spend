@@ -1,0 +1,52 @@
+.installment-entry,
+.installment-detail,
+.installment-history {
+  min-inline-size: 0;
+}
+
+.installment-schedule,
+.installment-schedule-row {
+  display: grid;
+  gap: 12px;
+  min-inline-size: 0;
+}
+
+.installment-schedule {
+  padding: 12px;
+  border: 1px solid currentColor;
+  border-radius: 12px;
+}
+
+.installment-schedule .secondary {
+  justify-self: start;
+}
+
+.installment-filter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-block: 16px;
+}
+
+.installment-dues > li {
+  display: grid;
+  gap: 8px;
+}
+
+.installment-dues > li > button {
+  justify-self: start;
+}
+
+.installment-detail > h2,
+.installment-history bdi {
+  overflow-wrap: anywhere;
+}
+
+.installment-overview {
+  margin-block-start: var(--space-4);
+}
+
+.installment-overview .row {
+  flex-wrap: wrap;
+}

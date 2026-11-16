@@ -1,0 +1,64 @@
+.metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-3); margin-block-end: var(--space-4) }
+.metric.panel {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  align-content: start;
+  gap: 6px 8px;
+  padding: clamp(12px, 2vw, 22px);
+  --panel-fill: var(--amber-panel);
+}
+.metric:nth-child(2) { --panel-fill: var(--mint-panel) }
+.metric:nth-child(3) { --panel-fill: var(--peach-panel) }
+.metric-label { font-weight: 700; line-height: 1.25 }
+.metric strong { grid-column: 1 / -1; font-size: clamp(1.3rem, 3.2vw, 2.55rem); font-weight: var(--weight-display); line-height: 1.2 }
+:lang(en) .metric strong { letter-spacing: -.045em }
+.metric .icon-tile { inline-size: 32px; block-size: 32px }
+
+.dashboard-detail { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4) }
+.spending-detail .icon-tile { --icon-fill: var(--lavender) }
+.purchases .icon-tile { --icon-fill: var(--mint) }
+.follow-up { grid-column: 1 / -1; --panel-fill: var(--lavender-panel) }
+.follow-up .icon-tile { --icon-fill: var(--yellow) }
+.follow-item { padding: var(--space-2); border: var(--stroke); border-radius: var(--radius-sm); background: var(--card-surface); color: inherit }
+.follow-item + .follow-item { margin-block-start: var(--space-2) }
+.follow-item .row { flex-wrap: wrap }
+.follow-item .muted { font-size: .875rem }
+.follow-link { display: grid; gap: var(--space-2); box-shadow: var(--shadow-control); text-decoration: none }
+.follow-link-details { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: var(--space-1) }
+.follow-link-details strong { line-height: 1.35 }
+.follow-link-end { display: flex; align-items: center; gap: var(--space-1); font-weight: 800 }
+.follow-link-arrow { display: grid; place-items: center; inline-size: 30px; block-size: 30px; border: var(--stroke); border-radius: var(--pill); background: var(--mint); color: var(--ink) }
+.follow-link:dir(rtl) .follow-link-arrow svg { transform: scaleX(-1) }
+.follow-link:active { box-shadow: none; translate: var(--press-x) 2px }
+@media (hover: hover) {
+  .follow-link:hover .follow-link-arrow { background: var(--yellow) }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .follow-link { transition: translate 120ms var(--motion-out), box-shadow 120ms var(--motion-out) }
+  .follow-link-arrow { transition: background-color 140ms ease-out }
+}
+
+.category-bar { display: flex; overflow: hidden; block-size: 26px; margin-block: var(--space-4) var(--space-1); border: var(--stroke); border-radius: var(--pill) }
+.category-bar span { flex-basis: 0; background: var(--category-color, var(--lavender)) }
+.category-bar span + span { border-inline-start: var(--stroke) }
+.category-name { display: flex; align-items: center; gap: 9px }
+.category-name::before { content: ""; flex: none; inline-size: 10px; block-size: 10px; border: 1px solid var(--ink); border-radius: 3px; background: var(--category-color, var(--lavender)) }
+.spending-detail [data-category="transport"] { --category-color: var(--orange) }
+.spending-detail [data-category="dining"] { --category-color: var(--mint) }
+.spending-detail [data-category="bills"] { --category-color: var(--yellow) }
+.spending-detail [data-category="health"] { --category-color: var(--peach) }
+.spending-detail [data-category="shopping"] { --category-color: var(--purple) }
+.spending-detail [data-category="other"] { --category-color: var(--paper-line) }
+.purchases bdi { overflow-wrap: anywhere }
+
+@media (max-width: 650px) {
+  .dashboard-detail { grid-template-columns: minmax(0, 1fr) }
+  .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-2) }
+  .metric:first-child { grid-column: 1 / -1 }
+}
+.metrics-personal { grid-template-columns: minmax(0, 1fr) }
+@media (min-width: 651px) {
+  .metrics-personal .metric { grid-template-columns: auto minmax(0, 1fr) auto; gap: var(--space-3) }
+  .metrics-personal .metric strong { grid-column: auto }
+}

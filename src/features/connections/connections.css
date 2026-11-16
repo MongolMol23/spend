@@ -1,0 +1,69 @@
+.connections-grid { display: grid; grid-template-columns: minmax(0, .77fr) minmax(0, 1.23fr); gap: var(--space-4); align-items: start; margin-block-start: var(--space-3) }
+.connection-stack, .connection-form { display: grid; gap: var(--space-3) }
+.connection-stack { min-inline-size: 0; gap: var(--space-4) }
+.connection-form label, .connection-field { display: grid; min-inline-size: 0; gap: 6px; font-weight: 700 }
+.connection-form input, .connection-form textarea { inline-size: 100% }
+.connection-actions { display: flex; flex-wrap: wrap; gap: var(--space-1); margin-block-start: var(--space-1) }
+.connection-item { margin-block-start: var(--space-3) }
+.connection-summary { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-3); margin: 0 0 var(--space-4) }
+.connection-summary > .panel { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 14px; padding: clamp(12px, 2.3vw, 22px) }
+.connection-summary dt { display: flex; align-items: center; gap: 8px; font-weight: 750 }
+.connection-summary dt svg { flex: none }
+.connection-summary dd { margin: 0; font-size: clamp(1.35rem, 3vw, 2.25rem); font-weight: 850; line-height: 1 }
+.connection-summary [data-accent="mint"] { background: var(--mint-panel) }
+.connection-summary [data-accent="lavender"] { background: var(--lavender-panel) }
+.connection-summary [data-accent="amber"] { background: var(--amber-panel) }
+.connections bdi { overflow-wrap: anywhere }
+.connections .row { flex-wrap: wrap }
+.friend-panel { container: friend-panel / inline-size; min-inline-size: 0 }
+.friend-panel .icon-tile { --icon-fill: var(--mint) }
+.friend-search { grid-template-columns: minmax(0, 1fr); align-items: end; gap: var(--space-1) }
+.friend-search input { min-inline-size: 0 }
+.friend-search button { display: flex; align-items: center; justify-content: center; gap: 6px }
+@container friend-panel (min-width: 360px) {
+  .friend-search { grid-template-columns: minmax(0, 1fr) auto }
+}
+.friend-identity { display: flex; align-items: center; gap: 9px; min-inline-size: 0 }
+.friend-identity .icon-tile { flex: none; font-weight: 800 }
+.friend-identity small { display: block }
+.friend-list .connection-item { margin-block-start: 0 }
+.connections-empty { margin-block: var(--space-3) 0; padding-block-start: var(--space-2); border-block-start: 1px solid var(--line); color: var(--muted); font-size: .875rem }
+.request-compose .icon-tile { --icon-fill: var(--peach) }
+.request-send { justify-self: end }
+.request-hint { margin-block: 0 var(--space-2) }
+.request-board { overflow: hidden; border: var(--stroke); border-radius: var(--radius-sm); background: var(--inset-surface) }
+.request-group { min-inline-size: 0; padding: 8px 12px }
+.request-group + .request-group { border-block-start: 1px solid var(--line) }
+.request-group h3 { margin: 0; font-size: .95rem }
+.request-group .icon-tile { inline-size: 32px; block-size: 32px; flex: none }
+.request-group-count { margin-inline-start: auto; font-variant-numeric: tabular-nums; font-size: .875rem; color: var(--muted) }
+.request-group[data-accent="mint"] .icon-tile { --icon-fill: var(--mint) }
+.request-group[data-accent="peach"] .icon-tile { --icon-fill: var(--peach) }
+.request-group[data-accent="amber"] .icon-tile { --icon-fill: var(--yellow) }
+.request-group[data-accent="lavender"] .icon-tile { --icon-fill: var(--lavender) }
+.request-list-link { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 10px; min-block-size: 44px; color: inherit; text-decoration: none; border-radius: var(--radius-sm) }
+.request-list-link:is(:hover, [aria-current]) strong { text-decoration: underline; text-underline-offset: .2em }
+.request-card > .row:first-child { margin-block-end: var(--space-3) }
+.request-card > .row:first-child h2 { margin: 0 }
+.request-amount { font-size: clamp(1.4rem, 3vw, 2rem) }
+.payment-section { border-block-start: var(--stroke); margin-block-start: var(--space-3); padding-block-start: var(--space-3) }
+.payment-totals { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 116px), 1fr)); gap: var(--space-1); margin: 0 }
+.payment-totals > div { padding: 8px 10px; border: var(--stroke); border-radius: var(--radius-sm); background: var(--mint-panel) }
+.payment-totals > div:nth-child(2) { background: var(--lavender-panel) }
+.payment-totals > div:nth-child(3) { background: var(--amber-panel) }
+.payment-totals dt { font-size: .875rem }
+.payment-totals dd { margin: 0; font-weight: 850 }
+.payment-section > .connection-form { margin-block-start: var(--space-3) }
+.correction-form { margin-block: var(--space-4); padding: 4px 12px; border: var(--stroke); border-radius: var(--radius-sm); background: var(--inset-surface) }
+.correction-form summary { display: flex; align-items: center; justify-content: space-between; gap: var(--space-1); padding-block: 10px; font-weight: 750; list-style: none }
+.correction-form summary::-webkit-details-marker { display: none }
+.correction-form[open] summary svg { rotate: 180deg }
+.correction-form[open] { padding-block-end: var(--space-2) }
+@media (prefers-reduced-motion: no-preference) {
+  .correction-form summary svg { transition: rotate 150ms var(--motion-out) }
+}
+
+@media (max-width: 800px) { .connections-grid { grid-template-columns: minmax(0, 1fr) } }
+@media (max-width: 540px) {
+  .connection-summary { grid-template-columns: minmax(0, 1fr); gap: var(--space-1) }
+}

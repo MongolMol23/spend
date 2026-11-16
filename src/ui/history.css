@@ -1,0 +1,186 @@
+.panel.history-disclosure {
+  padding: 0;
+  border: var(--stroke);
+  border-radius: var(--radius-sm);
+  background: var(--card-surface);
+  box-shadow: none;
+}
+.record-history { margin-block-start: var(--space-3) }
+
+.history-disclosure-summary {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  cursor: pointer;
+}
+
+.history-disclosure-summary::-webkit-details-marker { display: none }
+.history-disclosure[open] > summary .history-disclosure-chevron { rotate: 180deg }
+.history-disclosure-content {
+  max-block-size: min(26rem, 60vh);
+  overflow: auto;
+  padding: 0 12px 12px;
+}
+.history-dates {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 10px;
+  padding: 0 12px 12px;
+}
+.history-day-strip { display: flex; flex: 1 1 auto; flex-wrap: wrap; gap: 6px }
+.history-day-strip button { font-size: .8125rem; padding-inline: 9px }
+.panel.history-calendar-dialog {
+  inline-size: min(24rem, calc(100% - 16px));
+  padding: clamp(8px, 3vw, 16px);
+  border-radius: var(--radius);
+}
+.history-calendar-dialog::backdrop { background: rgb(33 30 38 / .65) }
+.history-calendar-dialog header { display: flex; align-items: center; justify-content: space-between; gap: 8px }
+.history-calendar-controls { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 8px; margin-block: 12px }
+.history-calendar-controls select { inline-size: 100%; min-inline-size: 0 }
+.history-calendar-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 3px; text-align: center }
+.history-calendar-grid > span { font-size: .75rem; color: var(--muted) }
+.history-calendar-grid.month-picker-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin-block: 12px }
+.month-picker, .month-picker-year { display: grid; gap: 6px; min-inline-size: 0; font-weight: 700 }
+.month-picker-trigger { justify-content: space-between; min-block-size: 48px }
+.month-picker-trigger svg { flex: none }
+.month-picker-year input::-webkit-inner-spin-button { appearance: none; margin: 0 }
+.month-picker-year input[type="number"] { appearance: textfield; text-align: center }
+.month-picker-footer { display: flex }
+.history-calendar-grid button {
+  min-block-size: 42px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: inherit;
+  font-weight: 700;
+}
+.history-calendar-grid button:disabled { opacity: .45 }
+.history-calendar-grid button[aria-current] { border-color: var(--edge) }
+.history-calendar-grid button[aria-pressed="true"] {
+  border-color: var(--edge);
+  background: var(--lavender);
+  color: var(--ink);
+}
+@media (hover: hover) {
+  .history-calendar-grid button:hover:not(:disabled) { background: var(--lavender-panel); color: var(--ink) }
+}
+
+.history-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-block-start: 1px solid var(--line);
+}
+
+.history-entry {
+  border-block-end: 1px solid var(--line);
+  overflow-wrap: anywhere;
+}
+
+.history-entry-head {
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 12px;
+  padding-block: 12px;
+  padding-inline: 4px;
+}
+
+.history-entry-icon {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  border: 1px solid var(--ink);
+  border-radius: var(--radius-sm);
+  background: var(--lavender-panel);
+  color: var(--ink);
+}
+
+summary.history-entry-head {
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+}
+
+summary.history-entry-head::-webkit-details-marker { display: none }
+.history-entry-copy { display: grid; gap: 3px }
+.history-entry-copy time { color: var(--muted); font-size: .8125rem }
+.history-entry-amount { font-weight: 750; font-variant-numeric: tabular-nums }
+
+.history-entry-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 9px;
+  border: 1px solid var(--edge);
+  border-radius: var(--radius-sm);
+  font-size: .8125rem;
+  font-weight: 700;
+  max-inline-size: 100%;
+}
+.history-entry-toggle svg { flex: none }
+
+@media (hover: hover) {
+  summary.history-entry-head:hover { background: var(--inset-surface) }
+}
+
+.history-entry details[open] .history-entry-toggle {
+  background: var(--lavender-panel);
+  color: var(--ink);
+}
+.history-entry details[open] .history-entry-toggle svg { rotate: 180deg }
+
+.history-entry-body {
+  display: grid;
+  gap: var(--space-2);
+  margin-block-end: 12px;
+  margin-inline-start: 48px;
+  padding: 12px;
+  border-inline-start: 3px solid var(--purple);
+  border-radius: var(--radius-sm);
+  background: var(--inset-surface);
+}
+
+.history-entry-body > a { justify-self: start }
+.history-entry-body > p { margin: 0 }
+.history-entry-body :is(.debt-snapshots, .purchase-snapshots) { gap: 0 }
+.history-entry-body :is(.debt-snapshots, .purchase-snapshots) > div {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+.history-entry-body :is(.debt-snapshots, .purchase-snapshots) > div > strong {
+  display: block;
+  padding-block-end: 6px;
+  border-block-end: 1px solid var(--line);
+  color: var(--muted);
+  font-size: .8125rem;
+}
+
+@media (min-width: 641px) {
+  .history-entry-body :is(.debt-snapshots, .purchase-snapshots) {
+    grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  }
+  .history-entry-body :is(.debt-snapshots, .purchase-snapshots) > div + div {
+    border-inline-start: 1px solid var(--line);
+  }
+}
+
+@media (max-width: 640px) {
+  .history-entry-head { grid-template-columns: 32px minmax(0, 1fr) auto; gap: 8px }
+  .history-entry-toggle { max-inline-size: 7rem }
+  .history-entry-head:has(.history-entry-amount) .history-entry-toggle { grid-column: 2 / -1; justify-self: start }
+  .history-entry-body { margin-inline-start: 0 }
+  .history-entry-body :is(.debt-snapshots, .purchase-snapshots) { grid-template-columns: minmax(0, 1fr) }
+  .history-entry-body :is(.debt-snapshots, .purchase-snapshots) > div + div {
+    border-block-start: 1px solid var(--line);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .history-entry-toggle svg, .history-disclosure-chevron { transition: rotate 180ms var(--motion-out) }
+}

@@ -1,0 +1,83 @@
+.admin-filters {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--space-2);
+  margin-block: var(--space-3);
+}
+.admin-filter.secondary {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  justify-items: start;
+  gap: 4px 8px;
+  padding: 10px 12px;
+  text-align: start;
+}
+.admin-filter strong { grid-column: 1 / -1; font-size: 1.4rem }
+.admin-filter[data-accent="lavender"] { --filter-color: var(--lavender-panel) }
+.admin-filter[data-accent="amber"] { --filter-color: var(--amber-panel) }
+.admin-filter[data-accent="mint"] { --filter-color: var(--mint-panel) }
+.admin-filter[data-accent="peach"] { --filter-color: var(--peach-panel) }
+.admin-filter.secondary[aria-pressed="true"] { background: var(--filter-color); color: var(--text) }
+@media (hover: hover) {
+  .admin-filters .admin-filter.secondary:hover { background: var(--filter-color); color: var(--text) }
+  .admin-user-actions .admin-reject.secondary:hover:not(:disabled) { background: var(--peach-panel); color: var(--text) }
+}
+.admin-directory-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding-block-end: 16px; border-block-end: var(--stroke) }
+.admin-directory-header h2 { margin: 0; font-size: 1.25rem }
+.admin-search { position: relative; flex: 1 1 250px; max-inline-size: 400px }
+.admin-search svg { position: absolute; inset-inline-start: 12px; inset-block-start: 50%; translate: 0 -50%; pointer-events: none }
+.admin-search input[type="search"] { inline-size: 100%; min-inline-size: 0; padding-inline-start: 38px; background: var(--inset-surface) }
+.admin-list { margin-block: var(--space-2) 0 }
+.admin-list .admin-user {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(115px, .32fr) minmax(220px, auto);
+  align-items: center;
+  gap: var(--space-2);
+  overflow-wrap: anywhere;
+}
+.admin-list .admin-user[data-status="pending"] {
+  padding: 12px;
+  margin-block: 4px;
+  border: var(--stroke);
+  border-radius: var(--radius-sm);
+  background: var(--inset-surface);
+}
+.admin-user-identity { display: flex; align-items: flex-start; gap: 10px; min-inline-size: 0 }
+.admin-user-identity > div { min-inline-size: 0 }
+.admin-avatar {
+  flex: none;
+  display: grid;
+  place-items: center;
+  inline-size: 36px;
+  block-size: 36px;
+  border: var(--stroke);
+  border-radius: var(--radius-sm);
+  background: var(--lavender);
+  color: var(--ink);
+  font-weight: 850;
+}
+.admin-user-identity small, .admin-user-state small { color: var(--muted) }
+.admin-user-state { display: grid; justify-items: start; gap: 3px }
+.admin-user-state .status[data-state="pending"] {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+.admin-user-actions, .admin-pages { display: flex; flex-wrap: wrap; align-items: center; gap: 8px }
+.admin-user > button, .admin-user-actions { justify-self: end }
+.admin-user-actions button { padding-inline: 10px; font-size: .875rem }
+.admin-reset { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; padding: 10px; border-radius: var(--radius-sm); background: var(--inset-surface) }
+.admin-reset p { margin: 0; color: var(--muted); font-size: .875rem }
+.admin-reset input { flex: 1 1 220px; min-inline-size: 0 }
+.admin-pages { justify-content: space-between; padding-block-start: var(--space-2); border-block-start: 1px solid var(--line) }
+@media (max-width: 720px) {
+  .admin-filters { grid-template-columns: repeat(2, minmax(0, 1fr)) }
+  .admin-list .admin-user { grid-template-columns: minmax(0, 1fr) auto }
+  .admin-user > :is(button, .admin-user-actions) { grid-column: 1 / -1; justify-self: start }
+}
+@media (max-width: 420px) {
+  .admin-list .admin-user { grid-template-columns: minmax(0, 1fr) }
+  .admin-user-state { display: flex; flex-wrap: wrap; align-items: center; gap: 6px }
+}

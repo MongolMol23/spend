@@ -1,0 +1,91 @@
+import { Toast } from '../../ui/Toast'
+import { useQuery } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router'
+import { Amount } from '../../ui/Amount'
+import { debtKey, debtOverview } from '../debts/api'
+import { installmentKey, readInstallmentOverview } from '../installments/api'
+import { ledgerToday } from '../../data/calendar'
+import { useFormats } from '../../i18n/useFormats'
+import { monthlyPurchases, purchasesKey, recentPurchases, type PurchaseClient } from '../purchases/api'
+import { readSavingsOverview, savingsKey } from '../savings/api'
+import { Dashboard } from './Dashboard'
+
+export function PurchaseOverview({ client, month }: { client: PurchaseClient; month: string }) {
+  const { t } = useTranslation()
+  const { date } = useFormats()
+  const query = useQuery({
+    queryKey: [...purchasesKey, 'overview', month],
+    queryFn: async ({ signal }) => {
+      const [summary, recent] = await Promise.all([
+        monthlyPurchases(client, month, signal), recentPurchases(client, signal),
+      ])
+      return { summary, recent }
+    },
+  })
+  const debts = useQuery({
+    queryKey: [...debtKey, 'overview'],
+    queryFn: ({ signal }) => debtOverview(client, signal),
+    refetchInterval: 5000,
+  })
+  const savings = useQuery({
+    queryKey: [...savingsKey, 'overview', month],
+    queryFn: ({ signal }) => readSavingsOverview(client, month, signal),
+  })
+  const installments = useQuery({
+    queryKey: [...installmentKey, 'overview', month],
+    queryFn: ({ signal }) => readInstallmentOverview(client, month, signal),
+  })
+  if (query.isPending) return <div className="panel"><p className="loading-state" role="status">{t('loading')}</p></div>
+  if (!query.data) return <div className="panel">
+    <Toast message={t('failed')} />
+    <button className="primary" type="button" onClick={() => void query.refetch()}>{t('retry')}</button>
+  </div>
+  return <>
+    {query.isError && <Toast message={t('failed')} />}
+    {debts.isError && <div className="panel">
+      <Toast message={t('debtOverviewFailed')} />
+      <button type="button" className="secondary" onClick={() => void debts.refetch()}>{t('retry')}</button>
+    </div>}
+    <Dashboard ledger={query.data} debts={debts.data ?? undefined} />
+    <section className="panel savings-overview">
+      <div className="row">
+        <h2>{t('savingsGoals')}</h2>
+        <Link className="secondary" to="/savings">{t('savingsViewGoals')}</Link>
+      </div>
+      {savings.isPending && <p className="loading-state" role="status">{t('loading')}</p>}
+      {savings.isError && <><Toast message={t('savingsOverviewFailed')} />
+        <button type="button" className="secondary" onClick={() => void savings.refetch()}>{t('retry')}</button></>}
+      {savings.data && <dl className="debt-balances">
+        {([
+          ['savingsActiveTotal', savings.data.saved_minor],
+          ['savingsThisMonthIn', savings.data.deposited_minor],
+          ['savingsThisMonthOut', savings.data.withdrawn_minor],
+        ] as const).map(([label, amount]) => <div key={label}><dt>{t(label)}</dt><dd><Amount value={amount / 100} /></dd></div>)}
+      </dl>}
+    </section>
+    <section className="panel installment-overview">
+      <div className="row">
+        <h2>{t('installments')}</h2>
+        <Link className="secondary" to="/installments">{t('installmentViewPlans')}</Link>
+      </div>
+      {installments.isPending && <p className="loading-state" role="status">{t('loading')}</p>}
+      {installments.isError && <><Toast message={t('installmentOverviewFailed')} />
+        <button type="button" className="secondary" onClick={() => void installments.refetch()}>{t('retry')}</button></>}
+      {installments.data && <dl className="debt-balances">
+        {([
+          ['installmentMonthPaid', installments.data.paid_minor],
+          ['installmentRemaining', installments.data.remaining_minor],
+          ['installmentOverdueBalance', installments.data.overdue_minor],
+        ] as const).map(([label, amount]) => <div key={label}><dt>{t(label)}</dt><dd><Amount value={amount / 100} /></dd></div>)}
+      </dl>}
+      {installments.data?.next_plan_id && installments.data.next_due_on && installments.data.next_minor !== null &&
+        <Link className="follow-item follow-link" to={'/installments?plan=' + installments.data.next_plan_id}>
+          <span className="muted">{t(installments.data.next_due_on < ledgerToday() ? 'installmentOverdue' : 'due')}{' '}
+            <time dateTime={installments.data.next_due_on}>{date.format(new Date(installments.data.next_due_on))}</time></span>
+          <span className="row"><strong className="reason"><bdi>{installments.data.next_name}</bdi></strong>
+            <Amount value={installments.data.next_minor / 100} /></span>
+        </Link>}
+    </section>
+  </>
+}
