@@ -5,8 +5,7 @@ import { HistoryEntry, HistoryDisclosure } from '../../ui/HistoryEntry'
 import { Toast } from '../../ui/Toast'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
-import type { ReactNode } from 'react'
-import { ArrowRight } from 'lucide-react'
+import { changedHistoryFields, HistoryChanges, type HistoryField } from '../../ui/HistoryChanges'
 import { z } from 'zod'
 import { Amount } from '../../ui/Amount'
 import { debtKey, debtPageSize, listDebtHistory, type DebtClient } from './api'
@@ -28,7 +27,7 @@ export function DebtHistory({ client, date }: { client: DebtClient; date: Intl.D
     queryKey: [...debtKey, 'history', from, until],
     queryFn: ({ signal }) => readHistory(debtPageSize, page => listDebtHistory(client, page, signal, cairoDayStart(from), cairoDayStart(until))),
   })
-  function fields(value: z.infer<typeof snapshot>, payment: boolean): { label: string; raw: string | number | null; display: ReactNode }[] {
+  function fields(value: z.infer<typeof snapshot>, payment: boolean): HistoryField[] {
     const result = [
       { label: t('debtContact'), raw: value.contact, display: <bdi>{value.contact}</bdi> },
       { label: t('debtHistoryDirection'), raw: value.direction, display: t(value.direction) },
@@ -49,27 +48,13 @@ export function DebtHistory({ client, date }: { client: DebtClient; date: Intl.D
     const label = payment ? 'debtPaymentSaved'
       : event.action === 'archived' ? 'debtArchived' : event.action === 'updated' ? 'debtUpdated' : 'debtSaved'
     const original = before && event.action === 'updated' ? fields(before, payment) : undefined
-    const changes = after ? fields(after, payment).flatMap((field, index) => {
-      const previous = original?.[index]
-      if (previous ? previous.raw === field.raw : index === 0 || field.raw === null) return []
-      return [{ ...field, previous }]
-    }) : []
+    const changes = after ? changedHistoryFields(original ? fields(after, payment) : fields(after, payment).slice(1), original) : []
     // Ignore updates which changed only internal revision metadata.
     if (original && after && changes.length === 0) return []
     return <HistoryEntry key={event.id} timestamp={event.created_at} date={eventTime}
       detailLabel={t(original ? 'debtHistoryChanges' : 'historyDetails')}
       title={<>{t(label)}{after && <> · <bdi>{after.contact}</bdi></>}</>}>
-      {changes.length > 0 && <dl className="debt-history-changes">
-        {changes.map(field => <div key={field.label}>
-          <dt>{field.label}</dt>
-          <dd>{field.previous && <>
-            <span className="debt-history-before"><span className="debt-history-accessible">{t('purchaseBefore')} </span>{field.previous.display}</span>
-            <ArrowRight className="debt-history-arrow" size={14} aria-hidden="true" />
-          </>}
-            <strong>{field.previous && <span className="debt-history-accessible">{t('purchaseAfter')} </span>}{field.display}</strong>
-          </dd>
-        </div>)}
-      </dl>}
+      {changes.length > 0 && <HistoryChanges changes={changes} />}
     </HistoryEntry>
   })
   return <HistoryDisclosure className="debt-history" title={t('debtHistory')}

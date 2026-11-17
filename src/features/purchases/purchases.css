@@ -63,26 +63,9 @@
   .purchase-record > .purchase-actions { margin-block-start: 0 }
 }
 .purchase-history { margin-block-start: var(--space-4) }
-.purchase-history .history-entry-body {
-  margin-inline-start: 0;
-  border: 1px solid var(--line);
-}
-.purchase-history-fields { margin: 0 }
-.purchase-history-fields > div {
-  display: grid;
-  grid-template-columns: minmax(0, 9rem) minmax(0, 1fr);
-  gap: 4px 12px;
-  padding-block: 5px;
-}
-.purchase-history-fields > div + div { border-block-start: 1px solid var(--line) }
-.purchase-history-fields dt { color: var(--muted); font-size: .875rem }
-.purchase-history-fields dd { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; margin: 0 }
-.purchase-history-before { color: var(--muted); text-decoration: line-through }
-.purchase-history-arrow { align-self: center; color: var(--link) }
-.purchase-history-arrow:dir(rtl) { transform: scaleX(-1) }
 .purchase-dialog { inline-size: min(100% - 2 * var(--gutter), 460px); color: var(--ink) }
 .purchase-dialog::backdrop { background: rgb(33 30 38 / .64) }
 
 @media (max-width: 420px) {
-  .purchase-form-pair, .purchase-history-fields > div { grid-template-columns: minmax(0, 1fr) }
+  .purchase-form-pair { grid-template-columns: minmax(0, 1fr) }
 }

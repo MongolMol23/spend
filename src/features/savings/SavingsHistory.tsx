@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { z } from 'zod'
 import { Amount } from '../../ui/Amount'
+import { changedHistoryFields, HistoryChanges, type HistoryField } from '../../ui/HistoryChanges'
 import { listSavingsHistory, savingsKey, savingsPageSize, type SavingsClient } from './api'
 
 const snapshot = z.object({
@@ -27,37 +28,41 @@ export function SavingsHistory({ client, date }: { client: SavingsClient; date: 
     queryKey: [...savingsKey, 'history', from, until],
     queryFn: ({ signal }) => readHistory(savingsPageSize, page => listSavingsHistory(client, page, signal, cairoDayStart(from), cairoDayStart(until))),
   })
+  function fields(value: z.infer<typeof snapshot>): HistoryField[] {
+    return [
+      { label: t('savingsName'), raw: value.name, display: <bdi>{value.name}</bdi> },
+      { label: t('savingsTarget'), raw: value.target_minor ?? null, display: <Amount value={(value.target_minor ?? 0) / 100} /> },
+      { label: t('savingsAmount'), raw: value.amount_minor ?? null, display: <Amount value={(value.amount_minor ?? 0) / 100} /> },
+      { label: t('savingsSaved'), raw: value.saved_minor, display: <Amount value={value.saved_minor / 100} /> },
+      { label: t('savingsTargetDate'), raw: value.target_on ?? null, display: value.target_on ? <time dateTime={value.target_on}>{date.format(new Date(value.target_on))}</time> : t('historyNoDate') },
+      { label: t('savingsMovementDate'), raw: value.moved_on ?? null, display: value.moved_on ? <time dateTime={value.moved_on}>{date.format(new Date(value.moved_on))}</time> : t('historyNoDate') },
+      { label: t('historyMovementType'), raw: value.direction ?? null, display: value.direction ? t(value.direction === 'deposit' ? 'savingsDeposit' : 'savingsWithdraw') : '' },
+    ]
+  }
+  const entries = (history.data ?? []).flatMap(event => {
+    const after = snapshot.safeParse(event.after_data).data
+    const before = snapshot.safeParse(event.before_data).data
+    const label = after?.direction === 'deposit' ? 'savingsDeposited'
+      : after?.direction === 'withdraw' ? 'savingsWithdrawn'
+      : event.action === 'archived' ? 'savingsArchived' : event.action === 'updated' ? 'savingsUpdated' : 'savingsCreated'
+    const previous = before && event.action === 'updated' ? fields(before) : undefined
+    const changes = after ? changedHistoryFields(previous ? fields(after) : fields(after).slice(1), previous) : []
+    if (previous && after && !changes.length) return []
+    return <HistoryEntry key={event.id} timestamp={event.created_at} date={eventTime}
+      detailLabel={t(previous ? 'historyChanges' : 'historyDetails')}
+      title={<>{t(label)}{after && <> · <bdi>{after.name}</bdi></>}</>}>
+      {(changes.length > 0 || event.action === 'archived') && <>
+        <HistoryChanges changes={changes} />
+        {event.action === 'archived' && <Link to={'?goal=' + event.entity_id} className="secondary">{t('savingsView')}</Link>}
+      </>}
+    </HistoryEntry>
+  })
   return <HistoryDisclosure className="debt-history savings-history" title={t('savingsHistory')}
     filters={<HistoryDates {...historyDates} />}>
     {history.isPending && <p className="loading-state" role="status">{t('loading')}</p>}
     {history.isError && <><Toast message={t('failed')} />
       <button type="button" className="secondary" disabled={history.isFetching} aria-busy={history.isFetching} onClick={() => void history.refetch()}>{t('retry')}</button></>}
-    {history.data && (history.data.length ? <ol className="history-list" role="list">
-      {history.data.map(event => {
-        const after = snapshot.safeParse(event.after_data).data
-        const before = snapshot.safeParse(event.before_data).data
-        const label = after?.direction === 'deposit' ? 'savingsDeposited'
-          : after?.direction === 'withdraw' ? 'savingsWithdrawn'
-          : event.action === 'archived' ? 'savingsArchived' : event.action === 'updated' ? 'savingsUpdated' : 'savingsCreated'
-        return <HistoryEntry key={event.id} timestamp={event.created_at} date={eventTime}
-          title={<>{t(label)}{after && <> · <bdi>{after.name}</bdi></>}</>}>
-          {after && <>
-            <div className="debt-snapshots">
-              {([{ label: 'purchaseBefore', value: before }, { label: 'purchaseAfter', value: after }] as const)
-                .map(({ label: state, value }) => value && <div key={state}>
-                  <strong>{t(state)}</strong>
-                  <p><bdi>{value.name}</bdi></p>
-                  {value.target_minor !== undefined && <p>{t('savingsTarget')} · <Amount value={value.target_minor / 100} /></p>}
-                  {value.amount_minor !== undefined && <p>{t('savingsAmount')} · <Amount value={value.amount_minor / 100} /></p>}
-                  {value.target_on && <p>{t('savingsTargetDate')} · <time dateTime={value.target_on}>{date.format(new Date(value.target_on))}</time></p>}
-                  {value.moved_on && <p>{t('savingsMovementDate')} · <time dateTime={value.moved_on}>{date.format(new Date(value.moved_on))}</time></p>}
-                  <p>{t('savingsSaved')} · <Amount value={value.saved_minor / 100} /></p>
-                </div>)}
-            </div>
-            {event.action === 'archived' && <Link to={'?goal=' + event.entity_id} className="secondary">{t('savingsView')}</Link>}
-          </>}
-        </HistoryEntry>
-      })}
-    </ol> : <p className="empty-state">{t('historyNoEntries')}</p>)}
+    {history.data && (entries.length ? <ol className="history-list" role="list">{entries}</ol>
+      : <p className="empty-state">{t('historyNoEntries')}</p>)}
   </HistoryDisclosure>
 }

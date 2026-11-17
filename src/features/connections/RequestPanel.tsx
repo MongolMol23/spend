@@ -9,9 +9,10 @@ import { cairoDayStart } from '../../data/calendar'
 import { Link, useSearchParams } from 'react-router'
 import { ArrowDownLeft, ArrowUpRight, ArrowLeft, ChevronRight, HandCoins, Inbox, Send } from 'lucide-react'
 import { ActiveLinkIndicator } from '../../ui/ActiveLinkIndicator'
+import { changedHistoryFields, HistoryChanges, type HistoryField } from '../../ui/HistoryChanges'
 import { LedgerEditor, LedgerHeading } from '../../ui/LedgerEditor'
 import { z } from 'zod'
-import type { Database } from '../../data/database.types'
+import type { Database, Json } from '../../data/database.types'
 import { listRequestHistory, requestHistoryPageSize, toMinorUnits, type Client, type MoneyRequest, type RunAction } from './api'
 import { PaymentSection } from './PaymentSection'
 import { Select } from '../../ui/Select'
@@ -90,6 +91,21 @@ export function RequestPanel({ client, userId, friends, names, requests, payment
     : event === 'reopened' ? 'requestReopened' : event === 'settled' ? 'requestSettled'
     : event === 'accepted' ? 'requestAccepted' : event === 'declined' ? 'requestDeclined' : 'requestCancelled')
 
+  function correctionFields(value: Json | undefined): HistoryField[] {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return []
+    const fields: HistoryField[] = []
+    if (typeof value.amount === 'number') fields.push({
+      label: t('requestAmount'), raw: value.amount, display: <bdi>{money.format(value.amount / 100)}</bdi>,
+    })
+    if (typeof value.reason === 'string') fields.push({
+      label: t('reason'), raw: value.reason, display: <bdi>{value.reason}</bdi>,
+    })
+    if (typeof value.state === 'string') fields.push({
+      label: t('historyStatus'), raw: value.state, display: t(value.state === 'cancelled' ? 'requestCancelled' : 'paymentConfirmed'),
+    })
+    return fields
+  }
+
   return <div className="connection-stack">
     {composing && <LedgerEditor titleId="request-compose-title" busy={busy} onClose={() => setComposing(false)}>
       <section className="panel request-compose">
@@ -153,22 +169,17 @@ export function RequestPanel({ client, userId, friends, names, requests, payment
         {!!history.data?.length && <ol className="history-list" role="list">
           {history.data.map(event => {
             const details = event.details && typeof event.details === 'object' && !Array.isArray(event.details) ? event.details : {}
-            const hasDetails = typeof details.explanation === 'string' || typeof details.reason === 'string' || details.before || details.after
-            return <HistoryEntry key={event.id} timestamp={event.created_at} date={eventTime} collapsible={false}
+            const before = correctionFields(details.before)
+            const changes = changedHistoryFields(correctionFields(details.after), before)
+            const hasDetails = typeof details.explanation === 'string' || typeof details.reason === 'string' || changes.length > 0
+            return <HistoryEntry key={event.id} timestamp={event.created_at} date={eventTime}
+              detailLabel={t(changes.length ? 'historyChanges' : 'historyDetails')}
               title={<><bdi>{names.get(event.actor)?.display_name}</bdi> · {eventLabel(event.event)}</>}
               amount={typeof details.amount === 'number' && <bdi>{money.format(details.amount / 100)}</bdi>}>
               {hasDetails ? <>
               {typeof details.explanation === 'string' && <p><bdi>{details.explanation}</bdi></p>}
               {typeof details.reason === 'string' && <p><bdi>{details.reason}</bdi></p>}
-              {(['before', 'after'] as const).map(key => {
-                const value = details[key]
-                if (!value || typeof value !== 'object' || Array.isArray(value)) return null
-                return <p key={key}>{t(key === 'before' ? 'beforeCorrection' : 'afterCorrection')}{' '}
-                  {typeof value.amount === 'number' && <bdi>{money.format(value.amount / 100)}</bdi>}
-                  {typeof value.reason === 'string' && <bdi>{value.reason}</bdi>}
-                  {typeof value.state === 'string' && <span> · {t(value.state === 'cancelled' ? 'requestCancelled' : 'paymentConfirmed')}</span>}
-                </p>
-              })}
+              <HistoryChanges changes={changes} />
               </> : null}
             </HistoryEntry>
           })}
