@@ -52,7 +52,7 @@ export function DebtForm({ debt, busy, error, save, cancel }: {
         <label>{t('debtDue')}<input name="dueOn" type="date" dir="ltr" min="0001-01-01" max="9999-12-31" defaultValue={debt?.due_on ?? ''} /></label>
         {message && <Toast message={t(message)} />}
         <div className="debt-actions">
-          <button type="submit" className="primary">{t('debtSave')}</button>
+          <button type="submit" className="primary" aria-busy={busy}>{t('debtSave')}</button>
           {debt && <button type="button" className="secondary" onClick={cancel}>{t('cancelPurchase')}</button>}
         </div>
       </fieldset>

@@ -193,13 +193,13 @@ export function AccountForm({ mode, onSwitch }: { mode: Mode; onSwitch?: () => v
         <PasswordInput id="account-confirm_password" {...fieldProps('confirm_password')} autoComplete="new-password" required />
         {fieldMessage('confirm_password')}
       </div>}
-      <button className="primary" disabled={busy}>{t(mode)}</button>
+      <button className="primary" disabled={busy} aria-busy={busy}>{t(mode)}</button>
     </form>}
     {error && <Toast message={t(error)} />}
     {notice && <Toast kind="success" message={t(notice)} />}
     {mode === 'confirm' && verified && <Toast kind="success" message={t('emailConfirmed')} />}
     {callback && !verified && !notice && (tokenHash
-      ? <button className="primary" disabled={busy} onClick={() => void verifyLink()}>{t('verifyLink')}</button>
+      ? <button className="primary" disabled={busy} aria-busy={busy} onClick={() => void verifyLink()}>{t('verifyLink')}</button>
       : <Toast message={t('invalidLink')} />)}
     <nav className="account-links" aria-label={t('account')}>
       {mode === 'confirm' && verified && <Link className="primary" to="/overview">{t('dashboard')}</Link>}

@@ -15,7 +15,7 @@ export function AppHeader({ admin = false, authPage = false }: { admin?: boolean
   const navigate = useNavigate()
   const sidebar = useRef<HTMLDialogElement>(null)
   const [userId, setUserId] = useState<string>()
-  const [signingOut, setSigningOut] = useState(false)
+  const [signingOut, setSigningOut] = useState<'header' | 'sidebar'>()
   const [signOutFailed, setSignOutFailed] = useState<'header' | 'sidebar'>()
   const showMemberNavigation = !admin && !authPage
 
@@ -26,7 +26,7 @@ export function AppHeader({ admin = false, authPage = false }: { admin?: boolean
 
   async function signOut(source: 'header' | 'sidebar') {
     if (!supabase || signingOut) return
-    setSigningOut(true)
+    setSigningOut(source)
     setSignOutFailed(undefined)
     try {
       const { error } = await supabase.auth.signOut()
@@ -36,7 +36,7 @@ export function AppHeader({ admin = false, authPage = false }: { admin?: boolean
     } catch {
       setSignOutFailed(source)
     } finally {
-      setSigningOut(false)
+      setSigningOut(undefined)
     }
   }
   function openNavigation(event: MouseEvent<HTMLButtonElement>) {
@@ -56,7 +56,7 @@ export function AppHeader({ admin = false, authPage = false }: { admin?: boolean
         {showMemberNavigation && <ResponseBadge userId={userId} />}
       </div>
       <HeaderPreferences>
-        {userId && !authPage && <button type="button" className="secondary header-signout" disabled={signingOut}
+        {userId && !authPage && <button type="button" className="secondary header-signout" disabled={!!signingOut} aria-busy={signingOut === 'header'}
           aria-label={t('signout')} title={t('signout')} onClick={() => void signOut('header')}>
           <LogOut size={18} aria-hidden="true" />
         </button>}
@@ -74,7 +74,7 @@ export function AppHeader({ admin = false, authPage = false }: { admin?: boolean
         </div>
         <Navigation label={t('sidebarNavigation')} onNavigate={() => sidebar.current?.close()} />
         {userId && <footer className="sidebar-actions">
-          <button type="button" className="secondary" disabled={signingOut} onClick={() => void signOut('sidebar')}>
+          <button type="button" className="secondary" disabled={!!signingOut} aria-busy={signingOut === 'sidebar'} onClick={() => void signOut('sidebar')}>
             <LogOut size={17} aria-hidden="true" />{t('signout')}
           </button>
           {signOutFailed === 'sidebar' && <Toast message={t('accountError')} />}

@@ -3,7 +3,7 @@ import type { Database } from '../../data/database.types'
 
 export type Client = SupabaseClient<Database>
 export type MoneyRequest = Database['public']['Tables']['money_requests']['Row']
-export type RunAction = (operation: () => PromiseLike<{ error: unknown }>, done?: () => void) => Promise<void>
+export type RunAction = (action: string, operation: () => PromiseLike<{ error: unknown }>, done?: () => void) => Promise<void>
 
 export async function loadConnections(client: Client, signal: AbortSignal) {
   const [profile, names, friendships, requests, payments, corrections] = await Promise.all([

@@ -11,11 +11,12 @@ import type { Label } from '../../i18n/locales'
 import { Amount } from '../../ui/Amount'
 import { debtKey, debtPageSize, listDebtPayments, paymentInput, type DebtChange, type DebtClient, type PrivateDebt } from './api'
 
-export function DebtDetail({ client, debt, date, busy, payError, archiveError, save, edit }: {
+export function DebtDetail({ client, debt, date, busy, pending, payError, archiveError, save, edit }: {
   client: DebtClient
   debt: PrivateDebt
   date: Intl.DateTimeFormat
   busy: boolean
+  pending?: DebtChange['kind']
   payError?: Label
   archiveError?: Label
   save: (change: DebtChange) => Promise<boolean>
@@ -70,14 +71,14 @@ export function DebtDetail({ client, debt, date, busy, payError, archiveError, s
           <label>{t('debtPaidOn')}<input name="paidOn" type="date" dir="ltr" min="0001-01-01" max="9999-12-31" defaultValue={ledgerToday()} required /></label>
         </div>
         {paymentError && <Toast message={t(paymentError)} />}
-        <div><button type="submit" className="primary">{t('debtPay')}</button></div>
+        <div><button type="submit" className="primary" aria-busy={pending === 'pay'}>{t('debtPay')}</button></div>
       </fieldset>
     </form>}
     <HistoryDisclosure className="record-history" title={t('debtPayments')}
     filters={<HistoryDates {...historyDates} />}>
       {payments.isPending && <p className="loading-state" role="status">{t('loading')}</p>}
       {payments.isError && <><Toast message={t('failed')} />
-        <button type="button" className="secondary" onClick={() => void payments.refetch()}>{t('retry')}</button></>}
+        <button type="button" className="secondary" disabled={payments.isFetching} aria-busy={payments.isFetching} onClick={() => void payments.refetch()}>{t('retry')}</button></>}
       {payments.data && (payments.data.length ? <ol className="history-list debt-payments" role="list">
         {payments.data.map(payment => <HistoryEntry key={payment.id}
           title={t('debtPaymentSaved')} timestamp={payment.paid_on} date={date}
@@ -95,7 +96,7 @@ export function DebtDetail({ client, debt, date, busy, payError, archiveError, s
       {archiveError && <Toast message={t(archiveError)} />}
       <div className="debt-actions">
         <button type="button" className="secondary" disabled={busy} onClick={() => dialog.current?.close()}>{t('cancelPurchase')}</button>
-        <button type="button" className="primary" disabled={busy} onClick={async () => {
+        <button type="button" className="primary" disabled={busy} aria-busy={pending === 'archive'} onClick={async () => {
           if (await save({ kind: 'archive', debt })) dialog.current?.close()
         }}>{t('debtArchiveConfirm')}</button>
       </div>

@@ -78,7 +78,7 @@ function AnalyticsWorkspace({ client }: { client: PurchaseClient }) {
   if (summary.isPending) return <AnalyticsLoading />
   if (!summary.data || !selected) return <section className="panel">
     <Toast message={t('failed')} />
-    <button className="secondary" type="button" onClick={() => void summary.refetch()}>{t('retry')}</button>
+    <button className="secondary" type="button" disabled={summary.isFetching} aria-busy={summary.isFetching} onClick={() => void summary.refetch()}>{t('retry')}</button>
   </section>
 
   const previous = summary.data[summary.data.indexOf(selected) - 1]
@@ -163,7 +163,7 @@ function AnalyticsWorkspace({ client }: { client: PurchaseClient }) {
         </h2>
         {purchases.isPending && <p className="loading-state" role="status">{t('loading')}</p>}
         {purchases.isError && <><Toast message={t('failed')} />
-          <button className="secondary" type="button" onClick={() => void purchases.refetch()}>{t('retry')}</button></>}
+          <button className="secondary" type="button" disabled={purchases.isFetching} aria-busy={purchases.isFetching} onClick={() => void purchases.refetch()}>{t('retry')}</button></>}
         {purchases.data && (purchases.data.length ? <ul className="ledger">
           {purchases.data.slice(0, purchasePageSize).map(purchase => <li key={purchase.id} className="row">
             <div><strong className="reason"><bdi>{purchase.item}</bdi></strong>

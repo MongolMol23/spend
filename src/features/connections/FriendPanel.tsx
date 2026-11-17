@@ -8,14 +8,15 @@ import type { Client, RunAction } from './api'
 type Friendship = Database['public']['Tables']['friendships']['Row']
 type Person = Database['public']['Functions']['connection_names']['Returns'][number]
 
-export function FriendPanel({ client, userId, friends, names, busy, run }: {
-  client: Client; userId: string; friends: Friendship[]; names: Map<string, Person>; busy: boolean; run: RunAction
-}) {
+type FriendActions = {
+  client: Client; userId: string; names: Map<string, Person>; busy: boolean; pending?: string; run: RunAction
+}
+
+export function FriendSearch({ client, userId, names, busy, pending, run }: FriendActions) {
   const { t } = useTranslation()
   const [match, setMatch] = useState<{ username: string; display_name: string } | null>()
   const [searching, setSearching] = useState(false)
   const [searchFailed, setSearchFailed] = useState(false)
-  const active = friends.filter(friend => friend.state === 'pending' || friend.state === 'accepted')
 
   async function search(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -37,10 +38,12 @@ export function FriendPanel({ client, userId, friends, names, busy, run }: {
   }
 
   return <section className="panel friend-panel">
-    <h2 className="section-heading"><span className="icon-tile" aria-hidden="true"><UsersRound size={18} /></span>{t('friends')}</h2>
+    <h2 className="section-heading"><span className="icon-tile" aria-hidden="true"><UserPlus size={18} /></span>{t('addFriend')}</h2>
     <form className="connection-form friend-search" onSubmit={search}>
       <label>{t('username')}<input name="username" dir="ltr" autoCapitalize="none" spellCheck={false} required /></label>
-      <button className="primary" disabled={searching}><Search size={17} aria-hidden="true" />{t('findFriend')}</button>
+      <button className="primary" disabled={searching} aria-busy={searching} aria-label={t('findFriend')} title={t('findFriend')}>
+        <Search size={18} aria-hidden="true" /><span>{t('findFriend')}</span>
+      </button>
     </form>
     {searchFailed && <Toast message={t('connectionError')} />}
     {match === null && <p className="empty-state" role="status">{t('noFriendFound')}</p>}
@@ -48,23 +51,36 @@ export function FriendPanel({ client, userId, friends, names, busy, run }: {
       <span className="friend-identity"><span className="icon-tile" aria-hidden="true"><UserPlus size={17} /></span>
         <span><strong><bdi>{match.display_name}</bdi></strong><small><bdi>@{match.username}</bdi></small></span>
       </span>
-      <button type="button" className="primary" disabled={busy}
-        onClick={() => void run(() => client.rpc('send_friend_request', { target_username: match.username }), () => setMatch(undefined))}>{t('addFriend')}</button>
+      <button type="button" className="primary" disabled={busy} aria-busy={pending === 'add-friend'}
+        onClick={() => void run('add-friend', () => client.rpc('send_friend_request', { target_username: match.username }), () => setMatch(undefined))}>{t('addFriend')}</button>
     </div>}
-    {active.length === 0 && match === undefined && <p className="connections-empty">{t('noFriends')}</p>}
+  </section>
+}
+
+export function FriendPanel({ client, userId, friends, names, busy, pending, run }: FriendActions & { friends: Friendship[] }) {
+  const { t } = useTranslation()
+  const active = friends.filter(friend => friend.state === 'pending' || friend.state === 'accepted')
+    .sort((first, second) => Number(second.state === 'pending' && second.recipient === userId)
+      - Number(first.state === 'pending' && first.recipient === userId))
+
+  return <section className="panel friend-panel">
+    <h2 className="section-heading"><span className="icon-tile" aria-hidden="true"><UsersRound size={18} /></span>{t('friends')}</h2>
+    {active.length === 0 && <p className="connections-empty">{t('noFriends')}</p>}
     {active.length > 0 && <ul className="ledger friend-list">
       {active.map(friend => {
         const incoming = friend.recipient === userId
         const name = names.get(incoming ? friend.sender : friend.recipient)
-        return <li key={friend.id} className="connection-item">
+        return <li key={friend.id} className="connection-item" data-state={friend.state}>
           <div className="row"><span className="friend-identity">
             <span className="icon-tile" aria-hidden="true">{Array.from(name?.display_name || name?.username || '?')[0]?.toLocaleUpperCase()}</span>
             <span><strong><bdi>{name?.display_name ?? name?.username}</bdi></strong>
               {name?.username && <small><bdi>@{name.username}</bdi></small>}</span></span>
-            <span className="status" data-state={friend.state}>{t(friend.state === 'accepted' ? 'friends' : incoming ? 'received' : 'sentRequests')}</span></div>
+            {friend.state !== 'accepted' && <span className="status" data-state={friend.state}>{t(incoming ? 'received' : 'sentRequests')}</span>}</div>
           <div className="connection-actions">
             {(friend.state === 'accepted' ? ['removed'] : incoming ? ['accepted', 'declined'] : []).map(decision =>
-              <button type="button" className="secondary" key={decision} disabled={busy} onClick={() => void run(() =>
+              <button type="button" className="secondary" key={decision} disabled={busy}
+                aria-busy={pending === 'friend:' + friend.id + ':' + decision}
+                onClick={() => void run('friend:' + friend.id + ':' + decision, () =>
                 client.rpc('respond_friendship', { friendship_id: friend.id, decision }))}>
                 {t(decision === 'removed' ? 'removeFriend' : decision === 'accepted' ? 'acceptRequest' : 'declineRequest')}
               </button>)}

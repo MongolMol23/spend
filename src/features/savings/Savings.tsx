@@ -131,8 +131,8 @@ function SavingsWorkspace({ client, owner }: { client: SavingsClient; owner: str
     <div className="debt-stack">
       {id && (detail.isPending ? <p className="loading-state" role="status">{t('loading')}</p>
         : detail.isError && !detail.data ? <section className="panel"><Toast message={t('failed')} />
-          <button type="button" className="secondary" onClick={() => void detail.refetch()}>{t('retry')}</button></section>
-        : detail.data ? <SavingsDetail key={id} client={client} goal={detail.data} date={date} busy={mutation.isPending}
+          <button type="button" className="secondary" disabled={detail.isFetching} aria-busy={detail.isFetching} onClick={() => void detail.refetch()}>{t('retry')}</button></section>
+        : detail.data ? <SavingsDetail key={id} client={client} goal={detail.data} date={date} busy={mutation.isPending} pending={mutation.isPending ? mutation.variables?.kind : undefined}
           save={save} edit={() => { setEditorOpen(true); setEditSnapshot(detail.data ?? undefined); mutation.reset() }}
           movementError={sameGoal && mutation.variables?.kind === 'move' ? error : undefined}
           archiveError={sameGoal && mutation.variables?.kind === 'archive' ? error : undefined} />
@@ -141,7 +141,7 @@ function SavingsWorkspace({ client, owner }: { client: SavingsClient; owner: str
         <LedgerHeading title={t('savingsActive')} action={t('savingsAdd')} busy={mutation.isPending} onAdd={() => { setEditSnapshot(undefined); mutation.reset(); setEditorOpen(true) }} />
         {list.isPending && <p className="loading-state" role="status">{t('loading')}</p>}
         {list.isError && <><Toast message={t('failed')} />
-          <button type="button" className="secondary" onClick={() => void list.refetch()}>{t('retry')}</button></>}
+          <button type="button" className="secondary" disabled={list.isFetching} aria-busy={list.isFetching} onClick={() => void list.refetch()}>{t('retry')}</button></>}
         {list.data && (list.data.length ? <ul className="ledger">
           {list.data.slice(0, savingsPageSize).map(goal => <li key={goal.id}>
             <Link to={'?goal=' + goal.id} aria-current={id === goal.id ? 'true' : undefined}

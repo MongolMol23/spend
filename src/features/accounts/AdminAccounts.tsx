@@ -40,7 +40,8 @@ function AccountQueue() {
   const [status, setStatus] = useState('pending')
   const [managedId, setManagedId] = useState<string>()
   const [page, setPage] = useState(0)
-  const [busy, setBusy] = useState(false)
+  const [pending, setPending] = useState<{ id: string; action: string }>()
+  const busy = pending !== undefined
   const [notice, setNotice] = useState<Label>()
   const [requests, setRequests] = useState<string[]>([])
   const [resetLink, setResetLink] = useState<{ id: string; url: string }>()
@@ -69,7 +70,7 @@ function AccountQueue() {
 
   async function act(row: AccountRow, action: 'approved' | 'rejected' | 'reset' | 'shared') {
     if (busy) return
-    setBusy(true)
+    setPending({ id: row.id, action })
     setNotice(undefined)
     try {
       if (action === 'reset') {
@@ -96,7 +97,7 @@ function AccountQueue() {
     } catch {
       setNotice('accountError')
     } finally {
-      setBusy(false)
+      setPending(undefined)
     }
   }
 
@@ -170,8 +171,8 @@ function AccountQueue() {
             {row.reviewed_at && <small>{t('adminReviewed')} {date.format(new Date(row.reviewed_at))}</small>}
           </div>
           {row.status === 'pending' && <div className="admin-user-actions">
-            <button className="primary" disabled={busy} onClick={() => void act(row, 'approved')}>{t('adminApprove')}</button>
-            <button className="secondary admin-reject" disabled={busy} onClick={() => void act(row, 'rejected')}>{t('adminReject')}</button>
+            <button className="primary" disabled={busy} aria-busy={pending?.id === row.id && pending.action === 'approved'} onClick={() => void act(row, 'approved')}>{t('adminApprove')}</button>
+            <button className="secondary admin-reject" disabled={busy} aria-busy={pending?.id === row.id && pending.action === 'rejected'} onClick={() => void act(row, 'rejected')}>{t('adminReject')}</button>
           </div>}
           {row.status === 'approved' && requests.includes(row.id) && <div className="admin-user-actions">
             <button type="button" className="secondary" aria-expanded={managedId === row.id}
@@ -182,8 +183,8 @@ function AccountQueue() {
             {resetLink?.id === row.id ? <>
               <input aria-label={t('manualRecoveryLink')} dir="ltr" readOnly value={resetLink.url} onFocus={event => event.currentTarget.select()} />
               <button type="button" className="secondary" onClick={() => void copyResetLink(resetLink.url)}>{t('manualRecoveryCopy')}</button>
-              <button type="button" className="secondary" disabled={busy} onClick={() => void act(row, 'shared')}>{t('manualRecoveryShared')}</button>
-            </> : <button type="button" className="secondary" disabled={busy} onClick={() => void act(row, 'reset')}>
+              <button type="button" className="secondary" disabled={busy} aria-busy={pending?.id === row.id && pending.action === 'shared'} onClick={() => void act(row, 'shared')}>{t('manualRecoveryShared')}</button>
+            </> : <button type="button" className="secondary" disabled={busy} aria-busy={pending?.id === row.id && pending.action === 'reset'} onClick={() => void act(row, 'reset')}>
               {t('manualRecoveryGenerate')}
             </button>}
           </div>}

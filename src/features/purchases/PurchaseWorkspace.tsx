@@ -1,3 +1,4 @@
+import { budgetWarning } from '../budget/budget'
 import { readHistory } from '../../data/readHistory'
 import { cairoDayStart } from '../../data/calendar'
 import { HistoryDates, useHistoryDates } from '../../ui/HistoryDates'
@@ -85,7 +86,7 @@ export function PurchaseWorkspace({ client, owner }: { client: PurchaseClient; o
       setCategory('')
       setPage(0)
       await queryClient.invalidateQueries({ queryKey: purchasesKey })
-      setNotice(expense ? 'purchaseUpdated' : 'purchaseCreated')
+      setNotice(await budgetWarning(client) ?? (expense ? 'purchaseUpdated' : 'purchaseCreated'))
     },
     onError: error => {
       if (changeError(error, 'purchaseSaveFailed') === 'purchaseChanged') {
@@ -124,7 +125,7 @@ export function PurchaseWorkspace({ client, owner }: { client: PurchaseClient; o
           try { await save.mutateAsync({ input, expense: editing }); return true } catch { return false }
         }} />
     </LedgerEditor>}
-    {notice && <Toast kind="success" message={t(notice)} />}
+    {notice && <Toast kind={notice.startsWith('budget') ? 'error' : 'success'} message={t(notice)} />}
     <section className="panel purchase-log">
       <LedgerHeading title={t('purchaseList')} action={t('addPurchase')} busy={busy}
         onAdd={() => { setEditing(null); save.reset(); setEditorOpen(true) }}
@@ -146,7 +147,9 @@ export function PurchaseWorkspace({ client, owner }: { client: PurchaseClient; o
       {list.isPending || summary.isPending ? <p className="loading-state" role="status">{t('loading')}</p> : null}
       {(list.isError || summary.isError) && <>
         <Toast message={t('failed')} />
-        <button type="button" className="secondary" onClick={() => { void list.refetch(); void summary.refetch() }}>{t('retry')}</button>
+        <button type="button" className="secondary" disabled={list.isFetching || summary.isFetching}
+          aria-busy={list.isFetching || summary.isFetching}
+          onClick={() => { void list.refetch(); void summary.refetch() }}>{t('retry')}</button>
       </>}
       {list.data && (list.data.length ? <ul className="ledger">
         {list.data.slice(0, purchasePageSize).map(expense => <li className="purchase-record" key={expense.id}>
@@ -171,7 +174,7 @@ export function PurchaseWorkspace({ client, owner }: { client: PurchaseClient; o
     filters={<HistoryDates {...historyDates} />}>
       {history.isPending && <p className="loading-state" role="status">{t('loading')}</p>}
       {history.isError && <><Toast message={t('failed')} />
-        <button type="button" className="secondary" onClick={() => void history.refetch()}>{t('retry')}</button></>}
+        <button type="button" className="secondary" disabled={history.isFetching} aria-busy={history.isFetching} onClick={() => void history.refetch()}>{t('retry')}</button></>}
       {history.data && <PurchaseHistory events={history.data} />}
     </HistoryDisclosure>
     {removing && <ArchivePurchase expense={removing} busy={archive.isPending}

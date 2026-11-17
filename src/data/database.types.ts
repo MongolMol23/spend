@@ -292,6 +292,10 @@ isOneToOne: false
             archive_installment_plan: { Args: { p_id: string; p_version: number }; Returns: undefined }
             signup_username_available: { Args: { requested_username: string }; Returns: boolean }
             spend_is_admin: { Args: never; Returns: boolean }
+            spend_save_budget: { Args: { p_amount: number; p_end: string }; Returns: undefined }
+            spend_budget_overview: { Args: never; Returns: {
+              amount_minor: number; starts_on: string; ends_on: string; today: string; spent_minor: number; today_minor: number
+            }[] }
             spend_request_recovery: { Args: { requested_email: string }; Returns: undefined }
             spend_recovery_queue: { Args: never; Returns: string[] }
             spend_finish_recovery: { Args: { target_id: string }; Returns: undefined }

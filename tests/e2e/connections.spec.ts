@@ -23,7 +23,7 @@ async function account(browser: Browser, request: APIRequestContext, username: s
   await page.getByRole('link', { name: 'Sign in' }).click()
   await expect(page.getByLabel('Username', { exact: true })).toHaveValue(username)
   await page.goto('http://127.0.0.1:5173/connections')
-  await expect(page.getByRole('heading', { name: 'Friends', exact: true })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Money requests', exact: true })).toBeVisible()
   return { context, page }
 }
 
@@ -40,21 +40,27 @@ test('friends exchange a private bilingual money request', async ({ browser, req
     await second.page.locator('.language').selectOption('ar')
     await expect(second.page.locator('.header-response bdi')).toHaveText('٠')
     for (const page of [first.page, second.page]) {
+      await page.locator('.connection-sections a[href="/connections?view=add"]').click()
       const form = page.locator('.friend-search')
       const input = await form.getByRole('textbox').boundingBox()
       const button = await form.getByRole('button').boundingBox()
       expect(input).not.toBeNull()
       expect(button).not.toBeNull()
-      expect(button!.y).toBeGreaterThanOrEqual(input!.y + input!.height)
+      expect(button!.y).toBeLessThan(input!.y + input!.height)
+      expect(button!.x + button!.width <= input!.x || input!.x + input!.width <= button!.x).toBe(true)
     }
     await first.page.getByLabel('Username').fill('b_' + suffix)
     await first.page.getByRole('button', { name: 'Find friend' }).click()
     await first.page.getByRole('button', { name: 'Add friend' }).click()
     await expect(second.page.locator('.header-response bdi')).toHaveText('١', { timeout: 10_000 })
     await expect(first.page.getByLabel('Friend', { exact: true })).toHaveCount(0)
+    await second.page.locator('.connection-sections a[href="/connections?view=friends"]').click()
     await second.page.getByRole('button', { name: 'قبول', exact: true }).click()
     await expect(second.page.locator('.header-response bdi')).toHaveText('٠', { timeout: 10_000 })
     await expect(second.page.getByText('اتعمل.', { exact: true })).toBeVisible()
+    for (const page of [first.page, second.page]) {
+      await page.locator('.connection-sections a[href="/connections"]').click()
+    }
     const compose = first.page.getByRole('button', { name: 'Request money', exact: true })
     await expect(compose).toBeEnabled({ timeout: 10_000 })
     await compose.click()

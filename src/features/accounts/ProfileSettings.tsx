@@ -25,7 +25,8 @@ export function ProfileSettings({ userId, email, emailVerified, createdAt }: {
   })
   const [notice, setNotice] = useState<Label>()
   const [error, setError] = useState<Label>()
-  const [busy, setBusy] = useState(false)
+  const [pending, setPending] = useState<'save' | 'signout'>()
+  const busy = pending !== undefined
   const [sendingReset, setSendingReset] = useState(false)
   const profile = useQuery({
     queryKey,
@@ -88,7 +89,7 @@ export function ProfileSettings({ userId, email, emailVerified, createdAt }: {
       const field = result.error.issues[0]?.path[0]
       return setError(field === 'name_ar' ? 'invalidArabicName' : field === 'name_en' ? 'invalidEnglishName' : 'invalidProfile')
     }
-    setBusy(true)
+    setPending('save')
     try {
       const { language, name_ar, name_en } = result.data
       // Connections still use the single display_name returned by their database functions.
@@ -101,19 +102,20 @@ export function ProfileSettings({ userId, email, emailVerified, createdAt }: {
     } catch {
       setError('accountError')
     } finally {
-      setBusy(false)
+      setPending(undefined)
     }
   }
 
   async function signOut() {
-    setBusy(true)
+    if (busy) return
+    setPending('signout')
     try {
       const { error: failure } = await client.auth.signOut()
       if (failure) throw failure
     } catch {
       setError('accountError')
     } finally {
-      setBusy(false)
+      setPending(undefined)
     }
   }
 
@@ -152,7 +154,7 @@ export function ProfileSettings({ userId, email, emailVerified, createdAt }: {
       <label>{t('username')}<input name="username" defaultValue={profile.data?.username} autoComplete="username" required dir="ltr" /></label>
       <label>{t('nameArabic')}<input name="name_ar" defaultValue={arabicName} maxLength={80} required dir="rtl" /></label>
       <label>{t('nameEnglish')}<input name="name_en" defaultValue={englishName} maxLength={80} required dir="ltr" /></label>
-      <button className="primary" disabled={busy}>{t('saveProfile')}</button>
+      <button className="primary" disabled={busy} aria-busy={pending === 'save'}>{t('saveProfile')}</button>
     </form>}
     {error && <Toast message={t(error)} />}
     {notice && <Toast kind="success" message={t(notice)} />}
@@ -163,7 +165,7 @@ export function ProfileSettings({ userId, email, emailVerified, createdAt }: {
         <h2 id="profile-security-title">{t('accountSecurity')}</h2>
         <p>{t('manualRecoveryHint')}</p>
       </div>
-      <button type="button" className="primary" disabled={sendingReset} onClick={() => void sendPasswordLink()}>
+      <button type="button" className="primary" disabled={sendingReset} aria-busy={sendingReset} onClick={() => void sendPasswordLink()}>
         {t('changePassword')}
       </button>
     </section>}
@@ -172,7 +174,7 @@ export function ProfileSettings({ userId, email, emailVerified, createdAt }: {
       <Link className="secondary profile-shortcut" to="/connections">
         <UsersRound size={17} aria-hidden="true" />{t('connections')}
       </Link>
-      <button className="secondary" disabled={busy} onClick={() => void signOut()}>
+      <button className="secondary" disabled={busy} aria-busy={pending === 'signout'} onClick={() => void signOut()}>
         <LogOut size={17} aria-hidden="true" />{t('signout')}
       </button>
     </footer>

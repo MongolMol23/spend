@@ -10,6 +10,7 @@ import { useFormats } from '../../i18n/useFormats'
 import { monthlyPurchases, purchasesKey, recentPurchases, type PurchaseClient } from '../purchases/api'
 import { readSavingsOverview, savingsKey } from '../savings/api'
 import { Dashboard } from './Dashboard'
+import { BudgetCard } from '../budget/BudgetCard'
 
 export function PurchaseOverview({ client, month }: { client: PurchaseClient; month: string }) {
   const { t } = useTranslation()
@@ -39,14 +40,15 @@ export function PurchaseOverview({ client, month }: { client: PurchaseClient; mo
   if (query.isPending) return <div className="panel"><p className="loading-state" role="status">{t('loading')}</p></div>
   if (!query.data) return <div className="panel">
     <Toast message={t('failed')} />
-    <button className="primary" type="button" onClick={() => void query.refetch()}>{t('retry')}</button>
+    <button className="primary" type="button" disabled={query.isFetching} aria-busy={query.isFetching} onClick={() => void query.refetch()}>{t('retry')}</button>
   </div>
   return <>
     {query.isError && <Toast message={t('failed')} />}
     {debts.isError && <div className="panel">
       <Toast message={t('debtOverviewFailed')} />
-      <button type="button" className="secondary" onClick={() => void debts.refetch()}>{t('retry')}</button>
+      <button type="button" className="secondary" disabled={debts.isFetching} aria-busy={debts.isFetching} onClick={() => void debts.refetch()}>{t('retry')}</button>
     </div>}
+    <BudgetCard client={client} />
     <Dashboard ledger={query.data} debts={debts.data ?? undefined} />
     <section className="panel savings-overview">
       <div className="row">
@@ -55,7 +57,7 @@ export function PurchaseOverview({ client, month }: { client: PurchaseClient; mo
       </div>
       {savings.isPending && <p className="loading-state" role="status">{t('loading')}</p>}
       {savings.isError && <><Toast message={t('savingsOverviewFailed')} />
-        <button type="button" className="secondary" onClick={() => void savings.refetch()}>{t('retry')}</button></>}
+        <button type="button" className="secondary" disabled={savings.isFetching} aria-busy={savings.isFetching} onClick={() => void savings.refetch()}>{t('retry')}</button></>}
       {savings.data && <dl className="debt-balances">
         {([
           ['savingsActiveTotal', savings.data.saved_minor],
@@ -71,7 +73,7 @@ export function PurchaseOverview({ client, month }: { client: PurchaseClient; mo
       </div>
       {installments.isPending && <p className="loading-state" role="status">{t('loading')}</p>}
       {installments.isError && <><Toast message={t('installmentOverviewFailed')} />
-        <button type="button" className="secondary" onClick={() => void installments.refetch()}>{t('retry')}</button></>}
+        <button type="button" className="secondary" disabled={installments.isFetching} aria-busy={installments.isFetching} onClick={() => void installments.refetch()}>{t('retry')}</button></>}
       {installments.data && <dl className="debt-balances">
         {([
           ['installmentMonthPaid', installments.data.paid_minor],

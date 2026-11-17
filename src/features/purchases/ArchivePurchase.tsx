@@ -22,7 +22,7 @@ export function ArchivePurchase({ expense, busy, error, onArchive, onClose }: {
     {error && <Toast message={t(error)} />}
     <div className="purchase-actions">
       <button className="secondary" type="button" disabled={busy} onClick={() => dialog.current?.close()}>{t('cancelPurchase')}</button>
-      <button className="primary" type="button" disabled={busy} onClick={onArchive}>{t('removePurchase')}</button>
+      <button className="primary" type="button" disabled={busy} aria-busy={busy} onClick={onArchive}>{t('removePurchase')}</button>
     </div>
   </Modal>
 }

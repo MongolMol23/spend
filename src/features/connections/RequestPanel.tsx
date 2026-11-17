@@ -26,9 +26,9 @@ type Person = Database['public']['Functions']['connection_names']['Returns'][num
 type Payment = Database['public']['Tables']['request_payments']['Row']
 type Correction = Database['public']['Tables']['request_corrections']['Row']
 
-export function RequestPanel({ client, userId, friends, names, requests, payments, corrections, activeId, busy, run }: {
+export function RequestPanel({ client, userId, friends, names, requests, payments, corrections, activeId, busy, pending, run }: {
   client: Client; userId: string; friends: Person[]; names: Map<string, Person>; requests: MoneyRequest[];
-  payments: Payment[]; corrections: Correction[]; activeId: string | null; busy: boolean; run: RunAction
+  payments: Payment[]; corrections: Correction[]; activeId: string | null; busy: boolean; pending?: string; run: RunAction
 }) {
   const { t, i18n } = useTranslation()
   const [invalid, setInvalid] = useState(false)
@@ -65,7 +65,7 @@ export function RequestPanel({ client, userId, friends, names, requests, payment
     setInvalid(!result.success)
     if (!result.success) return
     const input = result.data
-    void run(() => client.rpc('send_money_request', {
+    void run('send-request', () => client.rpc('send_money_request', {
       target_id: input.friend,
       minor_units: input.amount,
       request_reason: input.reason,
@@ -96,7 +96,7 @@ export function RequestPanel({ client, userId, friends, names, requests, payment
           <label>{t('reason')}<textarea name="reason" dir="auto" maxLength={500} required /></label>
           <label>{t('optionalDueDate')}<input name="deadline" type="date" dir="ltr" /></label>
           {invalid && <Toast message={t('invalidRequest')} />}
-          <button className="primary request-send" disabled={busy}>{t('sendRequest')}</button>
+          <button className="primary request-send" disabled={busy} aria-busy={pending === 'send-request'}>{t('sendRequest')}</button>
         </form>
       </section>
     </LedgerEditor>}
@@ -110,7 +110,9 @@ export function RequestPanel({ client, userId, friends, names, requests, payment
         {selected.due_date && <p>{t('due')} <time dateTime={selected.due_date}>{date.format(new Date(selected.due_date))}</time></p>}
         {selected.state === 'pending' && <div className="connection-actions">
           {(selected.recipient === userId ? ['accepted', 'declined'] : ['cancelled']).map(decision =>
-            <button type="button" className="secondary" disabled={busy} key={decision} onClick={() => void run(() =>
+            <button type="button" className="secondary" disabled={busy} key={decision}
+              aria-busy={pending === 'request:' + selected.id + ':' + decision}
+              onClick={() => void run('request:' + selected.id + ':' + decision, () =>
               client.rpc('respond_money_request', { request_id: selected.id, decision }))}>
               {t(decision === 'accepted' ? 'acceptRequest' : decision === 'declined' ? 'declineRequest' : 'cancelRequest')}
             </button>)}
@@ -118,10 +120,10 @@ export function RequestPanel({ client, userId, friends, names, requests, payment
         {['accepted', 'settled'].includes(selected.state) && <PaymentSection key={selected.id}
           client={client} userId={userId} request={selected}
           payments={payments.filter(payment => payment.request_id === selected.id)}
-          corrections={corrections.filter(correction => correction.request_id === selected.id)} busy={busy} run={run} />}
+          corrections={corrections.filter(correction => correction.request_id === selected.id)} busy={busy} pending={pending} run={run} />}
         <HistoryDisclosure title={t('activity')} filters={<HistoryDates {...historyDates} />}>
         {history.isPending && <p className="loading-state" role="status">{t('loading')}</p>}
-        {history.isError && <button type="button" className="secondary" onClick={() => void history.refetch()}>{t('retry')}</button>}
+        {history.isError && <button type="button" className="secondary" disabled={history.isFetching} aria-busy={history.isFetching} onClick={() => void history.refetch()}>{t('retry')}</button>}
         {history.data?.length === 0 && <p className="empty-state">{t('historyNoEntries')}</p>}
         {!!history.data?.length && <ol className="history-list" role="list">
           {history.data.map(event => {
@@ -152,7 +154,9 @@ export function RequestPanel({ client, userId, friends, names, requests, payment
     <section className="panel request-groups">
       <LedgerHeading title={t('moneyRequestList')} action={t('newRequest')} busy={busy || friends.length === 0}
         onAdd={() => { setInvalid(false); setComposing(true) }} />
-      {friends.length === 0 && <p className="request-hint muted">{t('friendRequired')}</p>}
+      {friends.length === 0 && <p className="request-hint muted">{t('friendRequired')}{' '}
+        <Link to="/connections?view=add">{t('addFriend')}</Link>
+      </p>}
       <div className="request-board">
       {groups.map(({ label, icon: Icon, accent, entries }) => <div className="request-group" data-accent={accent} key={label}>
         <h3 className="section-heading"><span className="icon-tile" aria-hidden="true"><Icon size={17} /></span>
@@ -161,11 +165,14 @@ export function RequestPanel({ client, userId, friends, names, requests, payment
         {entries.length > 0 && <ul className="ledger">
           {entries.map(request => <li key={request.id}>
             <Link to={'?request=' + request.id} className="request-list-link" aria-current={request.id === activeId ? 'true' : undefined}>
-              <strong><bdi>{request.reason}</bdi></strong><bdi>{money.format((request.amount_minor - payments
+              <span className="request-list-info">
+                <strong><bdi>{request.reason}</bdi></strong>
+                <span className="status" data-state={request.state}>{stateLabel(request.state)}</span>
+              </span>
+              <bdi className="request-list-amount">{money.format((request.amount_minor - payments
                 .filter(payment => payment.request_id === request.id && payment.state === 'confirmed')
                 .reduce((sum, payment) => sum + payment.amount_minor, 0)) / 100)}</bdi>
             </Link>
-            <span className="status" data-state={request.state}>{stateLabel(request.state)}</span>
           </li>)}
         </ul>}
       </div>)}

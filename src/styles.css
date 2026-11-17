@@ -352,6 +352,24 @@ a.primary, a.secondary { min-block-size: 44px }
 .sidebar-close { inline-size: 44px; padding: 0 }
 :is(.primary, .secondary, .sidebar-close):active:not(:disabled) { box-shadow: none; translate: var(--press-x) 2px }
 :is(.primary, .secondary):disabled { color: var(--muted); background: var(--inset-surface); box-shadow: none }
+button[aria-busy="true"] {
+  cursor: progress;
+}
+button[aria-busy="true"]::after {
+  content: "";
+  display: inline-block;
+  flex: none;
+  inline-size: .9em;
+  block-size: .9em;
+  border: 2px solid currentColor;
+  border-inline-end-color: transparent;
+  border-radius: 50%;
+}
+.header-signout[aria-busy="true"] > svg { display: none }
+@media (prefers-reduced-motion: no-preference) {
+  button[aria-busy="true"]::after { animation: button-spin 650ms linear infinite }
+}
+@keyframes button-spin { to { rotate: 1turn } }
 @media (hover: hover) {
   .primary:hover:not(:disabled) { background: var(--orange) }
   :is(.secondary, .sidebar-close):hover:not(:disabled) { background: var(--mint); color: var(--ink) }

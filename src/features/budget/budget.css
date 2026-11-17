@@ -1,0 +1,21 @@
+.budget-card { margin-block: var(--space-3); --panel-fill: var(--mint-panel) }
+.budget-heading { flex-wrap: wrap; gap: var(--space-2) }
+.budget-heading h2 { margin: 0 }
+.budget-card .icon-tile { --icon-fill: var(--yellow) }
+.budget-figures { display: flex; flex-wrap: wrap; gap: var(--space-2); margin: 0 }
+.budget-figures > div {
+  flex: 1 1 140px;
+  min-inline-size: 0;
+  padding: var(--space-2);
+  border: var(--stroke);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+}
+.budget-figures > div:first-child { background: var(--amber-panel) }
+.budget-figures dt { font-size: .875rem }
+.budget-figures dd { margin: 3px 0 0; font-size: 1.2rem; font-weight: 850; overflow-wrap: anywhere }
+.budget-pace, .budget-finished { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 16px }
+.budget-warning { padding: var(--space-2); border: var(--stroke); border-radius: var(--radius-sm); background: var(--peach-panel) }
+.budget-form, .budget-form label { display: grid; gap: var(--space-2) }
+.budget-form input { inline-size: 100% }
+.budget-form button { justify-self: end }

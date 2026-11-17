@@ -7,4 +7,5 @@ test-results/
 .env.*.local
 supabase/.temp/
 .codex-remote-attachments/
+.codex-attachments/
 .vercel/

@@ -11,9 +11,9 @@ type Payment = Database['public']['Tables']['request_payments']['Row']
 type Correction = Database['public']['Tables']['request_corrections']['Row']
 type CorrectionKind = 'request_amount' | 'request_reason' | 'payment_amount' | 'payment_cancel'
 
-export function PaymentSection({ client, userId, request, payments, corrections, busy, run }: {
+export function PaymentSection({ client, userId, request, payments, corrections, busy, pending, run }: {
   client: Client; userId: string; request: MoneyRequest; payments: Payment[]; corrections: Correction[];
-  busy: boolean; run: RunAction
+  busy: boolean; pending?: string; run: RunAction
 }) {
   const { t, i18n } = useTranslation()
   const [paymentError, setPaymentError] = useState(false)
@@ -35,7 +35,7 @@ export function PaymentSection({ client, userId, request, payments, corrections,
     const amount = toMinorUnits(String(new FormData(form).get('payment_amount') ?? ''))
     setPaymentError(amount === null || amount > available)
     if (amount === null || amount > available) return
-    void run(async () => {
+    void run('record:' + request.id, async () => {
       const key = await retryKey(paymentScope, amount)
       return client.rpc('record_request_payment', { p_request: request.id, p_amount: amount, p_key: key })
     }, () => { clearRetryKey(paymentScope); form.reset() })
@@ -61,7 +61,7 @@ export function PaymentSection({ client, userId, request, payments, corrections,
       ...((kind === 'request_amount' || kind === 'payment_amount') ? { amount: amount! } : {}),
       ...(kind === 'request_reason' ? { reason: rawReason } : {}),
     }
-    void run(async () => {
+    void run('propose:' + request.id, async () => {
       const key = await retryKey(correctionScope, payload)
       return client.rpc('propose_request_correction', {
         p_request: request.id, p_kind: kind, p_explanation: explanation, p_key: key,
@@ -87,7 +87,8 @@ export function PaymentSection({ client, userId, request, payments, corrections,
         <div className="row"><strong><bdi>{money.format(payment.amount_minor / 100)}</bdi></strong><span className="status" data-state={payment.state}>{label(payment.state)}</span></div>
         {payment.state === 'pending' && request.sender === userId && <div className="connection-actions">
           {(['confirmed','declined'] as const).map(decision => <button type="button" className="secondary" disabled={busy} key={decision}
-            onClick={() => void run(() => client.rpc('respond_request_payment', { p_payment: payment.id, p_decision: decision }))}>
+            aria-busy={pending === 'payment:' + payment.id + ':' + decision}
+            onClick={() => void run('payment:' + payment.id + ':' + decision, () => client.rpc('respond_request_payment', { p_payment: payment.id, p_decision: decision }))}>
             {t(decision === 'confirmed' ? 'confirmPayment' : 'declinePayment')}</button>)}
         </div>}
       </li>)}
@@ -96,7 +97,7 @@ export function PaymentSection({ client, userId, request, payments, corrections,
       <label>{t('paymentAmount')}<input name="payment_amount" inputMode="decimal" dir="ltr" required /></label>
       <small>{t('paymentAvailable')} <bdi>{money.format(available / 100)}</bdi></small>
       {paymentError && <Toast message={t('invalidPayment')} />}
-      <button className="primary" disabled={busy}>{t('recordPayment')}</button>
+      <button className="primary" disabled={busy} aria-busy={pending === 'record:' + request.id}>{t('recordPayment')}</button>
     </form>}
     {canCorrect && <details className="correction-form">
       <summary>{t('proposeCorrection')}<ChevronDown size={17} aria-hidden="true" /></summary>
@@ -115,7 +116,7 @@ export function PaymentSection({ client, userId, request, payments, corrections,
         {kind === 'request_reason' && <label>{t('newReason')}<textarea name="new_reason" maxLength={500} dir="auto" required /></label>}
         <label>{t('correctionExplanation')}<textarea name="explanation" maxLength={500} dir="auto" required /></label>
         {correctionError && <Toast message={t('invalidCorrection')} />}
-        <button className="primary" disabled={busy}>{t('sendCorrection')}</button>
+        <button className="primary" disabled={busy} aria-busy={pending === 'propose:' + request.id}>{t('sendCorrection')}</button>
       </form>
     </details>}
     {corrections.length > 0 && <section>
@@ -131,7 +132,8 @@ export function PaymentSection({ client, userId, request, payments, corrections,
           {correction.payment_id && <p className="muted">{t('originalPayment')} <bdi>{money.format((payments.find(payment => payment.id === correction.payment_id)?.amount_minor ?? 0) / 100)}</bdi></p>}
           {correction.state === 'pending' && correction.proposer !== userId && <div className="connection-actions">
             {(['approved','declined'] as const).map(decision => <button type="button" className="secondary" disabled={busy} key={decision}
-              onClick={() => void run(() => client.rpc('respond_request_correction', { p_correction: correction.id, p_decision: decision }))}>
+              aria-busy={pending === 'correction:' + correction.id + ':' + decision}
+            onClick={() => void run('correction:' + correction.id + ':' + decision, () => client.rpc('respond_request_correction', { p_correction: correction.id, p_decision: decision }))}>
               {t(decision === 'approved' ? 'approveCorrection' : 'declineCorrection')}</button>)}
           </div>}
         </li>)}

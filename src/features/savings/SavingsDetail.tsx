@@ -12,11 +12,12 @@ import { Amount } from '../../ui/Amount'
 import { Select } from '../../ui/Select'
 import { listSavingsMovements, movementInput, savingsKey, savingsPageSize, type SavingsChange, type SavingsClient, type SavingsGoal } from './api'
 
-export function SavingsDetail({ client, goal, date, busy, movementError, archiveError, save, edit }: {
+export function SavingsDetail({ client, goal, date, busy, pending, movementError, archiveError, save, edit }: {
   client: SavingsClient
   goal: SavingsGoal
   date: Intl.DateTimeFormat
   busy: boolean
+  pending?: SavingsChange['kind']
   movementError?: Label
   archiveError?: Label
   save: (change: SavingsChange) => Promise<boolean>
@@ -80,14 +81,14 @@ export function SavingsDetail({ client, goal, date, busy, movementError, archive
           <label>{t('savingsMovementDate')}<input name="movedOn" type="date" dir="ltr" min="0001-01-01" max="9999-12-31" defaultValue={ledgerToday()} required /></label>
         </div>
         {message && <Toast message={t(message)} />}
-        <div><button type="submit" className="primary">{t('savingsRecord')}</button></div>
+        <div><button type="submit" className="primary" aria-busy={pending === 'move'}>{t('savingsRecord')}</button></div>
       </fieldset>
     </form>}
     <HistoryDisclosure className="record-history" title={t('savingsMovements')}
     filters={<HistoryDates {...historyDates} />}>
       {movements.isPending && <p className="loading-state" role="status">{t('loading')}</p>}
       {movements.isError && <><Toast message={t('failed')} />
-        <button type="button" className="secondary" onClick={() => void movements.refetch()}>{t('retry')}</button></>}
+        <button type="button" className="secondary" disabled={movements.isFetching} aria-busy={movements.isFetching} onClick={() => void movements.refetch()}>{t('retry')}</button></>}
       {movements.data && (movements.data.length ? <ol className="history-list savings-movements" role="list">
         {movements.data.map(movement => <HistoryEntry key={movement.id}
           title={t(movement.direction === 'deposit' ? 'savingsDeposit' : 'savingsWithdraw')}
@@ -105,7 +106,7 @@ export function SavingsDetail({ client, goal, date, busy, movementError, archive
       {archiveError && <Toast message={t(archiveError)} />}
       <div className="debt-actions">
         <button type="button" className="secondary" disabled={busy} onClick={() => dialog.current?.close()}>{t('cancelPurchase')}</button>
-        <button type="button" className="primary" disabled={busy} onClick={async () => {
+        <button type="button" className="primary" disabled={busy} aria-busy={pending === 'archive'} onClick={async () => {
           if (await save({ kind: 'archive', goal })) dialog.current?.close()
         }}>{t('debtArchiveConfirm')}</button>
       </div>

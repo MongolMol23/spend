@@ -1,3 +1,4 @@
+import { budgetWarning } from '../budget/budget'
 import { FeatureHeading } from '../../ui/FeatureHeading'
 import { CalendarDays } from 'lucide-react'
 import { LedgerEditor, LedgerHeading } from '../../ui/LedgerEditor'
@@ -55,8 +56,8 @@ function InstallmentWorkspace({ client, owner }: { client: InstallmentClient; ow
       }
       if (change.kind === 'save') setEditorOpen(false)
       await queryClient.invalidateQueries({ queryKey: installmentKey })
-      setNotice(change.kind === 'pay' ? 'debtPaymentSaved' : change.kind === 'archive' ? 'installmentArchived'
-        : change.plan ? 'installmentUpdated' : 'installmentCreated')
+      setNotice((change.kind === 'pay' ? await budgetWarning(client) : undefined) ?? (change.kind === 'pay' ? 'debtPaymentSaved' : change.kind === 'archive' ? 'installmentArchived'
+        : change.plan ? 'installmentUpdated' : 'installmentCreated'))
     },
     onError: () => queryClient.invalidateQueries({ queryKey: installmentKey }),
   })
@@ -82,13 +83,13 @@ function InstallmentWorkspace({ client, owner }: { client: InstallmentClient; ow
         error={mutation.variables?.kind === 'save' && (samePlan || !mutation.variables.plan) ? error : undefined}
         cancel={closeEditor} />
     </LedgerEditor>}
-    {notice && <Toast kind="success" message={t(notice)} />}
+    {notice && <Toast kind={notice.startsWith('budget') ? 'error' : 'success'} message={t(notice)} />}
     <div className="debt-stack">
       {id && (detail.isPending ? <p className="loading-state" role="status">{t('loading')}</p>
         : detail.isError && !detail.data ? <section className="panel"><Toast message={t('failed')} />
-          <button type="button" className="secondary" onClick={() => void detail.refetch()}>{t('retry')}</button></section>
+          <button type="button" className="secondary" disabled={detail.isFetching} aria-busy={detail.isFetching} onClick={() => void detail.refetch()}>{t('retry')}</button></section>
         : detail.data ? <PlanDetail key={id} plan={detail.data} dues={detail.data.installment_dues} date={date}
-          busy={mutation.isPending} save={save} edit={() => { setEditorOpen(true); setEditSnapshot(detail.data ?? undefined); mutation.reset() }}
+          busy={mutation.isPending} pending={mutation.isPending ? mutation.variables?.kind : undefined} save={save} edit={() => { setEditorOpen(true); setEditSnapshot(detail.data ?? undefined); mutation.reset() }}
           paymentError={samePlan && mutation.variables?.kind === 'pay' ? error : undefined}
           archiveError={samePlan && mutation.variables?.kind === 'archive' ? error : undefined} />
         : <p className="empty-state">{t('installmentMissing')}</p>)}
@@ -96,7 +97,7 @@ function InstallmentWorkspace({ client, owner }: { client: InstallmentClient; ow
         <LedgerHeading title={t('installmentActive')} action={t('installmentAdd')} busy={mutation.isPending} onAdd={() => { setEditSnapshot(undefined); mutation.reset(); setEditorOpen(true) }} />
         {list.isPending && <p className="loading-state" role="status">{t('loading')}</p>}
         {list.isError && <><Toast message={t('failed')} />
-          <button type="button" className="secondary" onClick={() => void list.refetch()}>{t('retry')}</button></>}
+          <button type="button" className="secondary" disabled={list.isFetching} aria-busy={list.isFetching} onClick={() => void list.refetch()}>{t('retry')}</button></>}
         {list.data && (list.data.length ? <ul className="ledger">
           {list.data.slice(0, installmentPageSize).map(plan => <li key={plan.id}>
             <Link to={'?plan=' + plan.id} aria-current={id === plan.id ? 'true' : undefined}

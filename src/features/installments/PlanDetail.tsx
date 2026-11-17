@@ -8,11 +8,12 @@ import { Amount } from '../../ui/Amount'
 import { Select } from '../../ui/Select'
 import { paymentInput, type Due, type InstallmentChange, type Plan } from './api'
 
-export function PlanDetail({ plan, dues, date, busy, paymentError, archiveError, save, edit }: {
+export function PlanDetail({ plan, dues, date, busy, pending, paymentError, archiveError, save, edit }: {
   plan: Plan
   dues: Due[]
   date: Intl.DateTimeFormat
   busy: boolean
+  pending?: InstallmentChange['kind']
   paymentError?: Label
   archiveError?: Label
   save: (change: InstallmentChange) => Promise<boolean>
@@ -83,7 +84,7 @@ export function PlanDetail({ plan, dues, date, busy, paymentError, archiveError,
                 </div>
                 {message && <Toast message={t(message)} />}
                 <div className="debt-actions">
-                  <button className="primary" type="submit">{t('debtPay')}</button>
+                  <button className="primary" type="submit" aria-busy={pending === 'pay'}>{t('debtPay')}</button>
                   <button className="secondary" type="button" onClick={() => setSelected(undefined)}>{t('cancelPurchase')}</button>
                 </div>
               </fieldset>
@@ -104,7 +105,7 @@ export function PlanDetail({ plan, dues, date, busy, paymentError, archiveError,
       {archiveError && <Toast message={t(archiveError)} />}
       <div className="debt-actions">
         <button type="button" className="secondary" disabled={busy} onClick={() => dialog.current?.close()}>{t('cancelPurchase')}</button>
-        <button type="button" className="primary" disabled={busy} onClick={async () => {
+        <button type="button" className="primary" disabled={busy} aria-busy={pending === 'archive'} onClick={async () => {
           if (await save({ kind: 'archive', plan })) dialog.current?.close()
         }}>{t('debtArchiveConfirm')}</button>
       </div>

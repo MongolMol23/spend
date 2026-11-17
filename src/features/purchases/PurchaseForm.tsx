@@ -99,7 +99,7 @@ export function PurchaseForm({ expense, busy, error, onSave, onCancel }: {
           defaultValue={expense?.note ?? ''} />{fieldError('note')}</label>
         {error && <Toast message={t(error)} />}
         <div className="purchase-actions">
-          <button className="primary" type="submit">{t(busy ? 'savingPurchase' : 'savePurchase')}</button>
+          <button className="primary" type="submit" aria-busy={busy}>{t('savePurchase')}</button>
           {expense && <button className="secondary" type="button" data-modal-dismiss onClick={onCancel}>{t('cancelPurchase')}</button>}
         </div>
       </fieldset>

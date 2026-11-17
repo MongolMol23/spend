@@ -68,7 +68,7 @@ export function PlanForm({ plan, dues, busy, error, save, cancel }: {
         </fieldset>
         {message && <Toast message={t(message)} />}
         <div className="debt-actions">
-          <button type="submit" className="primary">{t('installmentSave')}</button>
+          <button type="submit" className="primary" aria-busy={busy}>{t('installmentSave')}</button>
           {plan && <button type="button" className="secondary" onClick={cancel}>{t('cancelPurchase')}</button>}
         </div>
       </fieldset>
