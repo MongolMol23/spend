@@ -184,9 +184,11 @@ export function RequestPanel({ client, userId, friends, names, requests, payment
       </p>}
       <nav className="request-filters" aria-label={t('moneyRequestList')}>
         <ActiveLinkIndicator selection={group.label} />
-        {groups.map(({ label, entries }) => <Link key={label} to={'?group=' + label}
+        {groups.map(({ label, entries, icon: Icon }) => <Link key={label} to={'?group=' + label}
           aria-current={group.label === label ? 'page' : undefined}>
-          <span>{t(label)}</span><bdi>{entries.length.toLocaleString(i18n.language === 'ar' ? 'ar-EG' : 'en-EG')}</bdi>
+          <Icon size={17} aria-hidden="true" />
+          <span>{t(label)}</span>
+          <bdi className="request-filter-count">{entries.length.toLocaleString(i18n.language === 'ar' ? 'ar-EG' : 'en-EG')}</bdi>
         </Link>)}
       </nav>
       <div className="request-board">

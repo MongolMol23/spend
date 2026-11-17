@@ -150,25 +150,27 @@
   }
 }
 .request-card > .history-disclosure { margin-block: 12px 0 }
+.request-groups { container: request-groups / inline-size }
 .request-filters {
   position: relative;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 4px;
-  padding: 4px;
+  gap: 6px;
+  padding: 6px;
   margin-block: 16px;
   border: var(--stroke);
   border-radius: var(--radius-sm);
   background: var(--inset-surface);
+  box-shadow: var(--shadow-control);
 }
 .request-filters a {
   position: relative;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   gap: 8px;
   min-block-size: 44px;
-  padding: 8px;
+  padding: 8px 10px;
   border: 2px solid transparent;
   border-radius: 8px;
   color: var(--text);
@@ -176,7 +178,28 @@
   font-size: .8rem;
   font-weight: 750;
 }
-.request-filters a bdi { font-variant-numeric: tabular-nums }
+.request-filter-count {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  min-inline-size: 24px;
+  block-size: 24px;
+  padding-inline: 5px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--card-surface);
+  font-size: .75rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.request-filters a[aria-current] .request-filter-count { border-color: var(--ink); background: var(--yellow); color: var(--ink) }
+@container request-groups (width < 380px) {
+  .request-filters a { gap: 6px; padding-inline: 6px }
+  .request-filters a > svg { display: none }
+}
+@media (hover: hover) {
+  .request-filters a:not([aria-current]):hover { border-color: var(--line); background: var(--card-surface) }
+}
 .request-filters a[aria-current] { border-color: var(--ink); background: var(--mint); color: var(--ink) }
 .request-filters .nav-indicator { border-radius: 8px; border-color: var(--ink) }
 @media (prefers-reduced-motion: no-preference) and (forced-colors: none) {
