@@ -330,7 +330,7 @@ const ar: Record<keyof typeof en, string> = {
  budgetOverTotal: 'عدّيت مبلغ الميزانية كلها.',
  budgetUsedUp: 'صرفت مبلغ الميزانية كله.',
  budgetOverToday: 'صرفت أكتر من المقترح للنهارده. مبلغ بكرة هيتحسب على الباقي.',
- budgetOverTodayAmount: 'عدّيت المقترح للنهارده بـ {{amount}}. مبلغ بكرة هيتحسب على الباقي.',
+ budgetOverTodayAmount: 'صرفت أكتر من المقترح للنهارده بـ {{amount}}. مبلغ بكرة هيتحسب على الباقي.',
  budgetSaveLeftover: 'مدة الميزانية خلصت. تقدر تحوّش الباقي لهدف من أهدافك.',
  budgetFinished: 'مدة الميزانية خلصت.',
  dashboard: 'الرئيسية', request: 'طلب فلوس', sample: 'مساحة تجريبية',
