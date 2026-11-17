@@ -1,4 +1,5 @@
 const en = {
+ debtHistoryChanges: 'Changes', debtHistoryDirection: 'Debt type', debtHistoryNoDue: 'No due date',
  debtBack: 'Back to debts',
  analyticsMonthsTab: 'Months', analyticsCategoriesTab: 'Categories', analyticsCategoryResults: 'View category purchases',
  monthlyExpenses: 'Monthly expenses', monthlyChecklist: 'This month’s checklist', monthlyAdd: 'Add an expense',
@@ -303,6 +304,7 @@ const en = {
  usernameTaken: 'That username is already taken.', profileSaved: 'Profile saved.',
 }
 const ar: Record<keyof typeof en, string> = {
+ debtHistoryChanges: 'التغييرات', debtHistoryDirection: 'نوع الدين', debtHistoryNoDue: 'من غير ميعاد',
  debtBack: 'ارجع للديون',
  analyticsMonthsTab: 'الشهور', analyticsCategoriesTab: 'التصنيفات', analyticsCategoryResults: 'شوف مشتريات التصنيف',
  monthlyExpenses: 'المصاريف الشهرية', monthlyChecklist: 'قائمة الشهر', monthlyAdd: 'ضيف التزام شهري',
