@@ -17,33 +17,30 @@
   border-block-end: 1px solid var(--line);
 }
 .purchase-toolbar .purchase-filters { flex: 1 1 22rem; min-inline-size: 0 }
-.purchase-log > .ledger-heading:has(.purchase-total) {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-}
-.purchase-log > .ledger-heading:has(.purchase-total) h2 { grid-column: 1 / -1 }
-.purchase-log > .ledger-heading > .primary { max-inline-size: 42vw }
+.purchase-log > .ledger-heading { gap: 10px; margin-block-end: 18px }
+.purchase-log > .ledger-heading h2 { font-size: 1.1rem }
+.purchase-log > .ledger-heading > .primary { font-size: .875rem; padding-inline: 12px }
 .purchase-total {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) fit-content(55%);
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 6px 16px;
-  max-inline-size: 100%;
-  inline-size: 19rem;
-  margin: 0;
-  padding: 8px 12px 10px;
-  background: var(--inset-surface);
-  border-inline-start: 3px solid var(--purple);
-  border-block-end: 1px dashed var(--edge);
+  gap: 10px 16px;
+  margin-block-end: 18px;
+  padding: 16px;
+  background: var(--amber-panel);
+  border: var(--stroke);
+  border-radius: var(--radius-sm);
 }
-.purchase-total > span { color: var(--muted); font-size: .875rem; font-weight: 650 }
+.purchase-total-label { display: flex; align-items: center; gap: 8px; font-size: .875rem; font-weight: 750 }
 .purchase-total strong {
   text-align: end;
-  font-size: clamp(1.25rem, 3vw, 1.625rem);
+  font-size: clamp(1.4rem, 3vw, 2rem);
   line-height: 1.15;
   font-variant-numeric: tabular-nums;
   overflow-wrap: anywhere;
 }
+.purchase-total .amount { white-space: normal; overflow-wrap: anywhere }
 @media (hover: hover) {
   .purchase-log .purchase-remove:hover:not(:disabled) {
     background: var(--danger-surface);
@@ -51,17 +48,32 @@
     border-color: var(--danger);
   }
 }
-.purchase-row { flex-wrap: wrap; overflow-wrap: anywhere }
-.purchase-record-details { min-inline-size: 0 }
-@media (min-width: 760px) {
-  .purchase-log .ledger > .purchase-record {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: center;
-    gap: var(--space-4);
-  }
-  .purchase-record > .purchase-actions { margin-block-start: 0 }
+.purchase-log > .ledger { display: grid; gap: 10px; margin-block-start: 16px }
+.purchase-log .ledger > .purchase-record {
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px 10px;
+  padding: 12px;
+  border: var(--stroke);
+  border-radius: var(--radius-sm);
+  background: var(--card-surface);
 }
+.purchase-record-icon { display: grid; place-items: center; inline-size: 36px; block-size: 36px; border: var(--stroke); border-radius: 10px; background: var(--lavender-panel) }
+.purchase-record[data-category="dining"] .purchase-record-icon { background: var(--mint-panel) }
+.purchase-record[data-category="transport"] .purchase-record-icon { background: var(--peach-panel) }
+.purchase-record[data-category="bills"] .purchase-record-icon { background: var(--amber-panel) }
+.purchase-record-title { min-inline-size: 0; overflow-wrap: anywhere; line-height: 1.35 }
+.purchase-record-amount { text-align: end; font-size: 1.05rem }
+.purchase-record-amount .amount { white-space: normal; overflow-wrap: anywhere }
+.purchase-record-meta { display: grid; gap: 3px; grid-column: 2; min-inline-size: 0; font-size: .8rem; color: var(--muted); overflow-wrap: anywhere }
+.purchase-record-actions { display: flex; justify-content: end; gap: 6px; grid-column: 3 }
+.purchase-record-actions button { display: grid; place-items: center; padding: 0; inline-size: 40px; min-block-size: 40px }
+.purchase-record-note { grid-column: 2 / -1; margin: 0; padding-block-start: 8px; border-block-start: 1px solid var(--line); color: var(--muted); font-size: .875rem }
+.purchase-toolbar .purchase-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: stretch }
+.purchase-filters .month-picker-trigger { min-inline-size: 0; gap: 6px; padding-inline: 10px; font-size: .875rem }
+.purchase-filters .select-control { display: flex; min-inline-size: 0 }
+.purchase-filters select { min-inline-size: 0; inline-size: 100%; font-size: .875rem }
 .purchase-history { margin-block-start: var(--space-4) }
 .purchase-dialog { inline-size: min(100% - 2 * var(--gutter), 460px); color: var(--ink) }
 .purchase-dialog::backdrop { background: rgb(33 30 38 / .64) }

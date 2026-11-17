@@ -5,6 +5,7 @@ import { HistoryDates, useHistoryDates } from '../../ui/HistoryDates'
 import { LedgerEditor, LedgerHeading } from '../../ui/LedgerEditor'
 import { HistoryDisclosure } from '../../ui/HistoryEntry'
 import { Toast } from '../../ui/Toast'
+import { Pencil, ReceiptText, Trash2, Wallet } from 'lucide-react'
 import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
@@ -128,11 +129,11 @@ export function PurchaseWorkspace({ client, owner }: { client: PurchaseClient; o
     {notice && <Toast kind={notice.startsWith('budget') ? 'error' : 'success'} message={t(notice)} />}
     <section className="panel purchase-log">
       <LedgerHeading title={t('purchaseList')} action={t('addPurchase')} busy={busy}
-        onAdd={() => { setEditing(null); save.reset(); setEditorOpen(true) }}
-        summary={summary.data && <p className="purchase-total">
-          <span>{t('monthlyPurchases')}</span>
-          <strong><Amount value={summary.data.reduce((total, row) => total + Number(row.total_minor), 0) / 100} /></strong>
-        </p>} />
+        onAdd={() => { setEditing(null); save.reset(); setEditorOpen(true) }} />
+      {summary.data && <div className="purchase-total">
+        <span className="purchase-total-label"><Wallet size={19} aria-hidden="true" />{t('monthlyPurchases')}</span>
+        <strong><Amount value={summary.data.reduce((total, row) => total + Number(row.total_minor), 0) / 100} /></strong>
+      </div>}
       <div className="purchase-toolbar">
         <div className="purchase-form-pair purchase-filters" role="group" aria-label={t('purchaseFilters')}>
           <MonthPicker value={month} onChange={value => { setMonth(value); setPage(0) }} />
@@ -152,20 +153,23 @@ export function PurchaseWorkspace({ client, owner }: { client: PurchaseClient; o
           onClick={() => { void list.refetch(); void summary.refetch() }}>{t('retry')}</button>
       </>}
       {list.data && (list.data.length ? <ul className="ledger">
-        {list.data.slice(0, purchasePageSize).map(expense => <li className="purchase-record" key={expense.id}>
-          <div className="purchase-record-details">
-            <div className="row purchase-row"><strong id={'purchase-item-' + expense.id}><bdi>{expense.item}</bdi></strong>
-              <strong><Amount value={expense.amount_minor / 100} /></strong></div>
-            <div className="row purchase-row muted"><span>{t(categoryLabel(expense.category))}</span>
-              <time dateTime={expense.spent_on}>{date.format(new Date(expense.spent_on))}</time></div>
-            {expense.note && <p className="reason"><bdi>{expense.note}</bdi></p>}
+        {list.data.slice(0, purchasePageSize).map(expense => <li className="purchase-record" data-category={categoryLabel(expense.category)} key={expense.id}>
+          <span className="purchase-record-icon" aria-hidden="true"><ReceiptText size={19} /></span>
+          <strong className="purchase-record-title" id={'purchase-item-' + expense.id}><bdi>{expense.item}</bdi></strong>
+          <strong className="purchase-record-amount"><Amount value={expense.amount_minor / 100} /></strong>
+          <div className="purchase-record-meta">
+            <span>{t(categoryLabel(expense.category))}</span>
+            <time dateTime={expense.spent_on}>{date.format(new Date(expense.spent_on))}</time>
           </div>
-          <div className="purchase-actions">
+          <div className="purchase-record-actions">
             <button type="button" className="secondary" disabled={busy} aria-describedby={'purchase-item-' + expense.id}
-              onClick={() => { setEditorOpen(true); setEditing(expense); save.reset(); setNotice(undefined) }}>{t('editPurchase')}</button>
+              aria-label={t('editPurchase')} title={t('editPurchase')}
+              onClick={() => { setEditorOpen(true); setEditing(expense); save.reset(); setNotice(undefined) }}><Pencil size={17} aria-hidden="true" /></button>
             <button type="button" className="secondary purchase-remove" disabled={busy} aria-describedby={'purchase-item-' + expense.id}
-              onClick={() => { archive.reset(); setRemoving(expense); setNotice(undefined) }}>{t('removePurchase')}</button>
+              aria-label={t('removePurchase')} title={t('removePurchase')}
+              onClick={() => { archive.reset(); setRemoving(expense); setNotice(undefined) }}><Trash2 size={17} aria-hidden="true" /></button>
           </div>
+          {expense.note && <p className="reason purchase-record-note"><bdi>{expense.note}</bdi></p>}
         </li>)}
       </ul> : <p className="empty-state">{t('noPurchases')}</p>)}
       <Pages label={t('purchasePages')} page={page} hasNext={(list.data?.length ?? 0) > purchasePageSize} onPage={setPage} />
