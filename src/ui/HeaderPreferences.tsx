@@ -3,7 +3,7 @@ import { Moon, Sun } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { LanguageSelect } from './LanguageSelect'
 
-export function HeaderPreferences({ children }: { children?: ReactNode }) {
+export function HeaderPreferences({ children, notification }: { children?: ReactNode; notification?: ReactNode }) {
   const { t } = useTranslation()
   const [dark, setDark] = useState(() => document.documentElement.dataset.theme === 'dark')
   const Icon = dark ? Sun : Moon
@@ -20,6 +20,7 @@ export function HeaderPreferences({ children }: { children?: ReactNode }) {
   }
 
   return <div className="header-preferences">
+    {notification}
     <button type="button" className="secondary theme-toggle" aria-pressed={dark}
       aria-label={t('darkMode')} title={t(dark ? 'lightMode' : 'darkMode')} onClick={toggleTheme}>
       <Icon size={19} aria-hidden="true" />

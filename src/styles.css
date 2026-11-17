@@ -293,7 +293,17 @@ main.shell { padding-block: clamp(24px, 5vw, 50px) clamp(36px, 7vw, 80px) }
   --stroke: 2px solid var(--edge);
   color: var(--ink);
 }
-.intro { display: flex; align-items: end; justify-content: space-between; gap: var(--space-3); flex-wrap: wrap; margin-block-end: var(--space-4); --panel-fill: var(--lavender-panel) }
+.overview-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-3);
+  margin-block-end: var(--space-3);
+}
+.overview-heading h1 { font-size: clamp(1.25rem, 3.5vw, 2rem); line-height: 1.2; margin: 0 }
+.overview-heading time { display: block; margin-block-start: 4px; color: var(--muted); font-size: .875rem }
+.overview-heading .primary { font-size: .875rem; padding-inline: var(--space-2) }
 .feature-heading {
   display: flex;
   flex-wrap: wrap;
@@ -584,5 +594,4 @@ dialog .app-toast {
   .select-control svg { display: none }
 }
 @media (max-width: 480px) {
-  .intro { align-items: start; gap: var(--space-2) }
 }

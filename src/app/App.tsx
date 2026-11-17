@@ -16,10 +16,11 @@ export function App() {
     month: 'long', year: 'numeric', timeZone: 'UTC',
   }).format(new Date(month + '-01'))
   return <main id="main" tabIndex={-1} className="shell">
-      <div className="intro panel"><div>{owner && <p className="eyebrow">
-        {t('purchasePrivate')} · {monthLabel}
-      </p>}
-        <h1 id="page-title">{t('summary')}</h1></div>
+      <div className="overview-heading">
+        <div>
+          <h1 id="page-title">{t('summary')}</h1>
+          {owner && <time dateTime={month}>{monthLabel}</time>}
+        </div>
         {owner && <Link className="primary" to="/purchases"><Plus size={18} aria-hidden="true" />{t('addPurchase')}</Link>}
       </div>
       {!supabase ? <Toast message={t('accountUnavailable')} />

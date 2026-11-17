@@ -15,7 +15,7 @@ import './budget.css'
 
 export function BudgetCard({ client }: { client: PurchaseClient }) {
   const { t, i18n } = useTranslation()
-  const { date } = useFormats()
+  const { date, money } = useFormats()
   const cache = useQueryClient()
   const [editing, setEditing] = useState(false)
   const [invalid, setInvalid] = useState(false)
@@ -85,7 +85,11 @@ export function BudgetCard({ client }: { client: PurchaseClient }) {
         {t('budgetDaysLeft', { days: progress.days.toLocaleString(i18n.language === 'ar' ? 'ar-EG' : 'en-EG') })}
         <span>{t('budgetDailyTarget')} <Amount value={progress.allowance / 100} /></span>
       </p>}
-      {warning && <p className="budget-warning" role="status">{t(warning)}</p>}
+      {warning && <p className="budget-warning" role="status">
+        {warning === 'budgetOverToday'
+          ? t('budgetOverTodayAmount', { amount: money.format((data.today_minor - progress.allowance) / 100) })
+          : t(warning)}
+      </p>}
       {progress.days === 0 && <div className="budget-finished">
         <p>{t(progress.balance > 0 ? 'budgetSaveLeftover' : 'budgetFinished')}</p>
         {progress.balance > 0 && <Link className="secondary" to="/savings">{t('savingsViewGoals')}</Link>}

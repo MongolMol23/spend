@@ -53,9 +53,8 @@ export function AppHeader({ admin = false, authPage = false }: { admin?: boolean
     <header className="site-header"><div className="top shell" data-admin={admin || undefined} data-auth-page={authPage || undefined}>
       <div className="overview-brand">
         <Link className="brand" to={admin ? '/admin' : '/'}><Brand /></Link>
-        {showMemberNavigation && <ResponseBadge userId={userId} />}
       </div>
-      <HeaderPreferences>
+      <HeaderPreferences notification={showMemberNavigation && <ResponseBadge userId={userId} />}>
         {userId && !authPage && <button type="button" className="secondary header-signout" disabled={!!signingOut} aria-busy={signingOut === 'header'}
           aria-label={t('signout')} title={t('signout')} onClick={() => void signOut('header')}>
           <LogOut size={18} aria-hidden="true" />
