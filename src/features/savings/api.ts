@@ -72,11 +72,11 @@ export async function readSavingsGoal(client: SavingsClient, id: string, signal:
   return data
 }
 
-export async function listSavingsMovements(client: SavingsClient, id: string, page: number, signal: AbortSignal, from: string, until: string) {
+export async function listSavingsMovements(client: SavingsClient, id: string, page: number, signal: AbortSignal) {
   const first = page * savingsPageSize
   const { data, error } = await client.from('savings_movements').select('*').eq('goal_id', id)
     .order('moved_on', { ascending: false }).order('id', { ascending: false })
-    .gte('moved_on', from).lt('moved_on', until).range(first, first + savingsPageSize).abortSignal(signal)
+    .range(first, first + savingsPageSize).abortSignal(signal)
   if (error) throw error
   return data
 }

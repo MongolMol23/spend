@@ -1,5 +1,5 @@
 import { FeatureHeading } from '../../ui/FeatureHeading'
-import { Vault } from 'lucide-react'
+import { ChevronRight, Vault } from 'lucide-react'
 import { LedgerEditor, LedgerHeading } from '../../ui/LedgerEditor'
 import { Toast } from '../../ui/Toast'
 import { SignInLink } from '../accounts/SignInLink'
@@ -62,7 +62,7 @@ function GoalForm({ goal, busy, error, save, cancel }: {
         <label>{t('savingsOptionalDate')}<input name="targetOn" type="date" dir="ltr" min="0001-01-01" max="9999-12-31" defaultValue={goal?.target_on ?? ''} /></label>
         {message && <Toast message={t(message)} />}
         <div className="debt-actions">
-          <button type="submit" className="primary">{t('savingsSave')}</button>
+          <button type="submit" className="primary" aria-busy={busy}>{t('savingsSave')}</button>
           {goal && <button type="button" className="secondary" onClick={cancel}>{t('cancelPurchase')}</button>}
         </div>
       </fieldset>
@@ -131,13 +131,15 @@ function SavingsWorkspace({ client, owner }: { client: SavingsClient; owner: str
     <div className="debt-stack">
       {id && (detail.isPending ? <p className="loading-state" role="status">{t('loading')}</p>
         : detail.isError && !detail.data ? <section className="panel"><Toast message={t('failed')} />
-          <button type="button" className="secondary" disabled={detail.isFetching} aria-busy={detail.isFetching} onClick={() => void detail.refetch()}>{t('retry')}</button></section>
+          <div className="debt-actions"><button type="button" className="secondary" disabled={detail.isFetching} aria-busy={detail.isFetching} onClick={() => void detail.refetch()}>{t('retry')}</button>
+            <Link className="secondary" to="/savings">{t('savingsBack')}</Link></div></section>
         : detail.data ? <SavingsDetail key={id} client={client} goal={detail.data} date={date} busy={mutation.isPending} pending={mutation.isPending ? mutation.variables?.kind : undefined}
           save={save} edit={() => { setEditorOpen(true); setEditSnapshot(detail.data ?? undefined); mutation.reset() }}
           movementError={sameGoal && mutation.variables?.kind === 'move' ? error : undefined}
           archiveError={sameGoal && mutation.variables?.kind === 'archive' ? error : undefined} />
-        : <p className="empty-state">{t('savingsMissing')}</p>)}
-      <section className="panel savings-list">
+        : <section className="panel"><p className="empty-state">{t('savingsMissing')}</p>
+          <Link className="secondary" to="/savings">{t('savingsBack')}</Link></section>)}
+      {!id && <section className="panel savings-list debt-list">
         <LedgerHeading title={t('savingsActive')} action={t('savingsAdd')} busy={mutation.isPending} onAdd={() => { setEditSnapshot(undefined); mutation.reset(); setEditorOpen(true) }} />
         {list.isPending && <p className="loading-state" role="status">{t('loading')}</p>}
         {list.isError && <><Toast message={t('failed')} />
@@ -145,19 +147,26 @@ function SavingsWorkspace({ client, owner }: { client: SavingsClient; owner: str
         {list.data && (list.data.length ? <ul className="ledger">
           {list.data.slice(0, savingsPageSize).map(goal => <li key={goal.id}>
             <Link to={'?goal=' + goal.id} aria-current={id === goal.id ? 'true' : undefined}
-              className="row debt-row debt-list-link" onClick={() => { setEditSnapshot(undefined); setNotice(undefined) }}>
-              <strong><bdi>{goal.name}</bdi></strong><Amount value={goal.saved_minor / 100} />
+              className="debt-contact-card savings-goal-card" onClick={() => { setEditSnapshot(undefined); setNotice(undefined) }}>
+              <span className="debt-avatar" aria-hidden="true"><Vault size={20} /></span>
+              <span className="debt-contact-copy">
+                <strong><bdi>{goal.name}</bdi></strong>
+                <span className="muted">{t('savingsGoalTarget')} <Amount value={goal.target_minor / 100} /></span>
+                <span className="debt-progress" role="progressbar" aria-label={t('savingsProgressNamed', { name: goal.name })}
+                  aria-valuemin={0} aria-valuemax={goal.target_minor} aria-valuenow={Math.min(goal.saved_minor, goal.target_minor)}>
+                  <span style={{ inlineSize: Math.min(100, goal.saved_minor / goal.target_minor * 100) + '%' }} />
+                </span>
+                {goal.target_on && <time dateTime={goal.target_on}>{date.format(new Date(goal.target_on))}</time>}
+              </span>
+              <strong className="debt-contact-amount"><Amount value={goal.saved_minor / 100} /></strong>
+              <ChevronRight className="debt-contact-arrow" size={18} aria-hidden="true" />
             </Link>
-            <progress className="savings-progress" aria-label={t('savingsProgressNamed', { name: goal.name })} max={goal.target_minor}
-              value={Math.min(goal.saved_minor, goal.target_minor)} />
-            <div className="row debt-row muted"><span>{t('savingsTarget')} · <Amount value={goal.target_minor / 100} /></span>
-              {goal.target_on && <time dateTime={goal.target_on}>{date.format(new Date(goal.target_on))}</time>}</div>
           </li>)}
         </ul> : <p className="empty-state">{t('savingsEmpty')}</p>)}
         <DebtPages page={page} hasNext={(list.data?.length ?? 0) > savingsPageSize} move={setPage} />
-      </section>
+      </section>}
     </div>
-    <SavingsHistory client={client} date={date} />
+    {!id && <SavingsHistory client={client} date={date} />}
   </>
 }
 

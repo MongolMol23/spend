@@ -1,4 +1,5 @@
 const en = {
+ savingsBack: 'Back to goals', savingsInProgress: 'In progress', savingsProgressValue: '{{percent}} of your target', savingsGoalTarget: 'Target',
  historyStatus: 'Status',
  historyChanges: 'Changes', historyNoDate: 'No date set', historyMovementType: 'Movement type', historyRemoved: 'Removed', historyInstallmentNumber: 'Installment {{number}}',
  debtHistoryChanges: 'Changes', debtHistoryDirection: 'Debt type', debtHistoryNoDue: 'No due date',
@@ -306,6 +307,7 @@ const en = {
  usernameTaken: 'That username is already taken.', profileSaved: 'Profile saved.',
 }
 const ar: Record<keyof typeof en, string> = {
+ savingsBack: 'ارجع للأهداف', savingsInProgress: 'لسه بتحوّش', savingsProgressValue: '{{percent}} من هدفك', savingsGoalTarget: 'الهدف',
  historyStatus: 'الحالة',
  historyChanges: 'التغييرات', historyNoDate: 'من غير ميعاد', historyMovementType: 'نوع العملية', historyRemoved: 'اتشال', historyInstallmentNumber: 'القسط رقم {{number}}',
  debtHistoryChanges: 'التغييرات', debtHistoryDirection: 'نوع الدين', debtHistoryNoDue: 'من غير ميعاد',
