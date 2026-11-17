@@ -4,7 +4,7 @@ import { SignInLink } from '../accounts/SignInLink'
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router'
+import { Link, useSearchParams } from 'react-router'
 import { ChartColumn, PieChart, ReceiptText } from 'lucide-react'
 import { LedgerQueries, useLedgerOwner } from '../../data/LedgerSession'
 import { ledgerToday } from '../../data/calendar'
@@ -12,6 +12,7 @@ import { supabase } from '../../data/supabase'
 import { useFormats } from '../../i18n/useFormats'
 import { Amount } from '../../ui/Amount'
 import { Select } from '../../ui/Select'
+import { ActiveLinkIndicator } from '../../ui/ActiveLinkIndicator'
 import { DebtPages } from '../debts/DebtPages'
 import { categoryLabel, expenseCategories, listPurchases, monthlyPurchases, purchasePageSize, purchasesKey, type PurchaseClient } from '../purchases/api'
 import './analytics.css'
@@ -42,6 +43,9 @@ function recentMonths(current: string) {
 function AnalyticsWorkspace({ client }: { client: PurchaseClient }) {
   const { t, i18n } = useTranslation()
   const { money, date } = useFormats()
+  const [params] = useSearchParams()
+  const requestedView = params.get('section')
+  const view = requestedView === 'categories' || requestedView === 'purchases' ? requestedView : 'trend'
   const [currentMonth] = useState(() => ledgerToday().slice(0, 7))
   const [month, setMonth] = useState(currentMonth)
   const [category, setCategory] = useState('')
@@ -87,7 +91,24 @@ function AnalyticsWorkspace({ client }: { client: PurchaseClient }) {
     summary.data.some(row => row.categories.some(entry => categoryLabel(entry.category) === category)),
   )
 
-  return <div className="analytics-workspace">
+  return <div className="analytics-workspace" data-view={view}>
+    <div className="analytics-controls">
+      <label>{t('purchaseMonth')}
+        <Select value={month} onChange={event => selectMonth(event.target.value)}>
+          {[...summary.data].reverse().map(row => <option key={row.key} value={row.key}>{longMonth.format(monthDate(row.key))}</option>)}
+        </Select>
+      </label>
+      <nav className="analytics-sections" aria-label={t('analytics')}>
+        <ActiveLinkIndicator selection={view} />
+        {([
+          ['trend', 'analyticsMonthsTab', ChartColumn],
+          ['categories', 'analyticsCategoriesTab', PieChart],
+          ['purchases', 'purchases', ReceiptText],
+        ] as const).map(([key, label, Icon]) => <Link key={key} to={'?section=' + key} aria-current={view === key ? 'page' : undefined}>
+          <Icon size={16} aria-hidden="true" /><span>{t(label)}</span>
+        </Link>)}
+      </nav>
+    </div>
     <section className="panel analytics-trend" aria-labelledby="analytics-trend-title">
       <h2 id="analytics-trend-title" className="section-heading">
         <span className="icon-tile" aria-hidden="true"><ChartColumn size={18} /></span>{t('analyticsTrend')}
@@ -102,11 +123,6 @@ function AnalyticsWorkspace({ client }: { client: PurchaseClient }) {
             })}
           </div>}
         </div>
-        <label>{t('purchaseMonth')}
-          <Select value={month} onChange={event => selectMonth(event.target.value)}>
-            {[...summary.data].reverse().map(row => <option key={row.key} value={row.key}>{longMonth.format(monthDate(row.key))}</option>)}
-          </Select>
-        </label>
       </div>
       <div className="analytics-bars">
         {summary.data.map(row => <button key={row.key} type="button" aria-pressed={row.key === month}
@@ -154,13 +170,17 @@ function AnalyticsWorkspace({ client }: { client: PurchaseClient }) {
               </button>
             </li>)}
           </ul>
+          {category && <Link className="secondary analytics-category-results" to="?section=purchases">{t('analyticsCategoryResults')}</Link>}
         </> : <p className="empty-state">{t('noPurchases')}</p>}
       </section>
       <section className="panel analytics-purchases" aria-labelledby="analytics-purchases-title">
-        <h2 id="analytics-purchases-title" className="section-heading">
-          <span className="icon-tile" aria-hidden="true"><ReceiptText size={18} /></span>
-          <span>{t('purchases')}{category && ' · ' + t(categoryLabel(category))}</span>
-        </h2>
+        <div className="analytics-purchases-heading">
+          <h2 id="analytics-purchases-title" className="section-heading">
+            <span className="icon-tile" aria-hidden="true"><ReceiptText size={18} /></span>
+            <span>{t('purchases')}{category && ' · ' + t(categoryLabel(category))}</span>
+          </h2>
+          <Link className="secondary analytics-manage" to="/purchases">{t('analyticsManage')}</Link>
+        </div>
         {purchases.isPending && <p className="loading-state" role="status">{t('loading')}</p>}
         {purchases.isError && <><Toast message={t('failed')} />
           <button className="secondary" type="button" disabled={purchases.isFetching} aria-busy={purchases.isFetching} onClick={() => void purchases.refetch()}>{t('retry')}</button></>}
@@ -172,7 +192,6 @@ function AnalyticsWorkspace({ client }: { client: PurchaseClient }) {
           </li>)}
         </ul> : <p className="empty-state">{t('noPurchases')}</p>)}
         <DebtPages page={page} hasNext={(purchases.data?.length ?? 0) > purchasePageSize} move={setPage} />
-        <Link className="secondary analytics-manage" to="/purchases">{t('analyticsManage')}</Link>
       </section>
     </div>
   </div>
@@ -182,9 +201,7 @@ export function Analytics() {
   const { t } = useTranslation()
   const owner = useLedgerOwner()
   return <main id="main" tabIndex={-1} className="shell">
-    <FeatureHeading title={t('analytics')} icon={ChartColumn} accent="lavender">
-      <Link className="secondary" to="/overview">{t('dashboard')}</Link>
-    </FeatureHeading>
+    <FeatureHeading title={t('analytics')} icon={ChartColumn} accent="lavender" />
     {!supabase ? <Toast message={t('purchaseUnavailable')} />
       : owner === undefined ? <AnalyticsLoading />
       : owner === null ? <section className="panel"><p>{t('purchaseSignin')}</p>

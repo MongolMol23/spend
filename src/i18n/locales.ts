@@ -1,4 +1,5 @@
 const en = {
+ analyticsMonthsTab: 'Months', analyticsCategoriesTab: 'Categories', analyticsCategoryResults: 'View category purchases',
  monthlyExpenses: 'Monthly expenses', monthlyChecklist: 'This month’s checklist', monthlyAdd: 'Add an expense',
  monthlyName: 'Expense name', monthlyExpected: 'Expected amount (EGP)', monthlyActual: 'Amount paid (EGP)',
  monthlyDay: 'Due day each month', monthlyDayHelp: 'Choose 1–31. Shorter months use their last day.',
@@ -301,6 +302,7 @@ const en = {
  usernameTaken: 'That username is already taken.', profileSaved: 'Profile saved.',
 }
 const ar: Record<keyof typeof en, string> = {
+ analyticsMonthsTab: 'الشهور', analyticsCategoriesTab: 'التصنيفات', analyticsCategoryResults: 'شوف مشتريات التصنيف',
  monthlyExpenses: 'المصاريف الشهرية', monthlyChecklist: 'قائمة الشهر', monthlyAdd: 'ضيف مصروف',
  monthlyName: 'اسم المصروف', monthlyExpected: 'المبلغ المتوقع بالجنيه', monthlyActual: 'دفعت كام بالجنيه؟',
  monthlyDay: 'ميعاده يوم كام من كل شهر؟', monthlyDayHelp: 'اختار من ١ لـ٣١. لو الشهر أقصر، الميعاد يبقى آخر يوم فيه.',

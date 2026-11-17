@@ -1,4 +1,8 @@
 .analytics-workspace, .analytics-detail { display: grid; gap: var(--space-4); }
+.analytics-controls { display: flex; align-items: end; flex-wrap: wrap; gap: 12px }
+.analytics-controls > label { display: grid; gap: 4px; font-size: .875rem; font-weight: 700 }
+.analytics-sections { display: none }
+.analytics-category-results { display: none }
 .analytics-detail { grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); align-items: start; }
 .analytics-month { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: var(--space-2); }
 .analytics-trend { --panel-fill: var(--lavender-panel); }
@@ -148,7 +152,46 @@
 .analytics-purchases .icon-tile { --icon-fill: var(--mint); }
 .analytics-purchase-amount { padding: 4px 8px; border: 1px solid var(--ink); border-radius: 6px; background: var(--mint); color: var(--ink); }
 .analytics-workspace .secondary { --button-fill: var(--inset-surface, var(--paper)); --button-text: var(--ink); }
-.analytics-manage { margin-block-start: var(--space-2); }
+.analytics-purchases-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-block-end: 12px }
+.analytics-purchases-heading h2 { margin: 0; min-inline-size: 0 }
+.analytics-manage { margin-inline-start: auto; font-size: .8rem; padding-inline: 10px }
 @media (width < 760px) {
-  .analytics-detail { grid-template-columns: minmax(0, 1fr); }
+  .analytics-detail { display: contents }
+  .analytics-category-results { display: inline-flex; margin-block-start: 12px }
+  .analytics-controls { display: grid }
+  .analytics-controls > label { grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 12px }
+  .analytics-controls .select-control { justify-self: end }
+  .analytics-sections {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 4px;
+    padding: 4px;
+    border: var(--stroke);
+    border-radius: var(--radius-sm);
+    background: var(--inset-surface);
+  }
+  .analytics-sections a {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 6px 2px;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    color: var(--text);
+    font-size: .75rem;
+    font-weight: 750;
+    text-decoration: none;
+  }
+  .analytics-sections a[aria-current] { border-color: var(--ink); background: var(--mint); color: var(--ink) }
+  .analytics-sections .nav-indicator { border-radius: 8px; border-color: var(--ink) }
+  .analytics-workspace:not([data-view="trend"]) .analytics-trend,
+  .analytics-workspace:not([data-view="categories"]) .analytics-categories,
+  .analytics-workspace:not([data-view="purchases"]) .analytics-purchases { display: none }
+  .analytics-bars button { grid-template-rows: auto 100px auto }
+}
+@media (width < 760px) and (prefers-reduced-motion: no-preference) and (forced-colors: none) {
+  .analytics-sections:has(> .nav-indicator:not([hidden])) a[aria-current] { background: transparent; border-color: transparent }
 }
