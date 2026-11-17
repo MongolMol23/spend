@@ -22,6 +22,8 @@ export function Modal({ busy = false, onDismiss, ...props }: ComponentProps<'dia
       else event.currentTarget.close()
     }}
     onCancel={event => {
+      // Escape belongs to the topmost dialog when a picker opens inside an editor.
+      event.stopPropagation()
       if (busy || onDismiss) event.preventDefault()
       if (!busy) onDismiss?.()
     }}

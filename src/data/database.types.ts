@@ -289,6 +289,14 @@ isOneToOne: false
             [_ in never]: never
           }
           Functions: {
+            monthly_expense_add: { Args: { p_id: string; p_name: string; p_amount: number; p_day: number; p_category: string }; Returns: undefined }
+            monthly_expense_list: { Args: { p_month: string }; Returns: {
+              id: string; item_id: string; name: string; expected_minor: number; category: string; due_on: string;
+              expense_id: string | null; paid_minor: number | null; paid_on: string | null; stops_on: string | null
+            }[] }
+            monthly_expense_pay: { Args: { p_due: string; p_expense: string; p_amount: number; p_paid_on: string }; Returns: undefined }
+            monthly_expense_unpay: { Args: { p_due: string; p_expense: string }; Returns: undefined }
+            monthly_expense_stop: { Args: { p_item: string }; Returns: undefined }
             archive_installment_plan: { Args: { p_id: string; p_version: number }; Returns: undefined }
             signup_username_available: { Args: { requested_username: string }; Returns: boolean }
             spend_is_admin: { Args: never; Returns: boolean }

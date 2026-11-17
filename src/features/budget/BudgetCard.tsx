@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useId, useState, type FormEvent } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Wallet } from 'lucide-react'
 import { Link } from 'react-router'
@@ -8,6 +8,7 @@ import { toMinorUnits } from '../../data/money'
 import { useFormats } from '../../i18n/useFormats'
 import { Amount } from '../../ui/Amount'
 import { LedgerEditor } from '../../ui/LedgerEditor'
+import { HistoryCalendar } from '../../ui/HistoryCalendar'
 import { Toast } from '../../ui/Toast'
 import type { PurchaseClient } from '../purchases/api'
 import { budgetKey, budgetProgress, readBudget } from './budget'
@@ -18,6 +19,8 @@ export function BudgetCard({ client }: { client: PurchaseClient }) {
   const { date, money } = useFormats()
   const cache = useQueryClient()
   const [editing, setEditing] = useState(false)
+  const [endDate, setEndDate] = useState('')
+  const endDateId = useId()
   const [invalid, setInvalid] = useState(false)
   const budget = useQuery({
     queryKey: budgetKey,
@@ -49,7 +52,7 @@ export function BudgetCard({ client }: { client: PurchaseClient }) {
     if (save.isPending) return
     const values = new FormData(event.currentTarget)
     const amount = toMinorUnits(String(values.get('amount') ?? ''))
-    const end = String(values.get('end') ?? '')
+    const end = endDate
     if (!amount || end < today || end > maxEnd) {
       setInvalid(true)
       return
@@ -64,6 +67,7 @@ export function BudgetCard({ client }: { client: PurchaseClient }) {
       {budget.isSuccess && <button type="button" className="secondary" onClick={() => {
         setInvalid(false)
         save.reset()
+        setEndDate(data && progress?.days ? data.ends_on : shiftLedgerDay(today, 9))
         setEditing(true)
       }}>{t(progress?.days ? 'budgetEdit' : 'budgetStart')}</button>}
     </div>
@@ -101,8 +105,11 @@ export function BudgetCard({ client }: { client: PurchaseClient }) {
         <form className="budget-form" onSubmit={submit}>
           <label>{t('budgetAmount')}<input name="amount" inputMode="decimal" dir="ltr" required
             defaultValue={data && progress?.days ? (data.amount_minor / 100).toFixed(2) : ''} /></label>
-          <label>{t('budgetEnd')}<input type="date" name="end" required min={today} max={maxEnd}
-            defaultValue={data && progress?.days ? data.ends_on : shiftLedgerDay(today, 9)} /></label>
+          <div className="budget-date-field">
+            <label htmlFor={endDateId}>{t('budgetEnd')}</label>
+            <HistoryCalendar day={endDate} today={today} min={today} max={maxEnd}
+              label={t('budgetEnd')} triggerId={endDateId} selectDay={setEndDate} />
+          </div>
           {invalid && <p role="alert">{t('budgetInvalid')}</p>}
           {save.isError && <Toast message={t('failed')} />}
           <button className="primary" disabled={save.isPending} aria-busy={save.isPending}>{t('budgetSave')}</button>

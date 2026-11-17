@@ -6,8 +6,9 @@ import { HistoryDisclosure, HistoryEntry } from '../../ui/HistoryEntry'
 import { HistoryDates, useHistoryDates } from '../../ui/HistoryDates'
 import { useQuery } from '@tanstack/react-query'
 import { cairoDayStart } from '../../data/calendar'
-import { Link } from 'react-router'
-import { ArrowDownLeft, ArrowUpRight, HandCoins, Inbox, Send } from 'lucide-react'
+import { Link, useSearchParams } from 'react-router'
+import { ArrowDownLeft, ArrowUpRight, ArrowLeft, ChevronRight, HandCoins, Inbox, Send } from 'lucide-react'
+import { ActiveLinkIndicator } from '../../ui/ActiveLinkIndicator'
 import { LedgerEditor, LedgerHeading } from '../../ui/LedgerEditor'
 import { z } from 'zod'
 import type { Database } from '../../data/database.types'
@@ -31,6 +32,7 @@ export function RequestPanel({ client, userId, friends, names, requests, payment
   payments: Payment[]; corrections: Correction[]; activeId: string | null; busy: boolean; pending?: string; run: RunAction
 }) {
   const { t, i18n } = useTranslation()
+  const [params, setParams] = useSearchParams()
   const [invalid, setInvalid] = useState(false)
   const [composing, setComposing] = useState(false)
   const detailHeading = useRef<HTMLHeadingElement>(null)
@@ -57,6 +59,9 @@ export function RequestPanel({ client, userId, friends, names, requests, payment
     { label: 'owed', icon: ArrowDownLeft, accent: 'mint', entries: requests.filter(request => request.sender === userId && ['accepted', 'settled'].includes(request.state)) },
     { label: 'owe', icon: ArrowUpRight, accent: 'peach', entries: requests.filter(request => request.recipient === userId && ['accepted', 'settled'].includes(request.state)) },
   ] as const
+  const group = groups.find(item => item.label === params.get('group'))
+    ?? groups.find(item => item.entries.length > 0) ?? groups[0]
+  const listUrl = '/connections?group=' + group.label
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -70,7 +75,10 @@ export function RequestPanel({ client, userId, friends, names, requests, payment
       minor_units: input.amount,
       request_reason: input.reason,
       ...(input.deadline ? { deadline: input.deadline } : {}),
-    }), () => setComposing(false))
+    }), () => {
+      setComposing(false)
+      setParams({ group: 'sentRequests' })
+    })
   }
 
   const stateLabel = (state: string) => t(state === 'settled' ? 'requestSettled' : state === 'accepted' ? 'requestAccepted' : state === 'declined'
@@ -101,16 +109,33 @@ export function RequestPanel({ client, userId, friends, names, requests, payment
       </section>
     </LedgerEditor>}
     {activeId && <section className="panel request-card">
-      <div className="row"><h2 ref={detailHeading} tabIndex={-1}>{t('request')}</h2><Link className="secondary" to="/connections">{t('closeRequest')}</Link></div>
+      <div className="request-detail-heading">
+        <h2 ref={detailHeading} tabIndex={-1} className="section-heading">
+          <span className="icon-tile" aria-hidden="true"><HandCoins size={18} /></span>{t('request')}
+        </h2>
+        <Link className="secondary request-back" to={listUrl}>
+          <ArrowLeft size={17} aria-hidden="true" />{t('backToRequests')}
+        </Link>
+      </div>
       {!selected ? <p>{t('requestUnavailable')}</p> : <>
-        <div className="row"><strong className="request-amount"><bdi>{money.format(selected.amount_minor / 100)}</bdi></strong>
-          <span className="status" data-state={selected.state}>{stateLabel(selected.state)}</span></div>
-        <p className="muted"><bdi>{names.get(selected.sender)?.display_name}</bdi> · <bdi>{names.get(selected.recipient)?.display_name}</bdi></p>
-        <p className="reason"><bdi>{selected.reason}</bdi></p>
+        <div className="request-detail-summary">
+          <span className="status" data-state={selected.state}>{stateLabel(selected.state)}</span>
+          <strong className="request-amount"><bdi>{money.format(selected.amount_minor / 100)}</bdi></strong>
+          <p className="reason"><bdi>{selected.reason}</bdi></p>
+        </div>
+        <dl className="request-participants">
+          {([
+            ['requestFrom', selected.sender],
+            ['requestTo', selected.recipient],
+          ] as const).map(([label, id]) => <div key={label}>
+            <dt>{t(label)}</dt>
+            <dd><bdi>{names.get(id)?.display_name}</bdi></dd>
+          </div>)}
+        </dl>
         {selected.due_date && <p>{t('due')} <time dateTime={selected.due_date}>{date.format(new Date(selected.due_date))}</time></p>}
-        {selected.state === 'pending' && <div className="connection-actions">
+        {selected.state === 'pending' && <div className="connection-actions request-detail-actions">
           {(selected.recipient === userId ? ['accepted', 'declined'] : ['cancelled']).map(decision =>
-            <button type="button" className="secondary" disabled={busy} key={decision}
+            <button type="button" className="secondary" data-decision={decision} disabled={busy} key={decision}
               aria-busy={pending === 'request:' + selected.id + ':' + decision}
               onClick={() => void run('request:' + selected.id + ':' + decision, () =>
               client.rpc('respond_money_request', { request_id: selected.id, decision }))}>
@@ -151,34 +176,42 @@ export function RequestPanel({ client, userId, friends, names, requests, payment
         </HistoryDisclosure>
       </>}
     </section>}
-    <section className="panel request-groups">
+    {!activeId && <section className="panel request-groups">
       <LedgerHeading title={t('moneyRequestList')} action={t('newRequest')} busy={busy || friends.length === 0}
         onAdd={() => { setInvalid(false); setComposing(true) }} />
       {friends.length === 0 && <p className="request-hint muted">{t('friendRequired')}{' '}
         <Link to="/connections?view=add">{t('addFriend')}</Link>
       </p>}
+      <nav className="request-filters" aria-label={t('moneyRequestList')}>
+        <ActiveLinkIndicator selection={group.label} />
+        {groups.map(({ label, entries }) => <Link key={label} to={'?group=' + label}
+          aria-current={group.label === label ? 'page' : undefined}>
+          <span>{t(label)}</span><bdi>{entries.length.toLocaleString(i18n.language === 'ar' ? 'ar-EG' : 'en-EG')}</bdi>
+        </Link>)}
+      </nav>
       <div className="request-board">
-      {groups.map(({ label, icon: Icon, accent, entries }) => <div className="request-group" data-accent={accent} key={label}>
-        <h3 className="section-heading"><span className="icon-tile" aria-hidden="true"><Icon size={17} /></span>
-          <span>{t(label)}</span><bdi className="request-group-count" aria-hidden="true">{entries.length.toLocaleString(i18n.language === 'ar' ? 'ar-EG' : 'en-EG')}</bdi>
-        </h3>
+      {[group].map(({ label, accent, entries }) => <div className="request-group" data-accent={accent} key={label}>
+        <h3 className="request-list-heading">{t(label)}</h3>
+        {entries.length === 0 && <p className="connections-empty">{t('noRequestsInGroup')}</p>}
         {entries.length > 0 && <ul className="ledger">
           {entries.map(request => <li key={request.id}>
-            <Link to={'?request=' + request.id} className="request-list-link" aria-current={request.id === activeId ? 'true' : undefined}>
+            <Link to={'?group=' + label + '&request=' + request.id} className="request-list-link">
               <span className="request-list-info">
                 <strong><bdi>{request.reason}</bdi></strong>
+                <span className="muted request-counterpart"><bdi>{names.get(request.sender === userId ? request.recipient : request.sender)?.display_name}</bdi></span>
                 <span className="status" data-state={request.state}>{stateLabel(request.state)}</span>
               </span>
-              <bdi className="request-list-amount">{money.format((request.amount_minor - payments
+              <span className="request-list-end"><bdi className="request-list-amount">{money.format((request.amount_minor - payments
                 .filter(payment => payment.request_id === request.id && payment.state === 'confirmed')
                 .reduce((sum, payment) => sum + payment.amount_minor, 0)) / 100)}</bdi>
+                <ChevronRight size={18} aria-hidden="true" />
+              </span>
             </Link>
           </li>)}
         </ul>}
       </div>)}
       </div>
-      {requests.length === 0 && friends.length > 0 && <p className="connections-empty">{t('noMoneyRequests')}</p>}
-    </section>
+    </section>}
   </div>
 }
 

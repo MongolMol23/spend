@@ -1,4 +1,5 @@
 .connection-sections {
+  position: relative;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 4px;
@@ -9,6 +10,7 @@
   background: var(--inset-surface);
 }
 .connection-sections a {
+  position: relative;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -25,6 +27,16 @@
 }
 .connection-sections a[aria-current] { background: var(--mint); border-color: var(--ink); color: var(--ink) }
 .connection-sections a:hover { border-color: currentColor }
+.connection-sections .nav-indicator { border-radius: 8px; border-color: var(--ink) }
+@media (prefers-reduced-motion: no-preference) and (forced-colors: none) {
+  .connection-sections:has(> .nav-indicator:not([hidden])) a[aria-current] {
+    background: transparent;
+    border-color: transparent;
+  }
+}
+@media (forced-colors: active) {
+  .connection-sections a[aria-current] { border-color: Highlight }
+}
 .connection-section-count { padding-inline: 6px; border-radius: var(--pill); background: var(--yellow); color: var(--ink); font-size: .75rem }
 .connection-stack, .connection-form { display: grid; gap: var(--space-3) }
 .connection-stack { min-inline-size: 0; gap: var(--space-4) }
@@ -39,6 +51,40 @@
 .friend-search { grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: var(--space-1) }
 .friend-search input { min-inline-size: 0 }
 .friend-search button { display: flex; align-items: center; justify-content: center; gap: 6px; min-block-size: 44px }
+.friend-search-result {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-block-start: var(--space-3);
+  padding: 16px;
+  border: var(--stroke);
+  border-radius: var(--radius-sm);
+  background: var(--mint-panel);
+  box-shadow: var(--shadow-control);
+}
+.friend-result-identity { display: flex; align-items: center; gap: 12px; min-inline-size: 0; flex: 1 1 200px }
+.friend-result-avatar {
+  display: grid;
+  place-items: center;
+  flex: none;
+  inline-size: 48px;
+  block-size: 48px;
+  border: var(--stroke);
+  border-radius: 12px;
+  background: var(--card-surface);
+  color: var(--text);
+  font-size: 1.4rem;
+  font-weight: 850;
+}
+.friend-result-name { display: grid; gap: 3px; min-inline-size: 0; overflow-wrap: anywhere }
+.friend-result-name strong { line-height: 1.35 }
+.friend-result-name > span { font-size: .875rem; color: var(--muted) }
+.friend-search-result > button { display: flex; align-items: center; justify-content: center; gap: 8px }
+@container friend-panel (width < 480px) {
+  .friend-search-result > button { inline-size: 100% }
+}
 @container friend-panel (width < 360px) {
   .friend-search button { inline-size: 44px; padding-inline: 0 }
   .friend-search button span { display: none }
@@ -74,6 +120,80 @@
 .request-card > .row:first-child { margin-block-end: var(--space-3) }
 .request-card > .row:first-child h2 { margin: 0 }
 .request-amount { font-size: clamp(1.4rem, 3vw, 2rem) }
+.request-detail-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-block-end: 16px }
+.request-detail-heading h2 { margin: 0; font-size: 1.1rem }
+.request-detail-heading .icon-tile { --icon-fill: var(--lavender) }
+.request-back { display: flex; align-items: center; gap: 6px; font-size: .8rem; padding-inline: 10px; flex: none }
+.request-back:dir(rtl) svg { transform: scaleX(-1) }
+.request-detail-summary {
+  display: grid;
+  justify-items: start;
+  gap: 12px;
+  padding: 16px;
+  border: var(--stroke);
+  border-radius: var(--radius-sm);
+  background: var(--amber-panel);
+}
+.request-detail-summary .request-amount { line-height: 1.25; overflow-wrap: anywhere; max-inline-size: 100% }
+.request-detail-summary .reason { margin: 0; font-weight: 700; overflow-wrap: anywhere }
+.request-participants { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-block: 18px }
+.request-participants > div { min-inline-size: 0 }
+.request-participants dt { color: var(--muted); font-size: .8rem; margin-block-end: 4px }
+.request-participants dd { margin: 0; font-weight: 700; overflow-wrap: anywhere; line-height: 1.4 }
+.request-detail-actions { padding-block: 12px; margin-block: 0 12px; border-block-start: 1px solid var(--line) }
+.request-detail-actions button { flex: 1 }
+.request-detail-actions button[data-decision="accepted"] { background: var(--mint-panel) }
+@media (hover: hover) {
+  .request-detail-actions button:is([data-decision="cancelled"], [data-decision="declined"]):hover {
+    background: var(--danger-surface);
+    color: var(--danger);
+  }
+}
+.request-card > .history-disclosure { margin-block: 12px 0 }
+.request-filters {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+  padding: 4px;
+  margin-block: 16px;
+  border: var(--stroke);
+  border-radius: var(--radius-sm);
+  background: var(--inset-surface);
+}
+.request-filters a {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-block-size: 44px;
+  padding: 8px;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  color: var(--text);
+  text-decoration: none;
+  font-size: .8rem;
+  font-weight: 750;
+}
+.request-filters a bdi { font-variant-numeric: tabular-nums }
+.request-filters a[aria-current] { border-color: var(--ink); background: var(--mint); color: var(--ink) }
+.request-filters .nav-indicator { border-radius: 8px; border-color: var(--ink) }
+@media (prefers-reduced-motion: no-preference) and (forced-colors: none) {
+  .request-filters:has(> .nav-indicator:not([hidden])) a[aria-current] { border-color: transparent; background: transparent }
+}
+.request-list-heading { margin-block: 0 8px; font-size: .95rem }
+.request-counterpart { font-size: .8rem }
+.request-list-end { display: flex; align-items: center; gap: 6px }
+.request-list-end svg { flex: none }
+.request-list-end:dir(rtl) svg { transform: scaleX(-1) }
+.request-list-link { border: 1px solid transparent }
+@media (hover: hover) {
+  .request-list-link:hover { border-color: var(--edge); background: var(--mint-panel) }
+}
+@media (min-width: 900px) {
+  .request-filters { grid-template-columns: repeat(4, minmax(0, 1fr)) }
+}
 .payment-section { border-block-start: var(--stroke); margin-block-start: var(--space-3); padding-block-start: var(--space-3) }
 .payment-totals { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 116px), 1fr)); gap: var(--space-1); margin: 0 }
 .payment-totals > div { padding: 8px 10px; border: var(--stroke); border-radius: var(--radius-sm); background: var(--mint-panel) }

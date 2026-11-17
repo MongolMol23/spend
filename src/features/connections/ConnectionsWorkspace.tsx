@@ -1,5 +1,6 @@
 import { budgetWarning } from '../budget/budget'
 import { Toast } from '../../ui/Toast'
+import { ActiveLinkIndicator } from '../../ui/ActiveLinkIndicator'
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
@@ -61,6 +62,7 @@ export function ConnectionsWorkspace({ client, userId }: { client: Client; userI
 
   return <>
     <nav className="connection-sections" aria-label={t('connections')}>
+      <ActiveLinkIndicator selection={section} />
       {([
         ['requests', 'moneyRequestList', HandCoins, incomingMoney],
         ['friends', 'friends', UsersRound, incomingFriends],

@@ -47,12 +47,20 @@ export function FriendSearch({ client, userId, names, busy, pending, run }: Frie
     </form>
     {searchFailed && <Toast message={t('connectionError')} />}
     {match === null && <p className="empty-state" role="status">{t('noFriendFound')}</p>}
-    {match && <div className="row connection-item">
-      <span className="friend-identity"><span className="icon-tile" aria-hidden="true"><UserPlus size={17} /></span>
-        <span><strong><bdi>{match.display_name}</bdi></strong><small><bdi>@{match.username}</bdi></small></span>
-      </span>
+    {match && <div className="friend-search-result">
+      <div className="friend-result-identity">
+        <span className="friend-result-avatar" aria-hidden="true">
+          {Array.from(match.display_name || match.username)[0]?.toLocaleUpperCase()}
+        </span>
+        <div className="friend-result-name">
+          <strong><bdi>{match.display_name}</bdi></strong>
+          <span><bdi dir="ltr">@{match.username}</bdi></span>
+        </div>
+      </div>
       <button type="button" className="primary" disabled={busy} aria-busy={pending === 'add-friend'}
-        onClick={() => void run('add-friend', () => client.rpc('send_friend_request', { target_username: match.username }), () => setMatch(undefined))}>{t('addFriend')}</button>
+        onClick={() => void run('add-friend', () => client.rpc('send_friend_request', { target_username: match.username }), () => setMatch(undefined))}>
+        <UserPlus size={18} aria-hidden="true" />{t('addFriend')}
+      </button>
     </div>}
   </section>
 }

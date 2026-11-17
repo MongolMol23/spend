@@ -16,6 +16,7 @@
 .budget-figures dd { margin: 3px 0 0; font-size: 1.2rem; font-weight: 850; overflow-wrap: anywhere }
 .budget-pace, .budget-finished { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 16px }
 .budget-warning { padding: var(--space-2); border: var(--stroke); border-radius: var(--radius-sm); background: var(--peach-panel) }
-.budget-form, .budget-form label { display: grid; gap: var(--space-2) }
+.budget-form, .budget-form label, .budget-date-field { display: grid; gap: var(--space-2) }
 .budget-form input { inline-size: 100% }
-.budget-form button { justify-self: end }
+.budget-form > button { justify-self: end }
+.budget-date-field > button { justify-content: center; inline-size: 100% }

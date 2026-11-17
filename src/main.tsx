@@ -12,6 +12,7 @@ import { Purchases } from './features/purchases/Purchases'
 import { PrivateDebts } from './features/debts/PrivateDebts'
 import { Savings } from './features/savings/Savings'
 import { Installments } from './features/installments/Installments'
+import { MonthlyExpenses } from './features/monthly/MonthlyExpenses'
 import { Analytics } from './features/analytics/Analytics'
 import { resources } from './i18n/locales'
 import './styles.css'
@@ -41,6 +42,7 @@ void i18n.use(initReactI18next).init({
           <Route path="/debts" element={<PrivateDebts />} />
           <Route path="/savings" element={<Savings />} />
           <Route path="/installments" element={<Installments />} />
+          <Route path="/monthly-expenses" element={<MonthlyExpenses />} />
           <Route path="/analytics" element={<Analytics />} />
           <Route path="/overview" element={<App />} />
         </Route>
