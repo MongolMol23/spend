@@ -77,11 +77,11 @@ export async function readDebt(client: DebtClient, id: string, signal: AbortSign
   return data
 }
 
-export async function listDebtPayments(client: DebtClient, id: string, page: number, signal: AbortSignal, from: string, until: string) {
+export async function listDebtPayments(client: DebtClient, id: string, page: number, signal: AbortSignal) {
   const first = page * debtPageSize
   const { data, error } = await client.from('private_debt_payments').select('*').eq('debt_id', id)
     .order('paid_on', { ascending: false }).order('id', { ascending: false })
-    .gte('paid_on', from).lt('paid_on', until).range(first, first + debtPageSize).abortSignal(signal)
+    .range(first, first + debtPageSize).abortSignal(signal)
   if (error) throw error
   return data
 }

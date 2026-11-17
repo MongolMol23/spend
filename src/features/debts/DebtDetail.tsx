@@ -1,6 +1,5 @@
 import { Modal } from '../../ui/Modal'
 import { readHistory } from '../../data/readHistory'
-import { HistoryDates, useHistoryDates } from '../../ui/HistoryDates'
 import { Toast } from '../../ui/Toast'
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { Link } from 'react-router'
@@ -26,8 +25,6 @@ export function DebtDetail({ client, debt, date, busy, pending, payError, archiv
   edit: () => void
 }) {
   const { t } = useTranslation()
-  const historyDates = useHistoryDates()
-  const { from, until } = historyDates
   const [invalid, setInvalid] = useState(false)
   const [paying, setPaying] = useState(false)
   const heading = useRef<HTMLHeadingElement>(null)
@@ -35,8 +32,8 @@ export function DebtDetail({ client, debt, date, busy, pending, payError, archiv
   const remaining = debt.amount_minor - debt.paid_minor
   const paymentError = invalid ? 'debtInvalidPayment' : payError
   const payments = useQuery({
-    queryKey: [...debtKey, 'payments', debt.id, from, until],
-    queryFn: ({ signal }) => readHistory(debtPageSize, page => listDebtPayments(client, debt.id, page, signal, from, until)),
+    queryKey: [...debtKey, 'payments', debt.id],
+    queryFn: ({ signal }) => readHistory(debtPageSize, page => listDebtPayments(client, debt.id, page, signal)),
   })
   useEffect(() => { heading.current?.focus() }, [])
 
@@ -102,8 +99,7 @@ export function DebtDetail({ client, debt, date, busy, pending, payError, archiv
       </form>
       </section>
     </LedgerEditor>}
-    <HistoryDisclosure className="record-history" title={t('debtPayments')}
-    filters={<HistoryDates {...historyDates} />}>
+    <HistoryDisclosure className="record-history" title={t('debtPayments')}>
       {payments.isPending && <p className="loading-state" role="status">{t('loading')}</p>}
       {payments.isError && <><Toast message={t('failed')} />
         <button type="button" className="secondary" disabled={payments.isFetching} aria-busy={payments.isFetching} onClick={() => void payments.refetch()}>{t('retry')}</button></>}
@@ -111,7 +107,7 @@ export function DebtDetail({ client, debt, date, busy, pending, payError, archiv
         {payments.data.map(payment => <HistoryEntry key={payment.id}
           title={t('debtPaymentSaved')} timestamp={payment.paid_on} date={date}
           amount={<Amount value={payment.amount_minor / 100} />} />)}
-      </ol> : <p className="empty-state">{t('historyNoEntries')}</p>)}
+      </ol> : <p className="empty-state">{t('noDebtPayments')}</p>)}
     </HistoryDisclosure>
     <Modal ref={dialog} busy={busy} className="panel debt-dialog" aria-labelledby="archive-debt-title">
       <h2 id="archive-debt-title">{t('archiveDebt')}</h2>
