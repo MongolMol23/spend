@@ -181,17 +181,16 @@ main.shell { padding-block: clamp(24px, 5vw, 50px) clamp(36px, 7vw, 80px) }
 .site-nav a[aria-current]:focus-visible { outline-color: var(--purple) }
 .nav-short-label, .site-nav .nav-more { display: none }
 
-@media (width < 1200px) {
-  .nav-indicator { border-radius: var(--radius-sm) }
-  .top > .site-nav {
+  .top:not([data-expanded-nav]) .nav-indicator { border-radius: var(--radius-sm) }
+  .top:not([data-expanded-nav]) > .site-nav {
     display: grid;
     grid-template-columns: repeat(5, minmax(0, 1fr));
     border-radius: var(--radius);
     gap: 2px;
   }
-  .top > .site-nav :is(.nav-secondary, .nav-full-label) { display: none }
-  .top > .site-nav .nav-short-label { display: inline }
-  .top > .site-nav a, .top > .site-nav .nav-more {
+  .top:not([data-expanded-nav]) > .site-nav :is(.nav-secondary, .nav-full-label) { display: none }
+  .top:not([data-expanded-nav]) > .site-nav .nav-short-label { display: inline }
+  .top:not([data-expanded-nav]) > .site-nav a, .top:not([data-expanded-nav]) > .site-nav .nav-more {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -207,12 +206,12 @@ main.shell { padding-block: clamp(24px, 5vw, 50px) clamp(36px, 7vw, 80px) }
   }
   .site-nav .nav-more { border: 2px solid transparent; background: transparent; color: var(--nav-text) }
   .site-nav .nav-more:focus-visible { outline-color: var(--nav-focus); outline-offset: -2px; outline-style: dashed }
-}
 
-@media (min-width: 1536px) {
-  .top { --content: 1450px; grid-template-columns: auto minmax(0, 1fr) auto }
-  .top > .header-preferences { grid-column: 3; grid-row: 1 }
-  .top > .site-nav { grid-column: 2; grid-row: 1; justify-self: center; max-inline-size: 100% }
+@media (min-width: 1200px) {
+  .top { --content: 1800px }
+  .top[data-inline-nav] { grid-template-columns: auto minmax(0, 1fr) auto }
+  .top[data-inline-nav] > .header-preferences { grid-column: 3; grid-row: 1 }
+  .top[data-inline-nav] > .site-nav { grid-column: 2; grid-row: 1; inline-size: 100% }
 }
 .header-preferences { display: flex; align-items: center; gap: var(--space-1) }
 .header-preferences .theme-toggle { inline-size: 44px; padding: 0; border-radius: var(--pill) }
