@@ -3,12 +3,15 @@ import { readHistory } from '../../data/readHistory'
 import { HistoryDates, useHistoryDates } from '../../ui/HistoryDates'
 import { Toast } from '../../ui/Toast'
 import { useEffect, useRef, useState, type FormEvent } from 'react'
+import { Link } from 'react-router'
+import { ArrowLeft, Pencil, Archive, Plus } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { HistoryDisclosure, HistoryEntry } from '../../ui/HistoryEntry'
 import { ledgerToday } from '../../data/calendar'
 import type { Label } from '../../i18n/locales'
 import { Amount } from '../../ui/Amount'
+import { LedgerEditor } from '../../ui/LedgerEditor'
 import { debtKey, debtPageSize, listDebtPayments, paymentInput, type DebtChange, type DebtClient, type PrivateDebt } from './api'
 
 export function DebtDetail({ client, debt, date, busy, pending, payError, archiveError, save, edit }: {
@@ -26,6 +29,7 @@ export function DebtDetail({ client, debt, date, busy, pending, payError, archiv
   const historyDates = useHistoryDates()
   const { from, until } = historyDates
   const [invalid, setInvalid] = useState(false)
+  const [paying, setPaying] = useState(false)
   const heading = useRef<HTMLHeadingElement>(null)
   const dialog = useRef<HTMLDialogElement>(null)
   const remaining = debt.amount_minor - debt.paid_minor
@@ -48,23 +52,45 @@ export function DebtDetail({ client, debt, date, busy, pending, payError, archiv
     }
     setInvalid(false)
     if (await save({ kind: 'pay', debt, input: result.data })) {
-      form.reset()
+      setPaying(false)
     }
   }
 
   return <section className="panel debt-detail">
-    <h2 ref={heading} tabIndex={-1}>{t('debtDetails')} · <bdi>{debt.contact}</bdi></h2>
-    <div className="row debt-row">
-      <span>{t(debt.direction)}</span>
-      <span className="status" data-state={remaining ? undefined : 'settled'}>{t(remaining ? 'debtOpen' : 'debtSettled')}</span>
+    <div className="debt-detail-heading">
+      <div className="debt-person">
+        <span className="debt-avatar" aria-hidden="true">{Array.from(debt.contact)[0]?.toLocaleUpperCase()}</span>
+        <h2 ref={heading} tabIndex={-1}><bdi>{debt.contact}</bdi></h2>
+      </div>
+      <Link className="secondary debt-back" to="/debts"><ArrowLeft size={16} aria-hidden="true" />{t('debtBack')}</Link>
     </div>
-    {debt.due_on && <p>{t('due')} <time dateTime={debt.due_on}>{date.format(new Date(debt.due_on))}</time></p>}
-    <dl className="debt-balances">
+    <div className="debt-balance-summary" data-direction={debt.direction}>
+      <div className="row">
+        <strong>{t(debt.direction)}</strong>
+        <span className="status" data-state={remaining ? undefined : 'settled'}>{t(remaining ? 'debtOpen' : 'debtSettled')}</span>
+      </div>
+      <span className="debt-remaining-label">{t('remaining')}</span>
+      <strong className="debt-remaining"><Amount value={remaining / 100} /></strong>
+      {debt.due_on && <span className="debt-due">{t('due')} <time dateTime={debt.due_on}>{date.format(new Date(debt.due_on))}</time></span>}
+      <div className="debt-progress" aria-hidden="true"><span style={{ inlineSize: (debt.paid_minor / debt.amount_minor) * 100 + '%' }} /></div>
+    </div>
+    <dl className="debt-detail-totals">
       {([
-        ['debtTotal', debt.amount_minor], ['paid', debt.paid_minor], ['remaining', remaining],
+        ['debtTotal', debt.amount_minor], ['paid', debt.paid_minor],
       ] as const).map(([label, amount]) => <div key={label}><dt>{t(label)}</dt><dd><Amount value={amount / 100} /></dd></div>)}
     </dl>
-    {remaining > 0 && <form onSubmit={submitPayment} noValidate onChange={() => setInvalid(false)}>
+    <div className="debt-detail-tools">
+      {remaining > 0 && <button type="button" className="primary" disabled={busy}
+        onClick={() => { setInvalid(false); setPaying(true) }}><Plus size={17} aria-hidden="true" />{t('debtPay')}</button>}
+      <button type="button" className="secondary" disabled={busy} onClick={edit}><Pencil size={16} aria-hidden="true" />{t('editDebt')}</button>
+      <button type="button" className="secondary debt-archive-action" disabled={busy} aria-label={t('archiveDebt')} title={t('archiveDebt')}
+        onClick={() => dialog.current?.showModal()}><Archive size={18} aria-hidden="true" /></button>
+    </div>
+    {paying && <LedgerEditor titleId="debt-payment-title" busy={busy} onClose={() => setPaying(false)}>
+      <section className="panel debt-payment-editor">
+      <h2 id="debt-payment-title">{t('debtPay')}</h2>
+      <p><bdi>{debt.contact}</bdi> · {t('remaining')} <Amount value={remaining / 100} /></p>
+      <form onSubmit={submitPayment} noValidate onChange={() => setInvalid(false)}>
       <fieldset className="debt-form" disabled={busy} aria-label={t('debtPay')}>
         <div className="debt-pair">
           <label>{t('debtPaymentAmount')}<input name="amount" inputMode="decimal" dir="ltr" required /></label>
@@ -73,7 +99,9 @@ export function DebtDetail({ client, debt, date, busy, pending, payError, archiv
         {paymentError && <Toast message={t(paymentError)} />}
         <div><button type="submit" className="primary" aria-busy={pending === 'pay'}>{t('debtPay')}</button></div>
       </fieldset>
-    </form>}
+      </form>
+      </section>
+    </LedgerEditor>}
     <HistoryDisclosure className="record-history" title={t('debtPayments')}
     filters={<HistoryDates {...historyDates} />}>
       {payments.isPending && <p className="loading-state" role="status">{t('loading')}</p>}
@@ -85,10 +113,6 @@ export function DebtDetail({ client, debt, date, busy, pending, payError, archiv
           amount={<Amount value={payment.amount_minor / 100} />} />)}
       </ol> : <p className="empty-state">{t('historyNoEntries')}</p>)}
     </HistoryDisclosure>
-    <div className="debt-actions">
-      <button type="button" className="secondary" disabled={busy} onClick={edit}>{t('editDebt')}</button>
-      <button type="button" className="secondary" disabled={busy} onClick={() => dialog.current?.showModal()}>{t('archiveDebt')}</button>
-    </div>
     <Modal ref={dialog} busy={busy} className="panel debt-dialog" aria-labelledby="archive-debt-title">
       <h2 id="archive-debt-title">{t('archiveDebt')}</h2>
       <p><bdi>{debt.contact}</bdi></p>

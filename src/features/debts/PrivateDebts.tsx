@@ -1,6 +1,6 @@
 import { budgetWarning } from '../budget/budget'
 import { FeatureHeading } from '../../ui/FeatureHeading'
-import { Scale } from 'lucide-react'
+import { Scale, ChevronRight } from 'lucide-react'
 import { LedgerEditor, LedgerHeading } from '../../ui/LedgerEditor'
 import { Toast } from '../../ui/Toast'
 import { SignInLink } from '../accounts/SignInLink'
@@ -91,13 +91,15 @@ function DebtWorkspace({ client, owner }: { client: DebtClient; owner: string })
     <div className="debt-stack">
       {activeId && (detail.isPending ? <p className="loading-state" role="status">{t('loading')}</p>
         : detail.isError && !detail.data ? <section className="panel"><Toast message={t('failed')} />
-          <button type="button" className="secondary" disabled={detail.isFetching} aria-busy={detail.isFetching} onClick={() => void detail.refetch()}>{t('retry')}</button></section>
+          <div className="debt-actions"><button type="button" className="secondary" disabled={detail.isFetching} aria-busy={detail.isFetching} onClick={() => void detail.refetch()}>{t('retry')}</button>
+            <Link className="secondary" to="/debts">{t('debtBack')}</Link></div></section>
         : detail.data ? <DebtDetail key={activeId} client={client} debt={detail.data} date={date}
           busy={mutation.isPending} pending={mutation.isPending ? mutation.variables?.kind : undefined} save={save} edit={() => { setEditorOpen(true); setEditSnapshot(detail.data ?? undefined); mutation.reset() }}
           payError={sameDebt && mutation.variables?.kind === 'pay' ? error : undefined}
           archiveError={sameDebt && mutation.variables?.kind === 'archive' ? error : undefined} />
-        : <p className="empty-state">{t('debtMissing')}</p>)}
-      <section className="panel">
+        : <section className="panel"><p className="empty-state">{t('debtMissing')}</p>
+          <Link className="secondary" to="/debts">{t('debtBack')}</Link></section>)}
+      {!activeId && <section className="panel debt-list">
         <LedgerHeading title={t('debtLog')} action={t('addDebt')} busy={mutation.isPending} onAdd={() => { setEditSnapshot(undefined); mutation.reset(); setEditorOpen(true) }} />
         {list.isPending && <p className="loading-state" role="status">{t('loading')}</p>}
         {list.isError && <><Toast message={t('failed')} />
@@ -105,20 +107,22 @@ function DebtWorkspace({ client, owner }: { client: DebtClient; owner: string })
         {list.data && (list.data.length ? <ul className="ledger">
           {list.data.slice(0, debtPageSize).map(debt => <li key={debt.id}>
             <Link to={'?debt=' + debt.id} aria-current={activeId === debt.id ? 'true' : undefined}
-              className="row debt-row debt-list-link" onClick={() => { setEditSnapshot(undefined); setNotice(undefined) }}>
-              <strong><bdi>{debt.contact}</bdi></strong>
-              <Amount value={(debt.amount_minor - debt.paid_minor) / 100} />
+              className="debt-contact-card" data-direction={debt.direction} onClick={() => { setEditSnapshot(undefined); setNotice(undefined) }}>
+              <span className="debt-avatar" aria-hidden="true">{Array.from(debt.contact)[0]?.toLocaleUpperCase()}</span>
+              <span className="debt-contact-copy">
+                <strong><bdi>{debt.contact}</bdi></strong>
+                <span className="muted">{t(debt.direction)}</span>
+                {debt.due_on && <time dateTime={debt.due_on}>{date.format(new Date(debt.due_on))}</time>}
+              </span>
+              <strong className="debt-contact-amount"><Amount value={(debt.amount_minor - debt.paid_minor) / 100} /></strong>
+              <ChevronRight className="debt-contact-arrow" size={18} aria-hidden="true" />
             </Link>
-            <div className="row debt-row muted">
-              <span>{t(debt.direction)}</span>
-              {debt.due_on && <time dateTime={debt.due_on}>{date.format(new Date(debt.due_on))}</time>}
-            </div>
           </li>)}
         </ul> : <p className="empty-state">{t('noDebts')}</p>)}
         <DebtPages page={page} hasNext={(list.data?.length ?? 0) > debtPageSize} move={setPage} />
-      </section>
+      </section>}
     </div>
-    <DebtHistory client={client} date={date} />
+    {!activeId && <DebtHistory client={client} date={date} />}
   </>
 }
 
