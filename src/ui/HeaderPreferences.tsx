@@ -11,6 +11,7 @@ export function HeaderPreferences({ children, notification }: { children?: React
   function toggleTheme() {
     const theme = dark ? 'light' : 'dark'
     document.documentElement.dataset.theme = theme
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', dark ? '#fffef9' : '#232120')
     setDark(!dark)
     try {
       localStorage.setItem('spend-theme', theme)
