@@ -129,7 +129,7 @@ function DebtWorkspace({ client, owner }: { client: DebtClient; owner: string })
 export function PrivateDebts() {
   const { t } = useTranslation()
   const owner = useLedgerOwner()
-  return <main id="main" tabIndex={-1} className="shell">
+  return <main id="main" tabIndex={-1} className="shell private-debts">
     <FeatureHeading title={t('privateDebts')} icon={Scale} accent="peach" />
     {!supabase ? <Toast message={t('failed')} />
       : owner === undefined ? <p role="status" className="loading-state">{t('loading')}</p>

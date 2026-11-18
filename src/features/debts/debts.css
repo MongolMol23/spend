@@ -46,6 +46,21 @@
 .debt-contact-copy :is(time, .muted) { font-size: .8rem }
 .debt-contact-amount { text-align: end }
 .debt-contact-amount .amount { white-space: normal; overflow-wrap: anywhere }
+@media (prefers-reduced-motion: no-preference) {
+  .private-debts .debt-stack > :is(.debt-detail, .debt-list) {
+    animation: debt-screen-enter 240ms var(--motion-out) both;
+  }
+  .private-debts .debt-detail { --debt-entry-offset: 14px }
+  .private-debts .debt-list { --debt-entry-offset: -14px }
+  .private-debts .debt-detail:dir(rtl) { --debt-entry-offset: -14px }
+  .private-debts .debt-list:dir(rtl) { --debt-entry-offset: 14px }
+  .private-debts .debt-contact-card { transition: scale 120ms var(--motion-out) }
+  .private-debts .debt-contact-card:active { scale: .985 }
+}
+@keyframes debt-screen-enter {
+  from { opacity: .35; translate: var(--debt-entry-offset) 0 }
+  to { opacity: 1; translate: 0 0 }
+}
 @media (hover: hover) {
   .debt-contact-card:hover { background: var(--inset-surface) }
   .debt-detail-tools .debt-archive-action:hover { background: var(--peach-panel) }
