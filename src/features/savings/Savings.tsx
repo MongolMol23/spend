@@ -128,7 +128,7 @@ function SavingsWorkspace({ client, owner }: { client: SavingsClient; owner: str
         cancel={closeEditor} />
     </LedgerEditor>}
     {notice && <Toast kind="success" message={t(notice)} />}
-    <div className="debt-stack">
+    <div className="debt-stack debt-stack-animated">
       {id && (detail.isPending ? <p className="loading-state" role="status">{t('loading')}</p>
         : detail.isError && !detail.data ? <section className="panel"><Toast message={t('failed')} />
           <div className="debt-actions"><button type="button" className="secondary" disabled={detail.isFetching} aria-busy={detail.isFetching} onClick={() => void detail.refetch()}>{t('retry')}</button>

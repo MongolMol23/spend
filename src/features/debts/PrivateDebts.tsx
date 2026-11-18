@@ -88,7 +88,7 @@ function DebtWorkspace({ client, owner }: { client: DebtClient; owner: string })
         cancel={closeEditor} />
     </LedgerEditor>}
     {notice && <Toast kind={notice.startsWith('budget') ? 'error' : 'success'} message={t(notice)} />}
-    <div className="debt-stack">
+    <div className="debt-stack debt-stack-animated">
       {activeId && (detail.isPending ? <p className="loading-state" role="status">{t('loading')}</p>
         : detail.isError && !detail.data ? <section className="panel"><Toast message={t('failed')} />
           <div className="debt-actions"><button type="button" className="secondary" disabled={detail.isFetching} aria-busy={detail.isFetching} onClick={() => void detail.refetch()}>{t('retry')}</button>
@@ -129,7 +129,7 @@ function DebtWorkspace({ client, owner }: { client: DebtClient; owner: string })
 export function PrivateDebts() {
   const { t } = useTranslation()
   const owner = useLedgerOwner()
-  return <main id="main" tabIndex={-1} className="shell private-debts">
+  return <main id="main" tabIndex={-1} className="shell">
     <FeatureHeading title={t('privateDebts')} icon={Scale} accent="peach" />
     {!supabase ? <Toast message={t('failed')} />
       : owner === undefined ? <p role="status" className="loading-state">{t('loading')}</p>
