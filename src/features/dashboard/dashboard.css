@@ -16,6 +16,32 @@
 .metric .icon-tile { inline-size: 32px; block-size: 32px }
 
 .dashboard-detail { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4) }
+.overview-plans { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); margin-block-start: var(--space-4) }
+.dashboard-detail > .panel, .overview-plan { min-inline-size: 0; padding: clamp(14px, 2vw, 22px) }
+.overview-card-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-block-end: 12px }
+.overview-card-heading h2 { margin: 0; min-inline-size: 0; font-size: clamp(1rem, 2vw, 1.25rem) }
+.overview-card-heading .icon-tile { flex: none }
+.overview-card-link { display: grid; place-items: center; flex: none; inline-size: 44px; min-block-size: 44px; padding: 0 }
+.overview-card-link:dir(rtl) svg { transform: scaleX(-1) }
+.overview-list { list-style: none; margin: 0; padding: 0 }
+.overview-list-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, auto); align-items: center; gap: 12px; padding-block: 8px }
+.overview-list-row + .overview-list-row { border-block-start: 1px solid var(--line) }
+.overview-list-value { display: grid; text-align: end }
+.overview-list-value small, .overview-purchase-name time { color: var(--muted); font-size: .8rem }
+.overview-purchase-name { display: grid; gap: 2px; min-inline-size: 0 }
+.overview-list-value .amount, .overview-plan-totals .amount { white-space: normal; overflow-wrap: anywhere }
+.overview-plan-totals { margin: 0 }
+.overview-plan-totals > div { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; padding-block: 8px }
+.overview-plan-totals > div:first-child { flex-wrap: wrap; padding: 10px; margin-block-end: 3px; border: var(--stroke); border-radius: var(--radius-sm); background: var(--inset-surface) }
+.overview-plan-totals > div + div + div { border-block-start: 1px solid var(--line) }
+.overview-plan-totals dt { min-inline-size: 0; font-size: .85rem }
+.overview-plan-totals dd { margin: 0; text-align: end; font-weight: 750 }
+.overview-plan-totals > div:first-child dd { font-size: 1.2rem }
+.overview-savings { --panel-fill: var(--mint-panel) }
+.overview-savings .icon-tile { --icon-fill: var(--mint) }
+.overview-installments { --panel-fill: var(--amber-panel) }
+.overview-installments .icon-tile { --icon-fill: var(--yellow) }
+.overview-plan > .follow-item { margin-block-start: 8px }
 .spending-detail .icon-tile { --icon-fill: var(--lavender) }
 .purchases .icon-tile { --icon-fill: var(--mint) }
 .follow-up { grid-column: 1 / -1; --panel-fill: var(--lavender-panel) }
@@ -39,7 +65,7 @@
   .follow-link-arrow { transition: background-color 140ms ease-out }
 }
 
-.category-bar { display: flex; overflow: hidden; block-size: 26px; margin-block: var(--space-4) var(--space-1); border: var(--stroke); border-radius: var(--pill) }
+.category-bar { display: flex; overflow: hidden; block-size: 16px; margin-block: 0 var(--space-1); border: var(--stroke); border-radius: var(--pill) }
 .category-bar span { flex-basis: 0; background: var(--category-color, var(--lavender)) }
 .category-bar span + span { border-inline-start: var(--stroke) }
 .category-name { display: flex; align-items: center; gap: 9px }
@@ -53,7 +79,7 @@
 .purchases bdi { overflow-wrap: anywhere }
 
 @media (max-width: 650px) {
-  .dashboard-detail { grid-template-columns: minmax(0, 1fr) }
+  .dashboard-detail, .overview-plans { grid-template-columns: minmax(0, 1fr); gap: var(--space-3) }
   .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-2) }
   .metric:first-child { grid-column: 1 / -1 }
 }

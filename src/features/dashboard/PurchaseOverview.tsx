@@ -2,6 +2,7 @@ import { Toast } from '../../ui/Toast'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
+import { CalendarDays, ChevronRight, Vault } from 'lucide-react'
 import { Amount } from '../../ui/Amount'
 import { debtKey, debtOverview } from '../debts/api'
 import { installmentKey, readInstallmentOverview } from '../installments/api'
@@ -51,44 +52,46 @@ export function PurchaseOverview({ client, month }: { client: PurchaseClient; mo
     </div>}
     <BudgetCard client={client} />
     <Dashboard ledger={query.data} debts={debts.data ?? undefined} />
-    <section className="panel savings-overview">
-      <div className="row">
-        <h2>{t('savingsGoals')}</h2>
-        <Link className="secondary" to="/savings">{t('savingsViewGoals')}</Link>
-      </div>
-      {savings.isPending && <p className="loading-state" role="status">{t('loading')}</p>}
-      {savings.isError && <><Toast message={t('savingsOverviewFailed')} />
-        <button type="button" className="secondary" disabled={savings.isFetching} aria-busy={savings.isFetching} onClick={() => void savings.refetch()}>{t('retry')}</button></>}
-      {savings.data && <dl className="debt-balances">
-        {([
-          ['savingsActiveTotal', savings.data.saved_minor],
-          ['savingsThisMonthIn', savings.data.deposited_minor],
-          ['savingsThisMonthOut', savings.data.withdrawn_minor],
-        ] as const).map(([label, amount]) => <div key={label}><dt>{t(label)}</dt><dd><Amount value={amount / 100} /></dd></div>)}
-      </dl>}
-    </section>
-    <section className="panel installment-overview">
-      <div className="row">
-        <h2>{t('installments')}</h2>
-        <Link className="secondary" to="/installments">{t('installmentViewPlans')}</Link>
-      </div>
-      {installments.isPending && <p className="loading-state" role="status">{t('loading')}</p>}
-      {installments.isError && <><Toast message={t('installmentOverviewFailed')} />
-        <button type="button" className="secondary" disabled={installments.isFetching} aria-busy={installments.isFetching} onClick={() => void installments.refetch()}>{t('retry')}</button></>}
-      {installments.data && <dl className="debt-balances">
-        {([
-          ['installmentMonthPaid', installments.data.paid_minor],
-          ['installmentRemaining', installments.data.remaining_minor],
-          ['installmentOverdueBalance', installments.data.overdue_minor],
-        ] as const).map(([label, amount]) => <div key={label}><dt>{t(label)}</dt><dd><Amount value={amount / 100} /></dd></div>)}
-      </dl>}
-      {installments.data?.next_plan_id && installments.data.next_due_on && installments.data.next_minor !== null &&
-        <Link className="follow-item follow-link" to={'/installments?plan=' + installments.data.next_plan_id}>
-          <span className="muted">{t(installments.data.next_due_on < ledgerToday() ? 'installmentOverdue' : 'due')}{' '}
-            <time dateTime={installments.data.next_due_on}>{date.format(new Date(installments.data.next_due_on))}</time></span>
-          <span className="row"><strong className="reason"><bdi>{installments.data.next_name}</bdi></strong>
-            <Amount value={installments.data.next_minor / 100} /></span>
-        </Link>}
-    </section>
+    <div className="overview-plans">
+      <section className="panel overview-plan overview-savings">
+        <div className="overview-card-heading">
+          <h2 className="section-heading"><span className="icon-tile" aria-hidden="true"><Vault size={18} /></span>{t('savingsGoals')}</h2>
+          <Link className="secondary overview-card-link" to="/savings" aria-label={t('savingsViewGoals')} title={t('savingsViewGoals')}><ChevronRight size={17} aria-hidden="true" /></Link>
+        </div>
+        {savings.isPending && <p className="loading-state" role="status">{t('loading')}</p>}
+        {savings.isError && <><Toast message={t('savingsOverviewFailed')} />
+          <button type="button" className="secondary" disabled={savings.isFetching} aria-busy={savings.isFetching} onClick={() => void savings.refetch()}>{t('retry')}</button></>}
+        {savings.data && <dl className="overview-plan-totals">
+          {([
+            ['savingsActiveTotal', savings.data.saved_minor],
+            ['savingsThisMonthIn', savings.data.deposited_minor],
+            ['savingsThisMonthOut', savings.data.withdrawn_minor],
+          ] as const).map(([label, amount]) => <div key={label}><dt>{t(label)}</dt><dd><Amount value={amount / 100} /></dd></div>)}
+        </dl>}
+      </section>
+      <section className="panel overview-plan overview-installments">
+        <div className="overview-card-heading">
+          <h2 className="section-heading"><span className="icon-tile" aria-hidden="true"><CalendarDays size={18} /></span>{t('installments')}</h2>
+          <Link className="secondary overview-card-link" to="/installments" aria-label={t('installmentViewPlans')} title={t('installmentViewPlans')}><ChevronRight size={17} aria-hidden="true" /></Link>
+        </div>
+        {installments.isPending && <p className="loading-state" role="status">{t('loading')}</p>}
+        {installments.isError && <><Toast message={t('installmentOverviewFailed')} />
+          <button type="button" className="secondary" disabled={installments.isFetching} aria-busy={installments.isFetching} onClick={() => void installments.refetch()}>{t('retry')}</button></>}
+        {installments.data && <dl className="overview-plan-totals">
+          {([
+            ['installmentRemaining', installments.data.remaining_minor],
+            ['installmentMonthPaid', installments.data.paid_minor],
+            ['installmentOverdueBalance', installments.data.overdue_minor],
+          ] as const).map(([label, amount]) => <div key={label}><dt>{t(label)}</dt><dd><Amount value={amount / 100} /></dd></div>)}
+        </dl>}
+        {installments.data?.next_plan_id && installments.data.next_due_on && installments.data.next_minor !== null &&
+          <Link className="follow-item follow-link" to={'/installments?plan=' + installments.data.next_plan_id}>
+            <span className="muted">{t(installments.data.next_due_on < ledgerToday() ? 'installmentOverdue' : 'due')}{' '}
+              <time dateTime={installments.data.next_due_on}>{date.format(new Date(installments.data.next_due_on))}</time></span>
+            <span className="row"><strong className="reason"><bdi>{installments.data.next_name}</bdi></strong>
+              <Amount value={installments.data.next_minor / 100} /></span>
+          </Link>}
+      </section>
+    </div>
   </>
 }

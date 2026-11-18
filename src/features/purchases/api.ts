@@ -39,7 +39,7 @@ export async function monthlyPurchases(client: PurchaseClient, month: string, si
 }
 
 export async function recentPurchases(client: PurchaseClient, signal: AbortSignal) {
-  const { data, error } = await client.from('expenses').select('id,item,amount_minor').is('archived_at', null)
+  const { data, error } = await client.from('expenses').select('id,item,amount_minor,spent_on').is('archived_at', null)
     .order('spent_on', { ascending: false }).order('id', { ascending: false }).limit(5).abortSignal(signal)
   if (error) throw error
   return data
