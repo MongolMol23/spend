@@ -4,6 +4,7 @@ import { Plus } from 'lucide-react'
 import { Link } from 'react-router'
 import { supabase } from '../data/supabase'
 import { PurchaseOverview } from '../features/dashboard/PurchaseOverview'
+import { OverviewLoading } from '../features/dashboard/OverviewLoading'
 import { purchaseToday } from '../features/purchases/api'
 import { LedgerQueries, useLedgerOwner } from '../data/LedgerSession'
 import { SignInLink } from '../features/accounts/SignInLink'
@@ -24,7 +25,7 @@ export function App() {
         {owner && <Link className="primary" to="/purchases"><Plus size={18} aria-hidden="true" />{t('addPurchase')}</Link>}
       </div>
       {!supabase ? <Toast message={t('accountUnavailable')} />
-        : owner === undefined ? <div className="panel"><p className="loading-state" role="status">{t('loading')}</p></div>
+        : owner === undefined ? <OverviewLoading />
         : owner ? <LedgerQueries key={owner}><PurchaseOverview client={supabase} month={month} /></LedgerQueries>
         : <section className="panel">
           <h2>{t('overviewGuestTitle')}</h2>

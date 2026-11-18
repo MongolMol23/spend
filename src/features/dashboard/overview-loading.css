@@ -1,0 +1,25 @@
+.overview-loading { position: relative }
+.overview-loading-label {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+.overview-loading-preview { display: grid; gap: var(--space-3) }
+.overview-loading-budget, .overview-loading-spending { display: grid; gap: var(--space-2) }
+.overview-loading-budget { --panel-fill: var(--mint-panel) }
+.overview-loading-spending { --panel-fill: var(--amber-panel) }
+.overview-loading-line, .overview-loading-number, .overview-loading-totals > span {
+  display: block;
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--ink) 13%, transparent);
+}
+.overview-loading-line { inline-size: 7rem; block-size: .7rem }
+.overview-loading-number { inline-size: 4.5rem; block-size: 1.35rem }
+.overview-loading-totals { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-2) }
+.overview-loading-totals > span { block-size: 3.5rem }
+@media (prefers-reduced-motion: no-preference) {
+  .overview-loading-preview { animation: overview-loading-in 180ms var(--motion-out) both }
+  @keyframes overview-loading-in { from { opacity: 0 } }
+}

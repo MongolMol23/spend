@@ -11,6 +11,7 @@ import { monthlyPurchases, purchasesKey, recentPurchases, type PurchaseClient } 
 import { readSavingsOverview, savingsKey } from '../savings/api'
 import { Dashboard } from './Dashboard'
 import { BudgetCard } from '../budget/BudgetCard'
+import { OverviewLoading } from './OverviewLoading'
 
 export function PurchaseOverview({ client, month }: { client: PurchaseClient; month: string }) {
   const { t } = useTranslation()
@@ -37,7 +38,7 @@ export function PurchaseOverview({ client, month }: { client: PurchaseClient; mo
     queryKey: [...installmentKey, 'overview', month],
     queryFn: ({ signal }) => readInstallmentOverview(client, month, signal),
   })
-  if (query.isPending) return <div className="panel"><p className="loading-state" role="status">{t('loading')}</p></div>
+  if (query.isPending) return <OverviewLoading />
   if (!query.data) return <div className="panel">
     <Toast message={t('failed')} />
     <button className="primary" type="button" disabled={query.isFetching} aria-busy={query.isFetching} onClick={() => void query.refetch()}>{t('retry')}</button>
