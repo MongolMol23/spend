@@ -5,6 +5,10 @@ export function OverviewLoading() {
   const { t } = useTranslation()
   return <div className="overview-loading" role="status">
     <span className="overview-loading-label">{t('loading')}</span>
+    <div className="overview-loading-brand" aria-hidden="true" dir="ltr">
+      <strong>Spend</strong>
+      <span className="overview-loading-bars"><span /><span /><span /></span>
+    </div>
     <div className="overview-loading-preview" aria-hidden="true">
       <div className="panel overview-loading-budget">
         <span className="overview-loading-line" />
