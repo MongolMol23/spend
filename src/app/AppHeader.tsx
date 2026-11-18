@@ -9,6 +9,7 @@ import { Navigation } from './Navigation'
 import { ResponseBadge } from './ResponseBadge'
 import { supabase } from '../data/supabase'
 import { Toast } from '../ui/Toast'
+import { useNavigationSwipe } from './useNavigationSwipe'
 
 export function AppHeader({ admin = false, authPage = false }: { admin?: boolean; authPage?: boolean }) {
   const { t, i18n } = useTranslation()
@@ -19,6 +20,7 @@ export function AppHeader({ admin = false, authPage = false }: { admin?: boolean
   const [signingOut, setSigningOut] = useState<'header' | 'sidebar'>()
   const [signOutFailed, setSignOutFailed] = useState<'header' | 'sidebar'>()
   const showMemberNavigation = !admin && !authPage
+  useNavigationSwipe(header, showMemberNavigation)
 
   useLayoutEffect(() => {
     const top = header.current
