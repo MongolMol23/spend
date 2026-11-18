@@ -8,22 +8,27 @@ function swipeGutter(main: HTMLElement) {
   return Math.max(0, (window.innerWidth - main.offsetWidth) / 2 - 4)
 }
 
+function swipeSurface(main: HTMLElement) {
+  return Array.from(main.querySelectorAll<HTMLElement>('[data-page-swipe-panel]'))
+    .find(panel => panel.getClientRects().length > 0) ?? main
+}
+
 export function useNavigationSwipe(header: RefObject<HTMLDivElement | null>, enabled: boolean) {
   const navigate = useNavigate()
-  const { pathname } = useLocation()
+  const { pathname, search } = useLocation()
   const swipeDestination = useRef<{ path: string; offset: number } | null>(null)
 
   useLayoutEffect(() => {
     const destination = swipeDestination.current
-    if (destination?.path !== pathname) return
+    if (destination?.path !== pathname + search) return
     swipeDestination.current = null
     const main = document.getElementById('main')
     window.scrollTo({ top: 0, behavior: 'instant' })
     if (main && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       const entrance = Math.sign(destination.offset) * Math.min(Math.abs(destination.offset), swipeGutter(main))
-      main.animate([{ translate: entrance + 'px' }, { translate: '0px' }], { duration: 220, easing: swipeEase })
+      swipeSurface(main).animate([{ translate: entrance + 'px' }, { translate: '0px' }], { duration: 220, easing: swipeEase })
     }
-  }, [pathname])
+  }, [pathname, search])
 
   useEffect(() => {
     const nav = header.current?.querySelector(':scope > .site-nav')
@@ -31,7 +36,7 @@ export function useNavigationSwipe(header: RefObject<HTMLDivElement | null>, ena
     if (!enabled || !nav || !more) return
 
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
-    let start: { id: number; x: number; y: number; main: HTMLElement; horizontal: boolean } | undefined
+    let start: { id: number; x: number; y: number; main: HTMLElement; surface: HTMLElement; links: Element; horizontal: boolean } | undefined
     let offset = 0
     let settle: Animation | undefined
     function resetDrag(main: HTMLElement, animate: boolean) {
@@ -44,7 +49,7 @@ export function useNavigationSwipe(header: RefObject<HTMLDivElement | null>, ena
     }
 
     function onCancel() {
-      if (start) resetDrag(start.main, true)
+      if (start) resetDrag(start.surface, true)
       start = undefined
     }
 
@@ -53,18 +58,22 @@ export function useNavigationSwipe(header: RefObject<HTMLDivElement | null>, ena
       const target = event.target
       const touch = event.touches[0]
       const main = document.getElementById('main')
+      const localNav = main?.querySelector('[data-page-swipe-nav]')
+      const links = localNav ?? nav
+      const limit = localNav ?? more
       if (event.touches.length !== 1 || !(target instanceof Element) || !main
         || !(main.contains(target) || target === document.body || target === document.documentElement || target.id === 'root')
-        || target.closest(excluded) || !more?.getClientRects().length || document.querySelector('dialog[open]')
+        || (target.closest(excluded) && !target.closest('button[data-swipe-control]'))
+        || !limit.getClientRects().length || document.querySelector('dialog[open]')
         || touch.clientX < 18 || touch.clientX > window.innerWidth - 18
-        || !nav.querySelector('a[aria-current]')?.getClientRects().length) return
+        || !links.querySelector('a[aria-current]')?.getClientRects().length) return
 
       // Leave horizontal carousels and scrollable content in control of their own gestures.
       for (let element: Element | null = target; element && element !== document.body; element = element.parentElement) {
         if (element.scrollWidth > element.clientWidth && /auto|scroll/.test(getComputedStyle(element).overflowX)) return
       }
       settle?.cancel()
-      start = { id: touch.identifier, x: touch.clientX, y: touch.clientY, main, horizontal: false }
+      start = { id: touch.identifier, x: touch.clientX, y: touch.clientY, main, surface: swipeSurface(main), links, horizontal: false }
     }
 
     function onMove(event: TouchEvent) {
@@ -80,7 +89,7 @@ export function useNavigationSwipe(header: RefObject<HTMLDivElement | null>, ena
       }
       if (!reducedMotion.matches) {
         offset = Math.sign(dx) * Math.min(Math.abs(dx) * .25, swipeGutter(start.main), 24)
-        start.main.style.translate = offset + 'px'
+        start.surface.style.translate = offset + 'px'
       }
     }
 
@@ -94,18 +103,17 @@ export function useNavigationSwipe(header: RefObject<HTMLDivElement | null>, ena
       const dy = touch.clientY - origin.y
       if (Math.abs(dx) < 44 || Math.abs(dx) < Math.abs(dy) * 1.35) { onCancel(); return }
 
-      // Read the visible links in navbar order. The More button is not a route.
-      const routes = Array.from(nav.querySelectorAll<HTMLAnchorElement>('a[href]'))
+      const routes = Array.from(origin.links.querySelectorAll<HTMLAnchorElement>('a[href]'))
         .filter(link => link.getClientRects().length > 0)
-        .map(link => link.pathname)
-      const current = routes.indexOf(pathname)
+      const current = routes.findIndex(link => link.hasAttribute('aria-current'))
       const forward = document.documentElement.dir === 'rtl' ? dx > 0 : dx < 0
       const next = current < 0 ? undefined : routes[current + (forward ? 1 : -1)]
       if (!next) { onCancel(); return }
-      resetDrag(origin.main, false)
+      resetDrag(origin.surface, false)
       start = undefined
-      swipeDestination.current = { path: next, offset: dx < 0 ? 26 : -26 }
-      void navigate(next)
+      const path = next.pathname + next.search
+      swipeDestination.current = { path, offset: dx < 0 ? 26 : -26 }
+      void navigate(path)
     }
 
     const options = { passive: true }
@@ -114,12 +122,12 @@ export function useNavigationSwipe(header: RefObject<HTMLDivElement | null>, ena
     document.addEventListener('touchend', onEnd, options)
     document.addEventListener('touchcancel', onCancel, options)
     return () => {
-      if (start) resetDrag(start.main, false)
+      if (start) resetDrag(start.surface, false)
       settle?.cancel()
       document.removeEventListener('touchstart', onStart)
       document.removeEventListener('touchmove', onMove)
       document.removeEventListener('touchend', onEnd)
       document.removeEventListener('touchcancel', onCancel)
     }
-  }, [enabled, header, navigate, pathname])
+  }, [enabled, header, navigate, pathname, search])
 }

@@ -98,7 +98,7 @@ function AnalyticsWorkspace({ client }: { client: PurchaseClient }) {
           {[...summary.data].reverse().map(row => <option key={row.key} value={row.key}>{longMonth.format(monthDate(row.key))}</option>)}
         </Select>
       </label>
-      <nav className="analytics-sections" aria-label={t('analytics')}>
+      <nav className="analytics-sections" data-page-swipe-nav aria-label={t('analytics')}>
         <ActiveLinkIndicator selection={view} />
         {([
           ['trend', 'analyticsMonthsTab', ChartColumn],
@@ -109,7 +109,7 @@ function AnalyticsWorkspace({ client }: { client: PurchaseClient }) {
         </Link>)}
       </nav>
     </div>
-    <section className="panel analytics-trend" aria-labelledby="analytics-trend-title">
+    <section className="panel analytics-trend" data-page-swipe-panel aria-labelledby="analytics-trend-title">
       <h2 id="analytics-trend-title" className="section-heading">
         <span className="icon-tile" aria-hidden="true"><ChartColumn size={18} /></span>{t('analyticsTrend')}
       </h2>
@@ -125,7 +125,7 @@ function AnalyticsWorkspace({ client }: { client: PurchaseClient }) {
         </div>
       </div>
       <div className="analytics-bars">
-        {summary.data.map(row => <button key={row.key} type="button" aria-pressed={row.key === month}
+        {summary.data.map(row => <button key={row.key} type="button" data-swipe-control aria-pressed={row.key === month}
           aria-label={longMonth.format(monthDate(row.key)) + ' · ' + money.format(row.total / 100)}
           onClick={() => selectMonth(row.key)}>
           <span className="analytics-bar-value" aria-hidden="true">{compact.format(row.total / 100)}</span>
@@ -151,14 +151,14 @@ function AnalyticsWorkspace({ client }: { client: PurchaseClient }) {
       </ul>}
     </section>
     <div className="analytics-detail">
-      <section className="panel analytics-categories">
+      <section className="panel analytics-categories" data-page-swipe-panel>
         <h2 className="section-heading"><span className="icon-tile" aria-hidden="true"><PieChart size={18} /></span>{t('breakdown')}</h2>
         {selected.categories.length ? <>
           <button type="button" className="secondary" aria-pressed={!category}
             onClick={() => { setCategory(''); setPage(0) }}>{t('allCategories')}</button>
           <ul className="ledger">
             {selected.categories.map(row => <li key={row.category}>
-              <button type="button" data-category={categoryLabel(row.category)} aria-pressed={row.category === category}
+              <button type="button" data-swipe-control data-category={categoryLabel(row.category)} aria-pressed={row.category === category}
                 onClick={() => { setCategory(row.category); setPage(0) }}>
                 <span className="row"><span>{t(categoryLabel(row.category))}</span><Amount value={Number(row.total_minor) / 100} /></span>
                 <span className="analytics-category-share">
@@ -173,7 +173,7 @@ function AnalyticsWorkspace({ client }: { client: PurchaseClient }) {
           {category && <Link className="secondary analytics-category-results" to="?section=purchases">{t('analyticsCategoryResults')}</Link>}
         </> : <p className="empty-state">{t('noPurchases')}</p>}
       </section>
-      <section className="panel analytics-purchases" aria-labelledby="analytics-purchases-title">
+      <section className="panel analytics-purchases" data-page-swipe-panel aria-labelledby="analytics-purchases-title">
         <div className="analytics-purchases-heading">
           <h2 id="analytics-purchases-title" className="section-heading">
             <span className="icon-tile" aria-hidden="true"><ReceiptText size={18} /></span>
