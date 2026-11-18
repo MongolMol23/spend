@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, type RefObject } from 'react'
 import { useLocation, useNavigate } from 'react-router'
 
-const excluded = 'a, button, input, select, textarea, label, summary, dialog, [contenteditable], [role="slider"], [data-no-swipe]'
+const excluded = 'button, input, select, textarea, label, summary, dialog, [contenteditable], [role="slider"], [data-no-swipe]'
 const swipeEase = 'cubic-bezier(.22, 1, .36, 1)'
 
 function swipeGutter(main: HTMLElement) {
@@ -18,7 +18,6 @@ export function useNavigationSwipe(header: RefObject<HTMLDivElement | null>, ena
     if (destination?.path !== pathname) return
     swipeDestination.current = null
     const main = document.getElementById('main')
-    main?.focus({ preventScroll: true })
     window.scrollTo({ top: 0, behavior: 'instant' })
     if (main && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       const entrance = Math.sign(destination.offset) * Math.min(Math.abs(destination.offset), swipeGutter(main))
@@ -53,8 +52,9 @@ export function useNavigationSwipe(header: RefObject<HTMLDivElement | null>, ena
       onCancel()
       const target = event.target
       const touch = event.touches[0]
-      const main = target instanceof Element ? target.closest<HTMLElement>('main#main') : null
+      const main = document.getElementById('main')
       if (event.touches.length !== 1 || !(target instanceof Element) || !main
+        || !(main.contains(target) || target === document.body || target === document.documentElement || target.id === 'root')
         || target.closest(excluded) || !more?.getClientRects().length || document.querySelector('dialog[open]')
         || touch.clientX < 18 || touch.clientX > window.innerWidth - 18
         || !nav.querySelector('a[aria-current]')?.getClientRects().length) return
