@@ -193,7 +193,8 @@ export function RequestPanel({ client, userId, friends, names, requests, payment
       {friends.length === 0 && <p className="request-hint muted">{t('friendRequired')}{' '}
         <Link to="/connections?view=add">{t('addFriend')}</Link>
       </p>}
-      <nav className="request-filters" aria-label={t('moneyRequestList')}>
+      <div data-page-swipe-scope>
+      <nav className="request-filters" data-page-swipe-nav="request-groups" data-compact-swipe aria-label={t('moneyRequestList')}>
         <ActiveLinkIndicator selection={group.label} />
         {groups.map(({ label, entries, icon: Icon }) => <Link key={label} to={'?group=' + label}
           aria-current={group.label === label ? 'page' : undefined}>
@@ -202,7 +203,7 @@ export function RequestPanel({ client, userId, friends, names, requests, payment
           <bdi className="request-filter-count">{entries.length.toLocaleString(i18n.language === 'ar' ? 'ar-EG' : 'en-EG')}</bdi>
         </Link>)}
       </nav>
-      <div className="request-board">
+      <div className="request-board" data-page-swipe-panel="request-groups">
       {[group].map(({ label, accent, entries }) => <div className="request-group" data-accent={accent} key={label}>
         <h3 className="request-list-heading">{t(label)}</h3>
         {entries.length === 0 && <p className="connections-empty">{t('noRequestsInGroup')}</p>}
@@ -223,6 +224,7 @@ export function RequestPanel({ client, userId, friends, names, requests, payment
           </li>)}
         </ul>}
       </div>)}
+      </div>
       </div>
     </section>}
   </div>

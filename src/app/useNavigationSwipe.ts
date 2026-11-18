@@ -8,25 +8,26 @@ function swipeGutter(main: HTMLElement) {
   return Math.max(0, (window.innerWidth - main.offsetWidth) / 2 - 4)
 }
 
-function swipeSurface(main: HTMLElement) {
+function swipeSurface(main: HTMLElement, group: string | undefined) {
+  if (group === undefined) return main
   return Array.from(main.querySelectorAll<HTMLElement>('[data-page-swipe-panel]'))
-    .find(panel => panel.getClientRects().length > 0) ?? main
+    .find(panel => panel.dataset.pageSwipePanel === group && panel.getClientRects().length > 0) ?? main
 }
 
 export function useNavigationSwipe(header: RefObject<HTMLDivElement | null>, enabled: boolean) {
   const navigate = useNavigate()
   const { pathname, search } = useLocation()
-  const swipeDestination = useRef<{ path: string; offset: number } | null>(null)
+  const swipeDestination = useRef<{ path: string; offset: number; group?: string; nested: boolean } | null>(null)
 
   useLayoutEffect(() => {
     const destination = swipeDestination.current
     if (destination?.path !== pathname + search) return
     swipeDestination.current = null
     const main = document.getElementById('main')
-    window.scrollTo({ top: 0, behavior: 'instant' })
+    if (!destination.nested) window.scrollTo({ top: 0, behavior: 'instant' })
     if (main && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       const entrance = Math.sign(destination.offset) * Math.min(Math.abs(destination.offset), swipeGutter(main))
-      swipeSurface(main).animate([{ translate: entrance + 'px' }, { translate: '0px' }], { duration: 220, easing: swipeEase })
+      swipeSurface(main, destination.group).animate([{ translate: entrance + 'px' }, { translate: '0px' }], { duration: 220, easing: swipeEase })
     }
   }, [pathname, search])
 
@@ -36,7 +37,7 @@ export function useNavigationSwipe(header: RefObject<HTMLDivElement | null>, ena
     if (!enabled || !nav || !more) return
 
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
-    let start: { id: number; x: number; y: number; main: HTMLElement; surface: HTMLElement; links: Element; horizontal: boolean } | undefined
+    let start: { id: number; x: number; y: number; main: HTMLElement; surface: HTMLElement; links: Element; group?: string; nested: boolean; horizontal: boolean } | undefined
     let offset = 0
     let settle: Animation | undefined
     function resetDrag(main: HTMLElement, animate: boolean) {
@@ -58,13 +59,17 @@ export function useNavigationSwipe(header: RefObject<HTMLDivElement | null>, ena
       const target = event.target
       const touch = event.touches[0]
       const main = document.getElementById('main')
-      const localNav = main?.querySelector('[data-page-swipe-nav]')
+      const scope = target instanceof Element ? target.closest('[data-page-swipe-scope]') : null
+      const localNav = scope?.querySelector<HTMLElement>('[data-page-swipe-nav]')
+        ?? main?.querySelector<HTMLElement>('[data-page-swipe-nav]')
+      const group = localNav?.dataset.pageSwipeNav
       const links = localNav ?? nav
       const limit = localNav ?? more
       if (event.touches.length !== 1 || !(target instanceof Element) || !main
         || !(main.contains(target) || target === document.body || target === document.documentElement || target.id === 'root')
         || (target.closest(excluded) && !target.closest('button[data-swipe-control]'))
         || !limit.getClientRects().length || document.querySelector('dialog[open]')
+        || (localNav?.hasAttribute('data-compact-swipe') && !more.getClientRects().length)
         || touch.clientX < 18 || touch.clientX > window.innerWidth - 18
         || !links.querySelector('a[aria-current]')?.getClientRects().length) return
 
@@ -73,7 +78,7 @@ export function useNavigationSwipe(header: RefObject<HTMLDivElement | null>, ena
         if (element.scrollWidth > element.clientWidth && /auto|scroll/.test(getComputedStyle(element).overflowX)) return
       }
       settle?.cancel()
-      start = { id: touch.identifier, x: touch.clientX, y: touch.clientY, main, surface: swipeSurface(main), links, horizontal: false }
+      start = { id: touch.identifier, x: touch.clientX, y: touch.clientY, main, surface: swipeSurface(main, group), links, group, nested: scope !== null, horizontal: false }
     }
 
     function onMove(event: TouchEvent) {
@@ -112,7 +117,7 @@ export function useNavigationSwipe(header: RefObject<HTMLDivElement | null>, ena
       resetDrag(origin.surface, false)
       start = undefined
       const path = next.pathname + next.search
-      swipeDestination.current = { path, offset: dx < 0 ? 26 : -26 }
+      swipeDestination.current = { path, offset: dx < 0 ? 26 : -26, group: origin.group, nested: origin.nested }
       void navigate(path)
     }
 

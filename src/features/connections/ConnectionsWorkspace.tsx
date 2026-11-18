@@ -61,7 +61,7 @@ export function ConnectionsWorkspace({ client, userId }: { client: Client; userI
   const incomingMoney = data.requests.filter(request => request.state === 'pending' && request.recipient === userId).length
 
   return <>
-    <nav className="connection-sections" aria-label={t('connections')}>
+    <nav className="connection-sections" data-page-swipe-nav="connections" data-compact-swipe aria-label={t('connections')}>
       <ActiveLinkIndicator selection={section} />
       {([
         ['requests', 'moneyRequestList', HandCoins, incomingMoney],
@@ -75,11 +75,13 @@ export function ConnectionsWorkspace({ client, userId }: { client: Client; userI
       </Link>)}
     </nav>
     {feedback && <Toast kind={feedback === 'connectionSaved' || feedback === 'requestSent' ? 'success' : 'error'} message={t(feedback)} />}
-    {section === 'friends' && <FriendPanel client={client} userId={userId} friends={data.friendships} names={names} busy={busy} pending={pending} run={run} />}
-    {section === 'add' && <FriendSearch client={client} userId={userId} names={names} busy={busy} pending={pending} run={run} />}
-    {section === 'requests' && <RequestPanel client={client} userId={userId} friends={friends} names={names} requests={data.requests}
-        payments={data.payments} corrections={data.corrections}
-        activeId={requestId} busy={busy} pending={pending} run={run} />}
+    <div data-page-swipe-panel="connections">
+      {section === 'friends' && <FriendPanel client={client} userId={userId} friends={data.friendships} names={names} busy={busy} pending={pending} run={run} />}
+      {section === 'add' && <FriendSearch client={client} userId={userId} names={names} busy={busy} pending={pending} run={run} />}
+      {section === 'requests' && <RequestPanel client={client} userId={userId} friends={friends} names={names} requests={data.requests}
+          payments={data.payments} corrections={data.corrections}
+          activeId={requestId} busy={busy} pending={pending} run={run} />}
+    </div>
   </>
 }
 
