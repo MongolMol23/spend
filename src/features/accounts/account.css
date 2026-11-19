@@ -143,23 +143,20 @@ main.account-shell {
 .account-shell:has(.profile-layout) { max-inline-size: 680px; padding-block-start: clamp(20px, 4vh, 40px) }
 .profile-layout { display: grid; gap: var(--space-3) }
 .profile-layout .profile-header {
-  --panel-fill: var(--lavender-panel);
   display: grid;
   gap: 12px;
-  padding: clamp(12px, 3vw, 20px);
+  padding: clamp(14px, 3.5vw, 24px);
 }
 .profile-intro, .profile-meta { min-inline-size: 0 }
 .profile-intro { display: flex; align-items: center; gap: 10px }
 .profile-intro .profile-identity { flex: 1 }
-.profile-edit { display: inline-flex; align-items: center; flex: none; gap: 6px; margin-inline-start: auto; padding-inline: 9px; font-size: .875rem }
+.profile-edit { --button-fill: var(--lavender-panel); display: grid; place-items: center; flex: none; inline-size: 44px; padding: 0 }
 .profile-retry { justify-self: start }
 .profile-meta {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 6px 16px;
-  padding-block-start: 8px;
-  border-block-start: 1px solid var(--line);
+  display: grid;
+  gap: 5px;
+  padding-block-start: 10px;
+  border-block-start: 1px dashed var(--line);
   color: var(--muted);
   overflow-wrap: anywhere;
 }
@@ -167,50 +164,48 @@ main.account-shell {
   display: grid;
   place-items: center;
   flex: none;
-  inline-size: 46px;
+  inline-size: 52px;
   aspect-ratio: 1;
   background: var(--mint);
   color: var(--ink);
   border: var(--stroke);
   border-radius: var(--radius-sm);
-  font-size: 1.4rem;
+  box-shadow: var(--shadow-control);
+  font-size: 1.55rem;
   font-weight: 850;
 }
 .profile-identity { min-inline-size: 0; overflow-wrap: anywhere }
 .profile-identity h1 { margin: 0; font-size: clamp(1.25rem, 3vw, 1.65rem) }
-.profile-handle { display: flex; flex-wrap: wrap; align-items: center; gap: 2px; font-weight: 750; font-size: .875rem }
-.profile-copy { display: grid; place-items: center; flex: none; inline-size: 44px; padding: 0; border: 0; border-radius: 8px; background: transparent }
-.profile-email { display: flex; flex: 1 0 100%; flex-wrap: wrap; align-items: center; gap: 4px 7px; margin: 0; min-inline-size: 0; font-size: .875rem }
-.profile-email svg { flex: none }
-.profile-member { display: flex; align-items: center; gap: 7px; margin: 0; font-size: .875rem }
-.profile-member svg { flex: none }
-.profile-layout .profile-actions {
-  display: grid;
-  padding: 5px 12px;
-}
+.profile-handle { display: flex; align-items: center; font-weight: 750; font-size: .875rem }
+.profile-handle bdi, .profile-email bdi { min-inline-size: 0 }
+.profile-copy { display: grid; place-items: center; flex: none; inline-size: 44px; margin-block: -6px; padding: 0; border: 0; border-radius: 8px; background: transparent }
+.profile-email { display: flex; align-items: center; gap: 7px; margin: 0; min-inline-size: 0; font-size: .875rem }
+.profile-email > svg { flex: none }
+.profile-verified { display: grid; place-items: center; flex: none; inline-size: 24px; block-size: 24px; border-radius: 50%; background: var(--yellow); color: var(--ink) }
+.profile-verified[data-verified="true"] { background: var(--mint) }
+.profile-member { margin: 0; font-size: .8rem }
+.profile-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 8rem), 1fr)); gap: 12px }
 .profile-option {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 10px;
-  min-block-size: 56px;
-  inline-size: 100%;
-  padding: 8px 4px;
-  border: 0;
-  color: inherit;
-  background: transparent;
-  text-decoration: none;
+  gap: 6px 8px;
+  min-block-size: 64px;
+  padding: 10px;
+  font-size: .875rem;
   text-align: start;
 }
-.profile-option + .profile-option { border-block-start: 1px solid var(--line) }
-.profile-option-copy { display: grid; gap: 2px }
-.profile-option-copy small { color: var(--muted); font-size: .8125rem }
-.profile-option .icon-tile[data-accent="yellow"] { --icon-fill: var(--yellow) }
-.profile-option .icon-tile[data-accent="mint"] { --icon-fill: var(--mint) }
-.profile-option .icon-tile[data-accent="peach"] { --icon-fill: var(--peach) }
-.profile-option-arrow:dir(rtl) { scale: -1 1 }
-.profile-option[aria-busy="true"] .profile-option-arrow { display: none }
-.profile-signout { color: var(--danger) }
+.profile-option svg { flex: none }
+.profile-option[data-accent="yellow"] { --button-fill: var(--amber-panel) }
+.profile-option[data-accent="mint"] { --button-fill: var(--mint-panel) }
+.profile-option[data-accent="lavender"] { --button-fill: var(--lavender-panel) }
+.profile-option[aria-busy="true"] > svg { display: none }
+@media (max-width: 500px) {
+  .profile-option { flex-direction: column; flex-wrap: nowrap; justify-content: center; text-align: center }
+}
+.profile-signout { justify-self: start; display: inline-flex; align-items: center; gap: 7px; padding-inline: 8px; border: 0; border-radius: 8px; background: transparent; color: var(--danger); font-weight: 750 }
+.profile-signout:dir(rtl) svg { scale: -1 1 }
+.profile-signout[aria-busy="true"] > svg { display: none }
 @media (hover: hover) {
   .profile-copy:hover, .profile-option:hover:not(:disabled) { background: var(--inset-surface) }
   .profile-signout:hover:not(:disabled) { background: var(--danger-surface) }
