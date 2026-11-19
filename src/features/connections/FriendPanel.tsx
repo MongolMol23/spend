@@ -12,7 +12,7 @@ type FriendActions = {
   client: Client; userId: string; names: Map<string, Person>; busy: boolean; pending?: string; run: RunAction
 }
 
-export function FriendSearch({ client, userId, names, busy, pending, run }: FriendActions) {
+export function FriendSearch({ client, userId, names, busy, pending, run, initialUsername }: FriendActions & { initialUsername?: string }) {
   const { t } = useTranslation()
   const [match, setMatch] = useState<{ username: string; display_name: string } | null>()
   const [searching, setSearching] = useState(false)
@@ -40,7 +40,7 @@ export function FriendSearch({ client, userId, names, busy, pending, run }: Frie
   return <section className="panel friend-panel">
     <h2 className="section-heading"><span className="icon-tile" aria-hidden="true"><UserPlus size={18} /></span>{t('addFriend')}</h2>
     <form className="connection-form friend-search" onSubmit={search}>
-      <label>{t('username')}<input name="username" dir="ltr" autoCapitalize="none" spellCheck={false} required /></label>
+      <label>{t('username')}<input name="username" dir="ltr" defaultValue={initialUsername} autoCapitalize="none" spellCheck={false} required /></label>
       <button className="primary" disabled={searching} aria-busy={searching} aria-label={t('findFriend')} title={t('findFriend')}>
         <Search size={18} aria-hidden="true" /><span>{t('findFriend')}</span>
       </button>

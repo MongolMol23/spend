@@ -1,0 +1,86 @@
+.profile-layout .invite-machine {
+  --panel-fill: var(--lavender-panel);
+  padding: clamp(14px, 4vw, 24px);
+  min-inline-size: 0;
+}
+.invite-heading { display: flex; align-items: center; gap: 12px; margin-block-end: 14px }
+.invite-heading .icon-tile { --icon-fill: var(--yellow) }
+.invite-heading h2 { margin: 0; font-size: 1.15rem }
+.invite-heading p { margin: 3px 0 0; font-size: .875rem; color: var(--muted) }
+.invite-dispenser {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  inline-size: 100%;
+  padding: 8px 12px;
+  border: var(--stroke);
+  border-radius: var(--radius-sm);
+  background: var(--ink);
+  touch-action: none;
+  user-select: none;
+}
+.invite-slot {
+  position: absolute;
+  inset-inline: max(12px, 12%);
+  block-size: 6px;
+  border-radius: var(--pill);
+  background: #635968;
+}
+.invite-pull-tab {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 3px 10px;
+  border: 1px solid var(--ink);
+  border-radius: 7px;
+  background: var(--yellow);
+  color: var(--ink);
+  font-size: .875rem;
+  font-weight: 800;
+}
+.invite-pull-tab svg { flex: none }
+.invite-machine[data-open="true"] { --invite-reveal: 1fr; --invite-lift: 0% }
+.invite-machine[data-open="true"] .invite-pull-tab svg { rotate: 180deg }
+.invite-paper { display: grid; grid-template-rows: minmax(0, var(--invite-reveal, 0fr)); }
+.invite-paper-clip { min-block-size: 0; overflow: hidden; padding-inline: 7px }
+.invite-ticket {
+  max-inline-size: 28rem;
+  margin-inline: auto;
+  margin-block-end: 3px;
+  border: 2px solid var(--ink);
+  border-block-start: 0;
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+  background: var(--paper);
+  color: var(--ink);
+  translate: 0 var(--invite-lift, -100%);
+}
+.invite-ticket-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 12px 12px;
+}
+.invite-ticket-person { display: grid; min-inline-size: 0; gap: 4px; font-weight: 750; overflow-wrap: anywhere }
+.invite-stamp {
+  display: grid;
+  place-items: center;
+  justify-self: start;
+  inline-size: 34px;
+  block-size: 34px;
+  border: 2px solid var(--ink);
+  border-radius: 9px;
+  background: var(--lavender);
+}
+.invite-qr { display: block; flex: none; inline-size: 112px; block-size: 112px; image-rendering: pixelated }
+.invite-ticket-bottom { padding: 10px 12px 12px; border-block-start: 2px dashed var(--paper-line) }
+.invite-ticket-bottom .secondary { --button-fill: var(--yellow); --button-text: var(--ink); font-size: .875rem }
+@media (prefers-reduced-motion: no-preference) {
+  .invite-paper { transition: grid-template-rows 380ms var(--motion-out) }
+  .invite-ticket { transition: translate 380ms var(--motion-out) }
+  .invite-pull-tab svg { transition: rotate 220ms var(--motion-out) }
+  .invite-machine[data-pulling] :is(.invite-paper, .invite-ticket) { transition: none }
+}

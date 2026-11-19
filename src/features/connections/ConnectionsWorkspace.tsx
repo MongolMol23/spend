@@ -8,6 +8,7 @@ import { loadConnections, type Client, type RunAction } from './api'
 import { FriendPanel, FriendSearch } from './FriendPanel'
 import { HandCoins, UserPlus, UsersRound } from 'lucide-react'
 import { RequestPanel } from './RequestPanel'
+import { inviteUsername } from './friendInvite'
 
 export function ConnectionsWorkspace({ client, userId }: { client: Client; userId: string }) {
   const { t, i18n } = useTranslation()
@@ -55,6 +56,7 @@ export function ConnectionsWorkspace({ client, userId }: { client: Client; userI
   const requestId = params.get('request')
   const view = params.get('view')
   const section = !requestId && (view === 'friends' || view === 'add') ? view : 'requests'
+  const invitedBy = section === 'add' ? inviteUsername(params.get('friend')) : undefined
   const incomingFriends = data.friendships.filter(friend => friend.state === 'pending' && friend.recipient === userId).length
   const incomingMoney = data.requests.filter(request => request.state === 'pending' && request.recipient === userId).length
 
@@ -75,7 +77,8 @@ export function ConnectionsWorkspace({ client, userId }: { client: Client; userI
     {feedback && <Toast kind={feedback === 'connectionSaved' || feedback === 'requestSent' ? 'success' : 'error'} message={t(feedback)} />}
     <div data-page-swipe-panel="connections">
       {section === 'friends' && <FriendPanel client={client} userId={userId} friends={data.friendships} names={names} busy={busy} pending={pending} run={run} />}
-      {section === 'add' && <FriendSearch client={client} userId={userId} names={names} busy={busy} pending={pending} run={run} />}
+      {section === 'add' && <FriendSearch key={invitedBy} initialUsername={invitedBy}
+        client={client} userId={userId} names={names} busy={busy} pending={pending} run={run} />}
       {section === 'requests' && <RequestPanel client={client} userId={userId} friends={friends} names={names} requests={data.requests}
           payments={data.payments} corrections={data.corrections}
           activeId={requestId} busy={busy} pending={pending} run={run} />}

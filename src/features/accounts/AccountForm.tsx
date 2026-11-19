@@ -1,6 +1,6 @@
 import { Toast } from '../../ui/Toast'
 import { useEffect, useRef, useState, type FormEvent } from 'react'
-import { Link, useNavigate } from 'react-router'
+import { Link, useNavigate, useSearchParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { ArrowRight } from 'lucide-react'
 import { PasswordInput } from './PasswordInput'
@@ -8,12 +8,15 @@ import type { Label } from '../../i18n/locales'
 import { supabase } from '../../data/supabase'
 import { checkUsernameAvailability, useUsernameAvailability } from './useUsernameAvailability'
 import { accountFieldError, signupFields, signupProfileSchema, type AccountField } from './validation'
+import { friendInviteAccountPath, friendInvitePath, inviteUsername } from '../connections/friendInvite'
 
 type Mode = 'signin' | 'signup' | 'forgot' | 'reset' | 'confirm'
 
 export function AccountForm({ mode, onSwitch }: { mode: Mode; onSwitch?: () => void }) {
   const { t, i18n } = useTranslation()
   const navigate = useNavigate()
+  const [params] = useSearchParams()
+  const invitedBy = inviteUsername(params.get('friend'))
   const [notice, setNotice] = useState<Label>()
   const [error, setError] = useState<Label>()
   const [fieldErrors, setFieldErrors] = useState<Partial<Record<AccountField, Label>>>({})
@@ -141,7 +144,7 @@ export function AccountForm({ mode, onSwitch }: { mode: Mode; onSwitch?: () => v
         }
         if (failure) throw failure
         const { data: isAdmin } = await supabase.rpc('spend_is_admin')
-        void navigate(isAdmin ? '/admin' : '/overview', { replace: true })
+        void navigate(isAdmin ? '/admin' : invitedBy ? friendInvitePath(invitedBy) : '/overview', { replace: true })
       }
     } catch {
       setError('accountError')
@@ -205,7 +208,7 @@ export function AccountForm({ mode, onSwitch }: { mode: Mode; onSwitch?: () => v
       {mode === 'confirm' && verified && <Link className="primary" to="/overview">{t('dashboard')}</Link>}
       {(mode === 'signin' || mode === 'signup') && <p className="account-switch">
         <span>{t(mode === 'signin' ? 'newToSpend' : 'alreadyHaveAccount')}</span>
-        <Link className="secondary" to={mode === 'signin' ? '/account/signup' : '/account'} onClick={event => {
+        <Link className="secondary" to={friendInviteAccountPath(invitedBy, mode === 'signin')} onClick={event => {
           if (!onSwitch || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
           event.preventDefault()
           onSwitch()

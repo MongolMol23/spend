@@ -5,12 +5,16 @@ import { SignInLink } from '../accounts/SignInLink'
 import { useEffect, useState } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
+import { useSearchParams } from 'react-router'
 import { supabase } from '../../data/supabase'
 import { ConnectionsWorkspace } from './ConnectionsWorkspace'
+import { friendInviteAccountPath, inviteUsername } from './friendInvite'
 import './connections.css'
 
 export function Connections() {
   const { t } = useTranslation()
+  const [params] = useSearchParams()
+  const invitedBy = params.get('view') === 'add' ? inviteUsername(params.get('friend')) : undefined
   const [userId, setUserId] = useState<string | null>()
   const [queries] = useState(() => new QueryClient())
 
@@ -32,7 +36,7 @@ export function Connections() {
     <QueryClientProvider client={queries}>
       {!supabase ? <Toast message={t('accountUnavailable')} />
         : userId === undefined ? <p className="loading-state" role="status">{t('loading')}</p>
-        : userId === null ? <SignInLink />
+        : userId === null ? <SignInLink to={friendInviteAccountPath(invitedBy)} />
         : <ConnectionsWorkspace key={userId} client={supabase} userId={userId} />}
     </QueryClientProvider>
   </main>

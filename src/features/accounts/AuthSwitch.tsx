@@ -1,16 +1,18 @@
 import { useLayoutEffect, useRef, type PointerEvent } from 'react'
-import { useNavigate } from 'react-router'
+import { useNavigate, useSearchParams } from 'react-router'
 import { AccountForm } from './AccountForm'
+import { friendInviteAccountPath, inviteUsername } from '../connections/friendInvite'
 
 type Mode = 'signin' | 'signup'
 
 export function AuthSwitch({ mode }: { mode: Mode }) {
   const navigate = useNavigate()
+  const [params] = useSearchParams()
   const panel = useRef<HTMLDivElement>(null)
   const view = useRef<HTMLDivElement>(null)
   const previousMode = useRef(mode)
   const start = useRef<{ id: number; x: number; y: number } | null>(null)
-  const nextPath = mode === 'signin' ? '/account/signup' : '/account'
+  const nextPath = friendInviteAccountPath(inviteUsername(params.get('friend')), mode === 'signin')
 
   useLayoutEffect(() => {
     if (previousMode.current !== mode) {
