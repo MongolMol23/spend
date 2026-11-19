@@ -1,7 +1,7 @@
 import { readHistory } from '../../data/readHistory'
 import { cairoDayStart } from '../../data/calendar'
 import { HistoryDates, useHistoryDates } from '../../ui/HistoryDates'
-import { HistoryEntry, HistoryDisclosure } from '../../ui/HistoryEntry'
+import { HistoryEntry, HistoryDialog } from '../../ui/HistoryEntry'
 import { Toast } from '../../ui/Toast'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
@@ -57,12 +57,12 @@ export function SavingsHistory({ client, date }: { client: SavingsClient; date: 
       </>}
     </HistoryEntry>
   })
-  return <HistoryDisclosure className="debt-history savings-history" title={t('savingsHistory')}
+  return <HistoryDialog className="savings-history" title={t('savingsHistory')}
     filters={<HistoryDates {...historyDates} />}>
     {history.isPending && <p className="loading-state" role="status">{t('loading')}</p>}
     {history.isError && <><Toast message={t('failed')} />
       <button type="button" className="secondary" disabled={history.isFetching} aria-busy={history.isFetching} onClick={() => void history.refetch()}>{t('retry')}</button></>}
     {history.data && (entries.length ? <ol className="history-list" role="list">{entries}</ol>
       : <p className="empty-state">{t('historyNoEntries')}</p>)}
-  </HistoryDisclosure>
+  </HistoryDialog>
 }

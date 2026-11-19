@@ -74,7 +74,6 @@
 .purchase-filters .month-picker-trigger { min-inline-size: 0; gap: 6px; padding-inline: 10px; font-size: .875rem }
 .purchase-filters .select-control { display: flex; min-inline-size: 0 }
 .purchase-filters select { min-inline-size: 0; inline-size: 100%; font-size: .875rem }
-.purchase-history { margin-block-start: var(--space-4) }
 .purchase-dialog { inline-size: min(100% - 2 * var(--gutter), 460px); color: var(--ink) }
 .purchase-dialog::backdrop { background: rgb(33 30 38 / .64) }
 

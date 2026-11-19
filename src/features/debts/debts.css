@@ -12,7 +12,6 @@
 .debt-actions { display: flex; align-items: center; gap: var(--space-2); margin-block-start: var(--space-2) }
 .debt-dialog { inline-size: min(100% - 2 * var(--gutter), 460px); color: var(--ink) }
 .debt-dialog::backdrop { background: rgb(33 30 38 / .64) }
-.debt-history { margin-block-start: var(--space-4) }
 .debt-detail-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-block-end: 18px }
 .debt-person { display: flex; align-items: center; gap: 10px; min-inline-size: 0; flex: 1 1 140px }
 .debt-person h2 { margin: 0; font-size: 1.25rem; min-inline-size: 0 }

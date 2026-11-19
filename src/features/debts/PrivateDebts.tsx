@@ -80,6 +80,9 @@ function DebtWorkspace({ client, owner }: { client: DebtClient; owner: string })
   }
 
   return <>
+    <FeatureHeading title={t('privateDebts')} icon={Scale} accent="peach">
+      {!activeId && <DebtHistory client={client} date={date} />}
+    </FeatureHeading>
     {editorOpen && <LedgerEditor titleId="debt-entry-title" busy={mutation.isPending} onClose={closeEditor}>
       <DebtForm key={editing ? editing.id + ':' + editing.version : 'new'} debt={editing}
         busy={mutation.isPending} save={save}
@@ -121,7 +124,6 @@ function DebtWorkspace({ client, owner }: { client: DebtClient; owner: string })
         <DebtPages page={page} hasNext={(list.data?.length ?? 0) > debtPageSize} move={setPage} />
       </section>}
     </div>
-    {!activeId && <DebtHistory client={client} date={date} />}
   </>
 }
 
@@ -129,7 +131,7 @@ export function PrivateDebts() {
   const { t } = useTranslation()
   const owner = useLedgerOwner()
   return <main id="main" tabIndex={-1} className="shell">
-    <FeatureHeading title={t('privateDebts')} icon={Scale} accent="peach" />
+    {(!supabase || !owner) && <FeatureHeading title={t('privateDebts')} icon={Scale} accent="peach" />}
     {!supabase ? <Toast message={t('failed')} />
       : owner === undefined ? <p role="status" className="loading-state">{t('loading')}</p>
       : owner === null ? <SignInLink />

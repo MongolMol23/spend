@@ -1,6 +1,7 @@
-import { ChevronDown, Clock3, History } from 'lucide-react'
+import { ChevronDown, Clock3, History, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import type { ReactNode } from 'react'
+import { useId, useRef, type ReactNode } from 'react'
+import { Modal } from './Modal'
 import './history.css'
 
 export function HistoryDisclosure({ title, className, children, filters }: {
@@ -18,6 +19,33 @@ export function HistoryDisclosure({ title, className, children, filters }: {
     {filters}
     <div className="history-disclosure-content" role="region" aria-label={title} tabIndex={0}>{children}</div>
   </details>
+}
+
+export function HistoryDialog({ title, className, children, filters }: {
+  title: string
+  className: string
+  children: ReactNode
+  filters?: ReactNode
+}) {
+  const { t } = useTranslation()
+  const dialog = useRef<HTMLDialogElement>(null)
+  const titleId = useId()
+  return <>
+    <button type="button" className="secondary history-page-trigger" aria-haspopup="dialog"
+      onClick={() => dialog.current?.showModal()}>
+      <History size={18} aria-hidden="true" />{t('historyButton')}
+    </button>
+    <Modal ref={dialog} className={`panel history-page-dialog ${className}`} aria-labelledby={titleId}>
+      <header className="history-page-header">
+        <h2 id={titleId}>{title}</h2>
+        <button type="button" className="sidebar-close" aria-label={t('cancelPurchase')} onClick={() => dialog.current?.close()}>
+          <X size={18} aria-hidden="true" />
+        </button>
+      </header>
+      {filters}
+      <div className="history-disclosure-content" role="region" aria-labelledby={titleId} tabIndex={0}>{children}</div>
+    </Modal>
+  </>
 }
 
 export function HistoryEntry({ title, timestamp, date, amount, children, detailLabel, collapsible = true }: {

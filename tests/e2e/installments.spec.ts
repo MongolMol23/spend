@@ -59,7 +59,7 @@ test('installments track partial and full payments, dashboard balances, and hist
   await expect(detail.locator('.installment-dues > li')).toHaveCount(1)
   const planPath = new URL(page.url()).pathname + new URL(page.url()).search
   await detail.getByRole('link', { name: 'Back to plans' }).click()
-  await history.locator('summary').first().click()
+  await page.getByRole('button', { name: 'History', exact: true }).click()
   await expect(history.getByText('Payment recorded', { exact: false })).toHaveCount(2)
   await page.goto('/overview')
   await expect(page.locator('.metric').filter({ hasText: 'Spent this month' })).toContainText('EGP 0')
@@ -79,7 +79,7 @@ test('installments track partial and full payments, dashboard balances, and hist
   await page.getByRole('dialog').getByRole('button', { name: 'تأكيد الأرشفة' }).click()
   await expect(detail.getByText('الخطة اتأرشفت')).toBeVisible()
   await detail.locator('.debt-back').click()
-  await history.locator('summary').first().click()
+  await page.getByRole('button', { name: 'السجل', exact: true }).click()
   await expect(history.getByText('الدفعة اتسجّلت', { exact: false })).toHaveCount(2)
 
   await page.goto('/overview')

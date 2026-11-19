@@ -121,6 +121,9 @@ function SavingsWorkspace({ client, owner }: { client: SavingsClient; owner: str
   }
 
   return <>
+    <FeatureHeading title={t('savingsGoals')} icon={Vault} accent="mint">
+      {!id && <SavingsHistory client={client} date={date} />}
+    </FeatureHeading>
     {editorOpen && <LedgerEditor titleId="savings-entry-title" busy={mutation.isPending} onClose={closeEditor}>
       <GoalForm key={editing ? editing.id + ':' + editing.version : 'new'} goal={editing}
         busy={mutation.isPending} save={save}
@@ -166,7 +169,6 @@ function SavingsWorkspace({ client, owner }: { client: SavingsClient; owner: str
         <DebtPages page={page} hasNext={(list.data?.length ?? 0) > savingsPageSize} move={setPage} />
       </section>}
     </div>
-    {!id && <SavingsHistory client={client} date={date} />}
   </>
 }
 
@@ -174,7 +176,7 @@ export function Savings() {
   const { t } = useTranslation()
   const owner = useLedgerOwner()
   return <main id="main" tabIndex={-1} className="shell">
-    <FeatureHeading title={t('savingsGoals')} icon={Vault} accent="mint" />
+    {(!supabase || !owner) && <FeatureHeading title={t('savingsGoals')} icon={Vault} accent="mint" />}
     {!supabase ? <Toast message={t('failed')} />
       : owner === undefined ? <p role="status" className="loading-state">{t('loading')}</p>
       : owner === null ? <SignInLink />

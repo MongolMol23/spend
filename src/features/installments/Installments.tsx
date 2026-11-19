@@ -82,6 +82,9 @@ function InstallmentWorkspace({ client, owner }: { client: InstallmentClient; ow
   }
 
   return <>
+    <FeatureHeading title={t('installments')} icon={CalendarDays} accent="amber">
+      {!id && <InstallmentHistory client={client} date={date} />}
+    </FeatureHeading>
     {editorOpen && <LedgerEditor titleId="installment-form-title" busy={mutation.isPending} onClose={closeEditor}>
       <PlanForm key={editing ? editing.id + ':' + editing.version : 'new'} plan={editing} dues={editing?.installment_dues}
         busy={mutation.isPending} save={save}
@@ -125,7 +128,6 @@ function InstallmentWorkspace({ client, owner }: { client: InstallmentClient; ow
         <DebtPages page={page} hasNext={(list.data?.length ?? 0) > installmentPageSize} move={setPage} />
       </section>}
     </div>
-    {!id && <InstallmentHistory client={client} date={date} />}
   </>
 }
 
@@ -133,7 +135,7 @@ export function Installments() {
   const { t } = useTranslation()
   const owner = useLedgerOwner()
   return <main id="main" tabIndex={-1} className="shell">
-    <FeatureHeading title={t('installments')} icon={CalendarDays} accent="amber" />
+    {(!supabase || !owner) && <FeatureHeading title={t('installments')} icon={CalendarDays} accent="amber" />}
     {!supabase ? <Toast message={t('failed')} />
       : owner === undefined ? <p role="status" className="loading-state">{t('loading')}</p>
       : owner === null ? <SignInLink />

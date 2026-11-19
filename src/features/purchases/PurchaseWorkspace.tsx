@@ -3,7 +3,8 @@ import { readHistory } from '../../data/readHistory'
 import { cairoDayStart } from '../../data/calendar'
 import { HistoryDates, useHistoryDates } from '../../ui/HistoryDates'
 import { LedgerEditor, LedgerHeading } from '../../ui/LedgerEditor'
-import { HistoryDisclosure } from '../../ui/HistoryEntry'
+import { HistoryDialog } from '../../ui/HistoryEntry'
+import { FeatureHeading } from '../../ui/FeatureHeading'
 import { Toast } from '../../ui/Toast'
 import { Pencil, ReceiptText, Trash2, Wallet } from 'lucide-react'
 import { useState } from 'react'
@@ -124,6 +125,14 @@ export function PurchaseWorkspace({ client, owner }: { client: PurchaseClient; o
   const closeEditor = () => { setEditorOpen(false); setEditing(null); save.reset() }
 
   return <>
+    <FeatureHeading title={t('purchases')} icon={ReceiptText} accent="amber">
+      <HistoryDialog className="purchase-history" title={t('purchaseHistory')} filters={<HistoryDates {...historyDates} />}>
+        {history.isPending && <p className="loading-state" role="status">{t('loading')}</p>}
+        {history.isError && <><Toast message={t('failed')} />
+          <button type="button" className="secondary" disabled={history.isFetching} aria-busy={history.isFetching} onClick={() => void history.refetch()}>{t('retry')}</button></>}
+        {history.data && <PurchaseHistory events={history.data} />}
+      </HistoryDialog>
+    </FeatureHeading>
     {editorOpen && <LedgerEditor titleId="purchase-form-title" busy={busy} onClose={closeEditor}>
       <PurchaseForm key={editing?.id ?? 'new'} expense={editing} busy={busy}
         error={changeError(save.error, 'purchaseSaveFailed')}
@@ -181,13 +190,6 @@ export function PurchaseWorkspace({ client, owner }: { client: PurchaseClient; o
       </ul> : <p className="empty-state">{t('noPurchases')}</p>)}
       <Pages label={t('purchasePages')} page={page} hasNext={(list.data?.length ?? 0) > purchasePageSize} onPage={setPage} />
     </section>
-    <HistoryDisclosure className="purchase-history" title={t('purchaseHistory')}
-    filters={<HistoryDates {...historyDates} />}>
-      {history.isPending && <p className="loading-state" role="status">{t('loading')}</p>}
-      {history.isError && <><Toast message={t('failed')} />
-        <button type="button" className="secondary" disabled={history.isFetching} aria-busy={history.isFetching} onClick={() => void history.refetch()}>{t('retry')}</button></>}
-      {history.data && <PurchaseHistory events={history.data} />}
-    </HistoryDisclosure>
     {removing && <ArchivePurchase expense={removing} busy={archive.isPending}
       error={changeError(archive.error, 'purchaseRemoveFailed')}
       onArchive={() => archive.mutate(removing)} onClose={() => setRemoving(null)} />}

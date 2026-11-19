@@ -12,7 +12,7 @@ export function Purchases() {
   const { t } = useTranslation()
   const owner = useLedgerOwner()
   return <main id="main" tabIndex={-1} className="shell purchase-shell">
-    <FeatureHeading title={t('purchases')} icon={ReceiptText} accent="amber" />
+    {(!supabase || !owner) && <FeatureHeading title={t('purchases')} icon={ReceiptText} accent="amber" />}
     {!supabase ? <Toast message={t('purchaseUnavailable')} />
       : owner === undefined ? <p className="loading-state" role="status">{t('loading')}</p>
       : owner === null ? <section className="panel"><p>{t('purchaseSignin')}</p>
