@@ -1,4 +1,3 @@
-import { budgetWarning } from '../budget/budget'
 import { FeatureHeading } from '../../ui/FeatureHeading'
 import { Scale, ChevronRight } from 'lucide-react'
 import { LedgerEditor, LedgerHeading } from '../../ui/LedgerEditor'
@@ -60,8 +59,8 @@ function DebtWorkspace({ client, owner }: { client: DebtClient; owner: string })
       }
       if (change.kind === 'save') setEditorOpen(false)
       await queryClient.invalidateQueries({ queryKey: debtKey })
-      setNotice((change.kind === 'pay' && change.debt.direction === 'owe' ? await budgetWarning(client) : undefined) ?? (change.kind === 'pay' ? 'debtPaymentSaved' : change.kind === 'archive' ? 'debtArchived'
-        : change.debt ? 'debtUpdated' : 'debtSaved'))
+      setNotice(change.kind === 'pay' ? 'debtPaymentSaved' : change.kind === 'archive' ? 'debtArchived'
+        : change.debt ? 'debtUpdated' : 'debtSaved')
     },
     onError: () => queryClient.invalidateQueries({ queryKey: debtKey }),
   })
@@ -87,7 +86,7 @@ function DebtWorkspace({ client, owner }: { client: DebtClient; owner: string })
         error={mutation.variables?.kind === 'save' && (sameDebt || !mutation.variables.debt) ? error : undefined}
         cancel={closeEditor} />
     </LedgerEditor>}
-    {notice && <Toast kind={notice.startsWith('budget') ? 'error' : 'success'} message={t(notice)} />}
+    {notice && <Toast kind="success" message={t(notice)} />}
     <div className="debt-stack debt-stack-animated">
       {activeId && (detail.isPending ? <p className="loading-state" role="status">{t('loading')}</p>
         : detail.isError && !detail.data ? <section className="panel"><Toast message={t('failed')} />

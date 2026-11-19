@@ -1,4 +1,4 @@
-import { budgetWarning } from '../budget/budget'
+import { budgetKey, budgetWarning } from '../budget/budget'
 import { readHistory } from '../../data/readHistory'
 import { cairoDayStart } from '../../data/calendar'
 import { HistoryDates, useHistoryDates } from '../../ui/HistoryDates'
@@ -86,8 +86,12 @@ export function PurchaseWorkspace({ client, owner }: { client: PurchaseClient; o
       setMonth(input.spentOn.slice(0, 7))
       setCategory('')
       setPage(0)
-      await queryClient.invalidateQueries({ queryKey: purchasesKey })
-      setNotice(await budgetWarning(client) ?? (expense ? 'purchaseUpdated' : 'purchaseCreated'))
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: purchasesKey }),
+        queryClient.invalidateQueries({ queryKey: budgetKey }),
+      ])
+      const warning = input.category !== 'bills' && !expense?.from_monthly_expense ? await budgetWarning(client) : undefined
+      setNotice(warning ?? (expense ? 'purchaseUpdated' : 'purchaseCreated'))
     },
     onError: error => {
       if (changeError(error, 'purchaseSaveFailed') === 'purchaseChanged') {
@@ -103,7 +107,10 @@ export function PurchaseWorkspace({ client, owner }: { client: PurchaseClient; o
     onSuccess: async (_result, expense) => {
       setRemoving(null)
       setEditing(current => current?.id === expense.id ? null : current)
-      await queryClient.invalidateQueries({ queryKey: purchasesKey })
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: purchasesKey }),
+        queryClient.invalidateQueries({ queryKey: budgetKey }),
+      ])
       setNotice('purchaseArchived')
     },
     onError: error => {

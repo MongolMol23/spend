@@ -13,7 +13,6 @@ import { FeatureHeading } from '../../ui/FeatureHeading'
 import { MonthPicker } from '../../ui/MonthPicker'
 import { Toast } from '../../ui/Toast'
 import { SignInLink } from '../accounts/SignInLink'
-import { budgetKey, budgetWarning } from '../budget/budget'
 import { categoryLabel, purchasesKey, type PurchaseClient } from '../purchases/api'
 import { changeMonthly, monthlyKey, readMonthly, type MonthlyChange, type MonthlyDue } from './api'
 import { MonthlyEditor, type MonthlyEditorMode } from './MonthlyEditor'
@@ -42,11 +41,9 @@ function MonthlyWorkspace({ client, owner }: { client: PurchaseClient; owner: st
       await Promise.all([
         cache.invalidateQueries({ queryKey: monthlyKey }),
         cache.invalidateQueries({ queryKey: purchasesKey }),
-        cache.invalidateQueries({ queryKey: budgetKey }),
       ])
-      const warning = change.kind === 'pay' ? await budgetWarning(client) : undefined
-      setNotice(warning ?? (change.kind === 'add' ? 'monthlyAdded' : change.kind === 'pay' ? 'monthlyPaidSaved'
-        : change.kind === 'unpay' ? 'monthlyUnpaidSaved' : change.kind === 'stop' ? 'monthlyStopped' : 'monthlyRemoved'))
+      setNotice(change.kind === 'add' ? 'monthlyAdded' : change.kind === 'pay' ? 'monthlyPaidSaved'
+        : change.kind === 'unpay' ? 'monthlyUnpaidSaved' : change.kind === 'stop' ? 'monthlyStopped' : 'monthlyRemoved')
     },
     onError: () => cache.invalidateQueries({ queryKey: monthlyKey }),
   })
@@ -74,7 +71,7 @@ function MonthlyWorkspace({ client, owner }: { client: PurchaseClient; owner: st
   }
 
   return <>
-    {notice && <Toast kind={notice.startsWith('budget') ? 'error' : 'success'} message={t(notice)} />}
+    {notice && <Toast kind="success" message={t(notice)} />}
     {!editor && mutation.isError && <Toast key={mutation.submittedAt} message={t('monthlyChanged')} />}
     {editor && <MonthlyEditor key={editor.kind} mode={editor} busy={mutation.isPending} failed={mutation.isError}
       close={() => { setEditor(undefined); mutation.reset() }} save={change => mutation.mutate(change)}

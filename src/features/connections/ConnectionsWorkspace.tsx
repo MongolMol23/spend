@@ -1,4 +1,3 @@
-import { budgetWarning } from '../budget/budget'
 import { Toast } from '../../ui/Toast'
 import { ActiveLinkIndicator } from '../../ui/ActiveLinkIndicator'
 import { useState } from 'react'
@@ -15,7 +14,7 @@ export function ConnectionsWorkspace({ client, userId }: { client: Client; userI
   const [params] = useSearchParams()
   const [pending, setPending] = useState<string>()
   const busy = pending !== undefined
-  const [feedback, setFeedback] = useState<'connectionSaved' | 'requestSent' | 'connectionError' | 'friendExists' | 'correctionStale' | 'invalidCorrection' | Awaited<ReturnType<typeof budgetWarning>>>()
+  const [feedback, setFeedback] = useState<'connectionSaved' | 'requestSent' | 'connectionError' | 'friendExists' | 'correctionStale' | 'invalidCorrection'>()
   const query = useQuery({
     queryKey: ['connections', userId],
     queryFn: ({ signal }) => loadConnections(client, signal),
@@ -31,8 +30,7 @@ export function ConnectionsWorkspace({ client, userId }: { client: Client; userI
       const { error } = await operation()
       if (error) throw error
       done?.()
-      const warning = action.startsWith('record:') ? await budgetWarning(client) : undefined
-      setFeedback(warning ?? (action === 'send-request' ? 'requestSent' : 'connectionSaved'))
+      setFeedback(action === 'send-request' ? 'requestSent' : 'connectionSaved')
       await query.refetch()
     } catch (error) {
       const message = typeof error === 'object' && error !== null && 'message' in error ? error.message : ''

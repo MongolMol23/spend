@@ -86,11 +86,11 @@ export type Database = {
             expenses: {
               Row: {
                 id: string; owner_id: string; item: string; amount_minor: number; category: string;
-                spent_on: string; note: string | null; version: number; archived_at: string | null
+                spent_on: string; note: string | null; version: number; archived_at: string | null; from_monthly_expense: boolean
               }
               Insert: {
                 id: string; owner_id: string; item: string; amount_minor: number; category: string;
-                spent_on: string; note?: string | null; version?: number; archived_at?: string | null
+                spent_on: string; note?: string | null; version?: number; archived_at?: string | null; from_monthly_expense?: boolean
               }
               Update: Partial<Database['public']['Tables']['expenses']['Insert']>
               Relationships: [{

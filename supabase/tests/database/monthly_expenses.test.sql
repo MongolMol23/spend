@@ -10,8 +10,10 @@ set local role anon;
 select throws_ok($$select public.monthly_expense_list(current_date)$$,'42501',null,'anonymous calls are blocked');
 set local role authenticated;
 set local request.jwt.claim.sub = '10000000-0000-4000-8000-000000000001';
-select lives_ok($$select public.monthly_expense_add('10000000-0000-4000-8000-000000000010',' Internet ',30000,31,'bills')$$,'add recurring item');
-select lives_ok($$select public.monthly_expense_add('10000000-0000-4000-8000-000000000010',' Internet ',30000,31,'bills')$$,'retry add is idempotent');
+select lives_ok($$select public.spend_save_budget(100000,(now() at time zone 'Africa/Cairo')::date+9)$$,
+ 'start a ten-day purchase budget');
+select lives_ok($$select public.monthly_expense_add('10000000-0000-4000-8000-000000000010',' Internet ',30000,31,'other')$$,'add recurring item');
+select lives_ok($$select public.monthly_expense_add('10000000-0000-4000-8000-000000000010',' Internet ',30000,31,'other')$$,'retry add is idempotent');
 select is((select count(*) from public.monthly_expense_items),1::bigint,'one recurring item');
 select throws_ok($$select public.monthly_expense_add('10000000-0000-4000-8000-000000000011','Invalid',0,1,'bills')$$,'23514',null,'zero amount blocked');
 select throws_ok($$select public.monthly_expense_add('10000000-0000-4000-8000-000000000011','Invalid',10,32,'bills')$$,'23514',null,'invalid due day blocked');
@@ -29,6 +31,8 @@ select lives_ok($$select public.monthly_expense_pay(
  '10000000-0000-4000-8000-000000000020',32500,(now() at time zone 'Africa/Cairo')::date)$$,'retry payment is idempotent');
 select is((select count(*) from public.expenses where archived_at is null),1::bigint,'only one purchase is charged');
 select is((select sum(total_minor) from public.expense_month_summary((now() at time zone 'Africa/Cairo')::date)),32500::numeric,'actual payment appears in spending totals');
+select is((select spent_minor from public.spend_budget_overview()),0::bigint,
+ 'monthly payment is excluded even when its category is not bills');
 select is((select expected_minor from public.monthly_expense_dues where expense_id is not null),30000,'expected amount stays separate');
 select throws_ok($$select public.monthly_expense_pay(
  (select id from public.monthly_expense_dues where month=date_trunc('month',now() at time zone 'Africa/Cairo')::date),
@@ -45,7 +49,8 @@ select is_empty($$select * from public.monthly_expense_items$$,'other account ca
 select is_empty($$select * from public.monthly_expense_dues$$,'other account cannot read checklists');
 select is_empty($$select * from public.monthly_expense_list((now() at time zone 'Africa/Cairo')::date)$$,'RPC only returns own items');
 select throws_ok($$select public.monthly_expense_stop('10000000-0000-4000-8000-000000000010')$$,'P0001','monthly_changed','cannot stop someone else’s item');
-select throws_ok($$select public.monthly_expense_add('10000000-0000-4000-8000-000000000010',' Internet ',30000,31,'bills')$$,'P0001','monthly_changed','cannot reuse another owner’s template');
+select throws_ok($$select public.monthly_expense_add('10000000-0000-4000-8000-000000000010',' Internet ',30000,31,'other')$$,'P0001','monthly_changed','cannot reuse another owner’s template');
+select is_empty($$select * from public.spend_budget_overview()$$,'other accounts do not see the budget');
 
 set local request.jwt.claim.sub = '10000000-0000-4000-8000-000000000001';
 select lives_ok($$select public.monthly_expense_unpay(
@@ -103,5 +108,15 @@ select is_empty($$select * from public.monthly_expense_list('2028-02-01')$$,
 select is((select expense_id from public.monthly_expense_list(
  (date_trunc('month',now() at time zone 'Africa/Cairo')-interval '1 month')::date)),
  '10000000-0000-4000-8000-000000000031'::uuid,'previous checklist keeps the recorded payment');
+select is((select spent_minor from public.spend_budget_overview()),0::bigint,
+ 'removed monthly obligation stays excluded from the purchase budget');
+select lives_ok($$select public.save_expense('10000000-0000-4000-8000-000000000041',
+ 'Electricity',20000,'bills',(now() at time zone 'Africa/Cairo')::date)$$,'add an independent bill');
+select lives_ok($$select public.save_expense('10000000-0000-4000-8000-000000000042',
+ 'Lunch',15000,'dining',(now() at time zone 'Africa/Cairo')::date)$$,'add an everyday purchase');
+select is((select spent_minor from public.spend_budget_overview()),15000::bigint,'only the purchase reduces the budget balance');
+select is((select today_minor from public.spend_budget_overview()),15000::bigint,'only the purchase reduces today’s allowance');
+select is((select sum(total_minor) from public.expense_month_summary((now() at time zone 'Africa/Cairo')::date)),
+ 76000::numeric,'total spending includes purchases and paid bills');
 select * from finish();
 rollback;
