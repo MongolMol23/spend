@@ -79,11 +79,17 @@ function AnalyticsWorkspace({ client }: { client: PurchaseClient }) {
     setPage(0)
   }
 
-  if (summary.isPending) return <AnalyticsLoading />
-  if (!summary.data || !selected) return <section className="panel">
+  const heading = <FeatureHeading title={t('analytics')} icon={ChartColumn} accent="lavender">
+    {summary.data && <Select aria-label={t('purchaseMonth')} value={month} onChange={event => selectMonth(event.target.value)}>
+      {[...summary.data].reverse().map(row => <option key={row.key} value={row.key}>{longMonth.format(monthDate(row.key))}</option>)}
+    </Select>}
+  </FeatureHeading>
+
+  if (summary.isPending) return <>{heading}<AnalyticsLoading /></>
+  if (!summary.data || !selected) return <>{heading}<section className="panel">
     <Toast message={t('failed')} />
     <button className="secondary" type="button" disabled={summary.isFetching} aria-busy={summary.isFetching} onClick={() => void summary.refetch()}>{t('retry')}</button>
-  </section>
+  </section></>
 
   const previous = summary.data[summary.data.indexOf(selected) - 1]
   const change = previous ? selected.total - previous.total : undefined
@@ -91,24 +97,17 @@ function AnalyticsWorkspace({ client }: { client: PurchaseClient }) {
     summary.data.some(row => row.categories.some(entry => categoryLabel(entry.category) === category)),
   )
 
-  return <div className="analytics-workspace" data-view={view}>
-    <div className="analytics-controls">
-      <label>{t('purchaseMonth')}
-        <Select value={month} onChange={event => selectMonth(event.target.value)}>
-          {[...summary.data].reverse().map(row => <option key={row.key} value={row.key}>{longMonth.format(monthDate(row.key))}</option>)}
-        </Select>
-      </label>
-      <nav className="analytics-sections" data-page-swipe-nav aria-label={t('analytics')}>
-        <ActiveLinkIndicator selection={view} />
-        {([
-          ['trend', 'analyticsMonthsTab', ChartColumn],
-          ['categories', 'analyticsCategoriesTab', PieChart],
-          ['purchases', 'purchases', ReceiptText],
-        ] as const).map(([key, label, Icon]) => <Link key={key} to={'?section=' + key} aria-current={view === key ? 'page' : undefined}>
-          <Icon size={16} aria-hidden="true" /><span>{t(label)}</span>
-        </Link>)}
-      </nav>
-    </div>
+  return <>{heading}<div className="analytics-workspace" data-view={view}>
+    <nav className="analytics-sections" data-page-swipe-nav aria-label={t('analytics')}>
+      <ActiveLinkIndicator selection={view} />
+      {([
+        ['trend', 'analyticsMonthsTab', ChartColumn],
+        ['categories', 'analyticsCategoriesTab', PieChart],
+        ['purchases', 'purchases', ReceiptText],
+      ] as const).map(([key, label, Icon]) => <Link key={key} to={'?section=' + key} aria-current={view === key ? 'page' : undefined}>
+        <Icon size={16} aria-hidden="true" /><span>{t(label)}</span>
+      </Link>)}
+    </nav>
     <section className="panel analytics-trend" data-page-swipe-panel aria-labelledby="analytics-trend-title">
       <h2 id="analytics-trend-title" className="section-heading">
         <span className="icon-tile" aria-hidden="true"><ChartColumn size={18} /></span>{t('analyticsTrend')}
@@ -194,14 +193,14 @@ function AnalyticsWorkspace({ client }: { client: PurchaseClient }) {
         <DebtPages page={page} hasNext={(purchases.data?.length ?? 0) > purchasePageSize} move={setPage} />
       </section>
     </div>
-  </div>
+  </div></>
 }
 
 export function Analytics() {
   const { t } = useTranslation()
   const owner = useLedgerOwner()
-  return <main id="main" tabIndex={-1} className="shell">
-    <FeatureHeading title={t('analytics')} icon={ChartColumn} accent="lavender" />
+  return <main id="main" tabIndex={-1} className="shell analytics-shell">
+    {(!supabase || !owner) && <FeatureHeading title={t('analytics')} icon={ChartColumn} accent="lavender" />}
     {!supabase ? <Toast message={t('purchaseUnavailable')} />
       : owner === undefined ? <AnalyticsLoading />
       : owner === null ? <section className="panel"><p>{t('purchaseSignin')}</p>

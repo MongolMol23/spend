@@ -1,6 +1,7 @@
 .analytics-workspace, .analytics-detail { display: grid; gap: var(--space-4); }
-.analytics-controls { display: flex; align-items: end; flex-wrap: wrap; gap: 12px }
-.analytics-controls > label { display: grid; gap: 4px; font-size: .875rem; font-weight: 700 }
+.analytics-shell .feature-heading h1 { flex-basis: 0; min-inline-size: 0 }
+.analytics-shell .feature-heading .select-control { max-inline-size: 48% }
+.analytics-shell .feature-heading select { font-size: .875rem; padding-inline: 10px 30px; text-overflow: ellipsis }
 .analytics-sections { display: none }
 .analytics-category-results { display: none }
 .analytics-detail { grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); align-items: start; }
@@ -14,7 +15,6 @@
   background: var(--lavender-panel);
 }
 .analytics-trend .icon-tile, .analytics-categories .icon-tile { --icon-fill: var(--lavender); }
-.analytics-month label { display: grid; gap: 4px; font-weight: 700; }
 .analytics-total { font-size: clamp(1.6rem, 3.7vw, 2.8rem); line-height: 1.2; }
 .analytics-total .amount { white-space: normal; overflow-wrap: anywhere; }
 .analytics-comparison {
@@ -158,9 +158,6 @@
 @media (width < 760px) {
   .analytics-detail { display: contents }
   .analytics-category-results { display: inline-flex; margin-block-start: 12px }
-  .analytics-controls { display: grid }
-  .analytics-controls > label { grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 12px }
-  .analytics-controls .select-control { justify-self: end }
   .analytics-sections {
     position: relative;
     display: grid;
