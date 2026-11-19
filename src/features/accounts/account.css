@@ -203,12 +203,19 @@ main.account-shell {
 @media (max-width: 500px) {
   .profile-option { flex-direction: column; flex-wrap: nowrap; justify-content: center; text-align: center }
 }
-.profile-signout { justify-self: start; display: inline-flex; align-items: center; gap: 7px; padding-inline: 8px; border: 0; border-radius: 8px; background: transparent; color: var(--danger); font-weight: 750 }
+.profile-signout {
+  --button-fill: var(--card-surface);
+  --button-text: var(--ink);
+  justify-self: center;
+  padding-inline: 14px;
+  font-size: .875rem;
+}
+.profile-signout:enabled svg { color: var(--danger) }
 .profile-signout:dir(rtl) svg { scale: -1 1 }
 .profile-signout[aria-busy="true"] > svg { display: none }
 @media (hover: hover) {
   .profile-copy:hover, .profile-option:hover:not(:disabled) { background: var(--inset-surface) }
-  .profile-signout:hover:not(:disabled) { background: var(--danger-surface) }
+  .profile-layout .profile-signout:hover:not(:disabled) { background: var(--peach-panel); color: var(--ink) }
 }
 .profile-details { --panel-fill: var(--lavender-panel) }
 .profile-details .account-form { min-inline-size: 0; padding: 0; border: 0; margin-inline: 0 }

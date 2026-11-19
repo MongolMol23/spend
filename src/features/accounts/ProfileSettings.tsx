@@ -199,7 +199,7 @@ export function ProfileSettings({ userId, email, emailVerified, createdAt }: {
       </Link>}
     </div>
     {email && <span hidden id="profile-reset-hint">{t('manualRecoveryHint')}</span>}
-    <button type="button" className="profile-signout" disabled={busy || sendingReset}
+    <button type="button" className="secondary profile-signout" disabled={busy || sendingReset}
       aria-busy={pending === 'signout'} onClick={() => void signOut()}>
       <LogOut size={17} aria-hidden="true" />{t('signout')}
     </button>
