@@ -7,7 +7,7 @@ export type MonthlyChange =
   | { kind: 'add'; id: string; name: string; amount: number; day: number; category: string }
   | { kind: 'pay'; due: MonthlyDue; expenseId: string; amount: number; date: string }
   | { kind: 'unpay'; due: MonthlyDue; expenseId: string }
-  | { kind: 'stop'; due: MonthlyDue }
+  | { kind: 'stop' | 'remove'; due: MonthlyDue }
 
 export async function readMonthly(client: PurchaseClient, month: string, signal: AbortSignal) {
   const { data, error } = await client.rpc('monthly_expense_list', { p_month: month + '-01' }).abortSignal(signal)
@@ -22,7 +22,7 @@ export async function changeMonthly(client: PurchaseClient, change: MonthlyChang
     ? client.rpc('monthly_expense_pay', { p_due: change.due.id, p_expense: change.expenseId, p_amount: change.amount, p_paid_on: change.date })
     : change.kind === 'unpay'
     ? client.rpc('monthly_expense_unpay', { p_due: change.due.id, p_expense: change.expenseId })
-    : client.rpc('monthly_expense_stop', { p_item: change.due.item_id })
+    : client.rpc(change.kind === 'stop' ? 'monthly_expense_stop' : 'monthly_expense_remove', { p_item: change.due.item_id })
   const { error } = await operation
   if (error) throw error
 }

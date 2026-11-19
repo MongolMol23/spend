@@ -297,6 +297,7 @@ isOneToOne: false
             monthly_expense_pay: { Args: { p_due: string; p_expense: string; p_amount: number; p_paid_on: string }; Returns: undefined }
             monthly_expense_unpay: { Args: { p_due: string; p_expense: string }; Returns: undefined }
             monthly_expense_stop: { Args: { p_item: string }; Returns: undefined }
+            monthly_expense_remove: { Args: { p_item: string }; Returns: undefined }
             archive_installment_plan: { Args: { p_id: string; p_version: number }; Returns: undefined }
             signup_username_available: { Args: { requested_username: string }; Returns: boolean }
             spend_is_admin: { Args: never; Returns: boolean }

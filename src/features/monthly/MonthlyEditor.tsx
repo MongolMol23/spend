@@ -1,4 +1,5 @@
 import { useId, useState, type FormEvent } from 'react'
+import { CalendarMinus, Trash2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
 import { ledgerToday } from '../../data/calendar'
@@ -10,11 +11,12 @@ import { Toast } from '../../ui/Toast'
 import { expenseCategories } from '../purchases/api'
 import type { MonthlyChange, MonthlyDue } from './api'
 
-export type MonthlyEditorMode = { kind: 'add' } | { kind: 'pay' | 'unpay' | 'stop'; due: MonthlyDue }
+export type MonthlyEditorMode = { kind: 'add' } | { kind: 'pay' | 'unpay' | 'manage' | 'stop' | 'remove'; due: MonthlyDue }
 
-export function MonthlyEditor({ mode, busy, failed, close, save }: {
+export function MonthlyEditor({ mode, busy, failed, close, save, choose }: {
   mode: MonthlyEditorMode; busy: boolean; failed: boolean; close: () => void
   save: (change: MonthlyChange) => void
+  choose: (kind: 'stop' | 'remove', due: MonthlyDue) => void
 }) {
   const { t } = useTranslation()
   const title = useId()
@@ -25,12 +27,15 @@ export function MonthlyEditor({ mode, busy, failed, close, save }: {
   const monthStart = mode.kind === 'pay' ? mode.due.due_on.slice(0, 7) + '-01' : today
   const maxDate = today
   const [paidOn, setPaidOn] = useState(maxDate)
-  const labels = { add: 'monthlyAdd', pay: 'monthlyMarkPaid', unpay: 'monthlyUndo', stop: 'monthlyStop' } as const
+  const labels = {
+    add: 'monthlyAdd', pay: 'monthlyMarkPaid', unpay: 'monthlyUndo',
+    manage: 'monthlyManage', stop: 'monthlyStop', remove: 'monthlyRemove',
+  } as const
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     if (busy) return
-    if (mode.kind === 'stop') { save({ kind: 'stop', due: mode.due }); return }
+    if (mode.kind === 'stop' || mode.kind === 'remove') { save({ kind: mode.kind, due: mode.due }); return }
     if (mode.kind === 'unpay' && mode.due.expense_id) {
       save({ kind: 'unpay', due: mode.due, expenseId: mode.due.expense_id })
       return
@@ -53,7 +58,14 @@ export function MonthlyEditor({ mode, busy, failed, close, save }: {
     <section className="panel monthly-editor">
       <h2 id={title}>{t(labels[mode.kind])}</h2>
       {mode.kind !== 'add' && <p className="monthly-editor-name"><bdi>{mode.due.name}</bdi></p>}
-      <form onSubmit={submit} onChange={() => setInvalid(false)} noValidate>
+      {mode.kind === 'manage' ? <div className="monthly-manage-options">
+        {!mode.due.stops_on && <button type="button" className="secondary" onClick={() => choose('stop', mode.due)}>
+          <CalendarMinus size={18} aria-hidden="true" />{t('monthlyStop')}
+        </button>}
+        <button type="button" className="secondary monthly-remove" onClick={() => choose('remove', mode.due)}>
+          <Trash2 size={18} aria-hidden="true" />{t('monthlyRemove')}
+        </button>
+      </div> : <form onSubmit={submit} onChange={() => setInvalid(false)} noValidate>
         {mode.kind === 'add' && <label>{t('monthlyName')}<input name="name" dir="auto" maxLength={120} required /></label>}
         {(mode.kind === 'add' || mode.kind === 'pay') && <label>{t(mode.kind === 'pay' ? 'monthlyActual' : 'monthlyExpected')}
           <input name="amount" dir="ltr" inputMode="decimal" required
@@ -74,13 +86,15 @@ export function MonthlyEditor({ mode, busy, failed, close, save }: {
         </div>}
         {mode.kind === 'unpay' && <p>{t('monthlyUndoHelp')}</p>}
         {mode.kind === 'stop' && <p>{t('monthlyStopHelp')}</p>}
+        {mode.kind === 'remove' && <p>{t('monthlyRemoveHelp')}</p>}
         {invalid && <p className="monthly-error" role="alert">{t('monthlyInvalid')}</p>}
         {failed && <Toast message={t('monthlyChanged')} />}
         <div className="monthly-editor-actions">
           <button type="button" className="secondary" disabled={busy} onClick={close}>{t('cancelPurchase')}</button>
-          <button type="submit" className="primary" disabled={busy} aria-busy={busy}>{t(mode.kind === 'add' ? 'monthlySave' : labels[mode.kind])}</button>
+          <button type="submit" className={mode.kind === 'remove' ? 'primary monthly-remove' : 'primary'}
+            disabled={busy} aria-busy={busy}>{t(mode.kind === 'add' ? 'monthlySave' : labels[mode.kind])}</button>
         </div>
-      </form>
+      </form>}
     </section>
   </LedgerEditor>
 }

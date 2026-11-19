@@ -1,25 +1,32 @@
 .monthly-list { min-inline-size: 0 }
-.monthly-toolbar { display: flex; align-items: end; flex-wrap: wrap; gap: 12px 24px; margin-block: 20px }
-.monthly-toolbar p { flex: 1 1 220px; margin: 0; font-size: .875rem }
-.monthly-current { margin-block-end: 12px }
-.monthly-totals { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 0 0 20px }
-.monthly-totals > div { padding: 12px; border: var(--stroke); border-radius: var(--radius-sm); background: var(--lavender-panel) }
-.monthly-totals > div:nth-child(2) { background: var(--mint-panel) }
-.monthly-totals > div:nth-child(3) { background: var(--amber-panel) }
-.monthly-totals dt { font-size: .8rem }
-.monthly-totals dd { margin: 6px 0 0; font-size: clamp(1rem, 2.5vw, 1.5rem); font-weight: 850; overflow-wrap: anywhere }
-.monthly-progress { font-size: .875rem; font-weight: 750 }
-.monthly-empty { color: var(--muted); padding-block: 16px; border-block-start: 1px solid var(--line) }
+.monthly-toolbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-block-end: 16px }
+.monthly-toolbar .month-picker-label { display: none }
+.monthly-toolbar .month-picker-trigger, .monthly-add { min-block-size: 44px }
+.monthly-add { display: inline-flex; align-items: center; gap: 6px }
+.monthly-add svg { flex: none }
+.monthly-summary { display: grid; gap: 10px; margin-block-end: 18px; padding: 14px; border: var(--stroke); border-radius: var(--radius-sm); background: var(--mint-panel) }
+.monthly-summary-main { display: flex; justify-content: space-between; align-items: end; flex-wrap: wrap; gap: 6px 14px }
+.monthly-summary-main > div { display: grid; gap: 2px; min-inline-size: 0 }
+.monthly-summary-main strong { font-size: clamp(1.4rem, 4vw, 2rem); line-height: 1.2 }
+.monthly-summary-main p, .monthly-totals dt { font-size: .8rem; margin: 0 }
+.monthly-summary progress { inline-size: 100%; block-size: 9px; accent-color: var(--purple); }
+.monthly-totals { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 0; padding-block-start: 3px }
+.monthly-totals dd { margin: 2px 0 0; font-weight: 800 }
+.monthly-summary .amount, .monthly-item-amount .amount { white-space: normal; overflow-wrap: anywhere }
+.monthly-empty { color: var(--muted); margin: 0; padding-block: 18px 8px; border-block-start: 1px solid var(--line) }
 .monthly-items { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px }
-.monthly-item { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; align-items: center; gap: 12px; padding: 14px; border: var(--stroke); border-radius: var(--radius-sm); background: var(--card-surface) }
-.monthly-item[data-paid="true"] { background: var(--mint-panel) }
+.monthly-item { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 12px; border: var(--stroke); border-radius: var(--radius-sm); background: var(--card-surface) }
+.monthly-item[data-paid="true"] { background: var(--inset-surface) }
 .monthly-item-copy { min-inline-size: 0; display: grid; gap: 4px; overflow-wrap: anywhere }
-.monthly-item-copy > .muted { font-size: .8rem }
-.monthly-item-amount { overflow-wrap: anywhere; text-align: end }
-.monthly-item-status { font-size: .8rem; font-weight: 700 }
-.monthly-item-status[data-overdue="true"] { color: var(--danger) }
-.monthly-check, .monthly-stop { padding: 0; inline-size: 40px; min-block-size: 40px; display: grid; place-items: center }
+.monthly-item-title, .monthly-item-meta { display: flex; flex-wrap: wrap; gap: 3px 10px }
+.monthly-item-title { justify-content: space-between }
+.monthly-item-meta, .monthly-item-copy > small { color: var(--muted); font-size: .8rem }
+.monthly-overdue { color: var(--danger); font-weight: 750 }
+.monthly-check, .monthly-menu { padding: 0; inline-size: 44px; min-block-size: 44px; display: grid; place-items: center }
+.monthly-check::before { content: ''; inline-size: 16px; block-size: 16px; border: 1.5px solid currentColor; border-radius: 5px }
+.monthly-check[aria-pressed="true"]::before { display: none }
 .monthly-check[aria-pressed="true"] { background: var(--mint); color: var(--ink) }
+.monthly-menu { box-shadow: none }
 .monthly-editor { --panel-fill: var(--mint-panel) }
 .monthly-editor h2 { font-size: 1.3rem }
 .monthly-editor-name { font-weight: 750; overflow-wrap: anywhere }
@@ -30,12 +37,10 @@
 .monthly-help { font-size: .8rem; margin: 0 }
 .monthly-editor-actions { display: flex; flex-wrap: wrap; justify-content: end; gap: 10px; margin-block-start: 8px }
 .monthly-error { color: var(--danger); margin: 0 }
-@media (max-width: 540px) {
-  .monthly-totals { gap: 6px }
-  .monthly-totals > div { padding: 8px }
-  .monthly-item { grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px; padding: 12px }
-  .monthly-item-copy { grid-column: 2; grid-row: 1 / span 2 }
-  .monthly-item-amount { grid-column: 2; grid-row: 3; text-align: start }
-  .monthly-stop { grid-column: 3; grid-row: 1 }
-  .monthly-check { grid-column: 1; grid-row: 1 }
+.monthly-manage-options { display: grid; gap: 10px }
+.monthly-manage-options button { display: flex; justify-content: start; align-items: center; gap: 8px }
+.monthly-editor button.monthly-remove { color: var(--danger); background: var(--danger-surface) }
+@media (max-width: 430px) {
+  .monthly-toolbar button { font-size: .8rem; padding-inline: 9px }
+  .monthly-item { gap: 8px; padding: 9px }
 }

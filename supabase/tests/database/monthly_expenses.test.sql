@@ -78,5 +78,30 @@ select lives_ok($$select public.monthly_expense_pay(
  '10000000-0000-4000-8000-000000000031',10000,(now() at time zone 'Africa/Cairo')::date)$$,'overdue previous-month bill can be paid today');
 select is((select spent_on from public.expenses where id='10000000-0000-4000-8000-000000000031'),
  (now() at time zone 'Africa/Cairo')::date,'late payment hits the actual spending date');
+
+set local role anon;
+select throws_ok($$select public.monthly_expense_remove('10000000-0000-4000-8000-000000000010')$$,
+ '42501',null,'anonymous removal is blocked');
+set local role authenticated;
+set local request.jwt.claim.sub = '10000000-0000-4000-8000-000000000002';
+select throws_ok($$select public.monthly_expense_remove('10000000-0000-4000-8000-000000000010')$$,
+ 'P0001','monthly_changed','cannot remove another owner’s obligation');
+set local request.jwt.claim.sub = '10000000-0000-4000-8000-000000000001';
+select lives_ok($$select * from public.monthly_expense_list('2028-02-01')$$,'preview before removal');
+select lives_ok($$select public.monthly_expense_remove('10000000-0000-4000-8000-000000000010')$$,
+ 'remove a paid item already stopped for next month');
+select lives_ok($$select public.monthly_expense_remove('10000000-0000-4000-8000-000000000010')$$,
+ 'repeat removal safely');
+select is((select count(*) from public.expenses where id='10000000-0000-4000-8000-000000000022' and archived_at is null),
+ 1::bigint,'recorded purchase remains active');
+select lives_ok($$select public.monthly_expense_remove('10000000-0000-4000-8000-000000000030')$$,
+ 'remove an ongoing obligation');
+select is_empty($$select * from public.monthly_expense_list((now() at time zone 'Africa/Cairo')::date)$$,
+ 'removed items do not regenerate this month');
+select is_empty($$select * from public.monthly_expense_list('2028-02-01')$$,
+ 'future snapshots are removed');
+select is((select expense_id from public.monthly_expense_list(
+ (date_trunc('month',now() at time zone 'Africa/Cairo')-interval '1 month')::date)),
+ '10000000-0000-4000-8000-000000000031'::uuid,'previous checklist keeps the recorded payment');
 select * from finish();
 rollback;
