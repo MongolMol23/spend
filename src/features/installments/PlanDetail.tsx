@@ -1,5 +1,8 @@
 import { Modal } from '../../ui/Modal'
+import { LedgerEditor } from '../../ui/LedgerEditor'
 import { Toast } from '../../ui/Toast'
+import { ArrowLeft, CalendarDays, Plus } from 'lucide-react'
+import { Link } from 'react-router'
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ledgerToday } from '../../data/calendar'
@@ -27,11 +30,21 @@ export function PlanDetail({ plan, dues, date, busy, pending, paymentError, arch
   const dialog = useRef<HTMLDialogElement>(null)
   const today = ledgerToday()
   const paid = dues.reduce((total, due) => total + due.paid_minor, 0)
-  const message = invalid ? 'installmentInvalidPayment' : paymentError
+  const remaining = plan.total_minor - paid
+  const nextDue = dues.find(due => due.paid_minor < due.amount_minor)
+  const selectedDue = dues.find(due => due.id === selected)
+  const [showPaymentError, setShowPaymentError] = useState(false)
+  const message = invalid ? 'installmentInvalidPayment' : showPaymentError ? paymentError : undefined
   const state = (due: Due) => due.paid_minor === due.amount_minor ? 'installmentPaid'
     : due.due_on < today ? 'installmentOverdue' : 'installmentUpcoming'
   const visible = dues.filter(due => filter === 'all' || filter === state(due))
   useEffect(() => { heading.current?.focus() }, [])
+
+  function openPayment(due: Due) {
+    setInvalid(false)
+    setShowPaymentError(false)
+    setSelected(due.id)
+  }
 
   async function submit(event: FormEvent<HTMLFormElement>, due: Due) {
     event.preventDefault()
@@ -41,22 +54,46 @@ export function PlanDetail({ plan, dues, date, busy, pending, paymentError, arch
       return
     }
     setInvalid(false)
+    setShowPaymentError(true)
     if (await save({ kind: 'pay', plan, due, input: result.data })) setSelected(undefined)
   }
 
   return <section className="panel debt-detail installment-detail">
-    <h2 ref={heading} tabIndex={-1}><bdi>{plan.name}</bdi></h2>
-    {plan.archived_at && <p className="status">{t('installmentArchived')}</p>}
-    <dl className="debt-balances">
+    <div className="debt-detail-heading">
+      <div className="debt-person">
+        <span className="debt-avatar" aria-hidden="true"><CalendarDays size={19} /></span>
+        <h2 ref={heading} tabIndex={-1}><bdi>{plan.name}</bdi></h2>
+      </div>
+      <Link className="secondary debt-back" to="/installments">
+        <ArrowLeft size={16} aria-hidden="true" />{t('installmentBack')}
+      </Link>
+    </div>
+    <div className="debt-balance-summary installment-balance">
+      <div className="row">
+        <span className="debt-remaining-label">{t('remaining')}</span>
+        {plan.archived_at && <span className="status">{t('installmentArchived')}</span>}
+      </div>
+      <strong className="debt-remaining"><Amount value={remaining / 100} /></strong>
+      <div className="debt-progress" aria-hidden="true"><span style={{ inlineSize: (paid / plan.total_minor) * 100 + '%' }} /></div>
+    </div>
+    <dl className="debt-detail-totals">
       {([
         ['installmentTotal', plan.total_minor], ['installmentPaid', paid], ['remaining', plan.total_minor - paid],
       ] as const).map(([label, amount]) => <div key={label}><dt>{t(label)}</dt><dd><Amount value={amount / 100} /></dd></div>)}
     </dl>
-    <label className="installment-filter">{t('installmentFilter')} <Select value={filter} onChange={event => {
-      setFilter(event.target.value)
-      setSelected(undefined)
-      setInvalid(false)
-    }}>
+    {!plan.archived_at && nextDue && <div className="installment-next">
+      <div>
+        <strong>{t(nextDue.due_on < today ? 'installmentOverdue' : 'installmentNextPayment')}</strong>
+        <div className="installment-next-meta">
+          <time dateTime={nextDue.due_on}>{date.format(new Date(nextDue.due_on))}</time>
+          <strong><Amount value={(nextDue.amount_minor - nextDue.paid_minor) / 100} /></strong>
+        </div>
+      </div>
+      <button type="button" className="primary" disabled={busy} onClick={() => openPayment(nextDue)}>
+        <Plus size={17} aria-hidden="true" />{t('debtPay')}
+      </button>
+    </div>}
+    <label className="installment-filter">{t('installmentFilter')} <Select value={filter} onChange={event => setFilter(event.target.value)}>
       <option value="all">{t('installmentAll')}</option>
       {(['installmentUpcoming', 'installmentOverdue', 'installmentPaid'] as const)
         .map(value => <option value={value} key={value}>{t(value)}</option>)}
@@ -75,22 +112,8 @@ export function PlanDetail({ plan, dues, date, busy, pending, paymentError, arch
             <span>{t('installmentPaid')} · <Amount value={due.paid_minor / 100} /></span>
             <span>{t('remaining')} · <Amount value={remaining / 100} /></span>
           </p>
-          {!plan.archived_at && remaining > 0 && (selected === due.id
-            ? <form onSubmit={event => void submit(event, due)} noValidate onChange={() => setInvalid(false)}>
-              <fieldset className="debt-form" disabled={busy} aria-label={t('debtPay')}>
-                <div className="debt-pair">
-                  <label>{t('debtPaymentAmount')}<input name="amount" inputMode="decimal" dir="ltr" required /></label>
-                  <label>{t('debtPaidOn')}<input name="paidOn" type="date" dir="ltr" min="0001-01-01" max="9999-12-31" defaultValue={today} required /></label>
-                </div>
-                {message && <Toast message={t(message)} />}
-                <div className="debt-actions">
-                  <button className="primary" type="submit" aria-busy={pending === 'pay'}>{t('debtPay')}</button>
-                  <button className="secondary" type="button" onClick={() => setSelected(undefined)}>{t('cancelPurchase')}</button>
-                </div>
-              </fieldset>
-            </form>
-            : <button type="button" className="secondary" disabled={busy}
-              onClick={() => { setSelected(due.id); setInvalid(false) }}>{t('debtPay')}</button>)}
+          {!plan.archived_at && remaining > 0 && due.id !== nextDue?.id &&
+            <button type="button" className="secondary" disabled={busy} onClick={() => openPayment(due)}>{t('debtPay')}</button>}
         </li>
       })}
     </ul> : <p className="empty-state">{t('installmentNoDues')}</p>}
@@ -98,6 +121,28 @@ export function PlanDetail({ plan, dues, date, busy, pending, paymentError, arch
       <button type="button" className="secondary" disabled={busy} onClick={edit}>{t('installmentEdit')}</button>
       <button type="button" className="secondary" disabled={busy} onClick={() => dialog.current?.showModal()}>{t('installmentArchive')}</button>
     </div>}
+    {!plan.archived_at && selectedDue && <LedgerEditor titleId="installment-payment-title" busy={busy} onClose={() => setSelected(undefined)}>
+      <section className="panel debt-payment-editor">
+        <h2 id="installment-payment-title">{t('debtPay')}</h2>
+        <p><time dateTime={selectedDue.due_on}>{date.format(new Date(selectedDue.due_on))}</time>
+          {' · '}{t('remaining')} <Amount value={(selectedDue.amount_minor - selectedDue.paid_minor) / 100} /></p>
+        <form onSubmit={event => void submit(event, selectedDue)} noValidate onChange={() => {
+          setInvalid(false)
+          setShowPaymentError(false)
+        }}>
+          <fieldset className="debt-form" disabled={busy} aria-labelledby="installment-payment-title">
+            <div className="debt-pair">
+              <label>{t('debtPaymentAmount')}<input name="amount" inputMode="decimal" dir="ltr" required /></label>
+              <label>{t('debtPaidOn')}<input name="paidOn" type="date" dir="ltr" min="0001-01-01" max="9999-12-31" defaultValue={today} required /></label>
+            </div>
+            {message && <Toast message={t(message)} />}
+            <div className="debt-actions">
+              <button className="primary" type="submit" aria-busy={pending === 'pay'}>{t('debtPay')}</button>
+            </div>
+          </fieldset>
+        </form>
+      </section>
+    </LedgerEditor>}
     <Modal ref={dialog} busy={busy} className="panel debt-dialog" aria-labelledby="archive-installment-title">
       <h2 id="archive-installment-title">{t('installmentArchive')}</h2>
       <p><bdi>{plan.name}</bdi></p>

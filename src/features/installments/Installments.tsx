@@ -1,6 +1,6 @@
 import { budgetWarning } from '../budget/budget'
 import { FeatureHeading } from '../../ui/FeatureHeading'
-import { CalendarDays } from 'lucide-react'
+import { CalendarDays, ChevronRight, Plus } from 'lucide-react'
 import { LedgerEditor, LedgerHeading } from '../../ui/LedgerEditor'
 import { Toast } from '../../ui/Toast'
 import { SignInLink } from '../accounts/SignInLink'
@@ -76,6 +76,12 @@ function InstallmentWorkspace({ client, owner }: { client: InstallmentClient; ow
     mutation.reset()
   }
 
+  function addPlan() {
+    setEditSnapshot(undefined)
+    mutation.reset()
+    setEditorOpen(true)
+  }
+
   return <>
     {editorOpen && <LedgerEditor titleId="installment-form-title" busy={mutation.isPending} onClose={closeEditor}>
       <PlanForm key={editing ? editing.id + ':' + editing.version : 'new'} plan={editing} dues={editing?.installment_dues}
@@ -84,32 +90,43 @@ function InstallmentWorkspace({ client, owner }: { client: InstallmentClient; ow
         cancel={closeEditor} />
     </LedgerEditor>}
     {notice && <Toast kind={notice.startsWith('budget') ? 'error' : 'success'} message={t(notice)} />}
-    <div className="debt-stack">
+    <div className="debt-stack debt-stack-animated">
       {id && (detail.isPending ? <p className="loading-state" role="status">{t('loading')}</p>
         : detail.isError && !detail.data ? <section className="panel"><Toast message={t('failed')} />
-          <button type="button" className="secondary" disabled={detail.isFetching} aria-busy={detail.isFetching} onClick={() => void detail.refetch()}>{t('retry')}</button></section>
+          <div className="debt-actions"><button type="button" className="secondary" disabled={detail.isFetching} aria-busy={detail.isFetching} onClick={() => void detail.refetch()}>{t('retry')}</button>
+            <Link className="secondary" to="/installments">{t('installmentBack')}</Link></div></section>
         : detail.data ? <PlanDetail key={id} plan={detail.data} dues={detail.data.installment_dues} date={date}
           busy={mutation.isPending} pending={mutation.isPending ? mutation.variables?.kind : undefined} save={save} edit={() => { setEditorOpen(true); setEditSnapshot(detail.data ?? undefined); mutation.reset() }}
           paymentError={samePlan && mutation.variables?.kind === 'pay' ? error : undefined}
           archiveError={samePlan && mutation.variables?.kind === 'archive' ? error : undefined} />
-        : <p className="empty-state">{t('installmentMissing')}</p>)}
-      <section className="panel savings-list">
-        <LedgerHeading title={t('installmentActive')} action={t('installmentAdd')} busy={mutation.isPending} onAdd={() => { setEditSnapshot(undefined); mutation.reset(); setEditorOpen(true) }} />
+        : <section className="panel"><p>{t('installmentMissing')}</p><Link className="secondary" to="/installments">{t('installmentBack')}</Link></section>)}
+      {!id && <section className="panel debt-list installment-list">
+        {list.data?.length !== 0 && <LedgerHeading title={t('installmentActive')} action={t('installmentAdd')} busy={mutation.isPending} onAdd={addPlan} />}
         {list.isPending && <p className="loading-state" role="status">{t('loading')}</p>}
         {list.isError && <><Toast message={t('failed')} />
           <button type="button" className="secondary" disabled={list.isFetching} aria-busy={list.isFetching} onClick={() => void list.refetch()}>{t('retry')}</button></>}
         {list.data && (list.data.length ? <ul className="ledger">
           {list.data.slice(0, installmentPageSize).map(plan => <li key={plan.id}>
             <Link to={'?plan=' + plan.id} aria-current={id === plan.id ? 'true' : undefined}
-              className="row debt-row debt-list-link" onClick={() => { setEditSnapshot(undefined); setNotice(undefined) }}>
-              <strong className="reason"><bdi>{plan.name}</bdi></strong><Amount value={plan.total_minor / 100} />
+              className="debt-contact-card" onClick={() => { setEditSnapshot(undefined); setNotice(undefined) }}>
+              <span className="debt-avatar" aria-hidden="true"><CalendarDays size={19} /></span>
+              <span className="debt-contact-copy"><strong><bdi>{plan.name}</bdi></strong><span className="muted">{t('installmentTotal')}</span></span>
+              <strong className="debt-contact-amount"><Amount value={plan.total_minor / 100} /></strong>
+              <ChevronRight className="debt-contact-arrow" size={18} aria-hidden="true" />
             </Link>
           </li>)}
-        </ul> : <p className="empty-state">{t('installmentEmpty')}</p>)}
+        </ul> : <div className="installment-first-plan">
+          <span className="debt-avatar" aria-hidden="true"><CalendarDays size={22} /></span>
+          <h2>{t('installmentEmpty')}</h2>
+          <p>{t('installmentStartHint')}</p>
+          <button type="button" className="primary" disabled={mutation.isPending} onClick={addPlan}>
+            <Plus size={18} aria-hidden="true" />{t('installmentAdd')}
+          </button>
+        </div>)}
         <DebtPages page={page} hasNext={(list.data?.length ?? 0) > installmentPageSize} move={setPage} />
-      </section>
+      </section>}
     </div>
-    <InstallmentHistory client={client} date={date} />
+    {!id && <InstallmentHistory client={client} date={date} />}
   </>
 }
 

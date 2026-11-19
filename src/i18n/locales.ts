@@ -1,4 +1,6 @@
 const en = {
+ installmentBack: 'Back to plans', installmentStartHint: 'Add what you bought and its payment dates to see what’s due next.',
+ installmentNextPayment: 'Next installment',
  savingsBack: 'Back to goals', savingsInProgress: 'In progress', savingsProgressValue: '{{percent}} of your target', savingsGoalTarget: 'Target',
  historyStatus: 'Status',
  historyChanges: 'Changes', historyNoDate: 'No date set', historyMovementType: 'Movement type', historyRemoved: 'Removed', historyInstallmentNumber: 'Installment {{number}}',
@@ -307,6 +309,8 @@ const en = {
  usernameTaken: 'That username is already taken.', profileSaved: 'Profile saved.',
 }
 const ar: Record<keyof typeof en, string> = {
+ installmentBack: 'ارجع للخطط', installmentStartHint: 'سجّل الحاجة اللي قسّطتها ومواعيد الدفع، عشان تعرف القسط الجاي إمتى.',
+ installmentNextPayment: 'القسط الجاي',
  savingsBack: 'ارجع للأهداف', savingsInProgress: 'لسه بتحوّش', savingsProgressValue: '{{percent}} من هدفك', savingsGoalTarget: 'الهدف',
  historyStatus: 'الحالة',
  historyChanges: 'التغييرات', historyNoDate: 'من غير ميعاد', historyMovementType: 'نوع العملية', historyRemoved: 'اتشال', historyInstallmentNumber: 'القسط رقم {{number}}',

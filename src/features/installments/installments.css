@@ -4,6 +4,66 @@
   min-inline-size: 0;
 }
 
+.installment-first-plan {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  padding-block: 12px;
+  text-align: center;
+}
+
+.installment-first-plan h2,
+.installment-first-plan p {
+  margin: 0;
+}
+
+.installment-first-plan p {
+  max-inline-size: 38ch;
+  color: var(--muted);
+}
+
+.installment-first-plan .primary {
+  margin-block-start: 4px;
+}
+
+.installment-list .debt-avatar,
+.installment-detail .debt-avatar,
+.installment-detail .installment-balance {
+  background: var(--amber-panel);
+}
+
+.installment-first-plan .primary,
+.installment-next .primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.installment-next {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px;
+  border: var(--stroke);
+  border-inline-start-width: 4px;
+  border-radius: var(--radius-sm);
+  background: var(--inset-surface);
+}
+
+.installment-next-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin-block-start: 4px;
+}
+
+.installment-next time {
+  color: var(--muted);
+}
+
 .installment-schedule,
 .installment-schedule-row {
   display: grid;
@@ -32,6 +92,11 @@
 .installment-dues > li {
   display: grid;
   gap: 8px;
+}
+
+.installment-dues .debt-row {
+  flex-wrap: wrap;
+  gap: 4px 12px;
 }
 
 .installment-dues > li > button {
