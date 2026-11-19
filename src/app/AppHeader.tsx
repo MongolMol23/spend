@@ -10,11 +10,13 @@ import { ResponseBadge } from './ResponseBadge'
 import { supabase } from '../data/supabase'
 import { Toast } from '../ui/Toast'
 import { useNavigationSwipe } from './useNavigationSwipe'
+import { useSidebarSwipe } from './useSidebarSwipe'
 
 export function AppHeader({ admin = false, authPage = false }: { admin?: boolean; authPage?: boolean }) {
   const { t, i18n } = useTranslation()
   const navigate = useNavigate()
   const sidebar = useRef<HTMLDialogElement>(null)
+  const sidebarSwipe = useSidebarSwipe(sidebar)
   const header = useRef<HTMLDivElement>(null)
   const [userId, setUserId] = useState<string>()
   const [signingOut, setSigningOut] = useState<'header' | 'sidebar'>()
@@ -105,7 +107,7 @@ export function AppHeader({ admin = false, authPage = false }: { admin?: boolean
     </div></header>
     {userId && signOutFailed === 'header' && <Toast message={t('accountError')} />}
     {showMemberNavigation && <Modal id="sidebar" className="sidebar" ref={sidebar} aria-labelledby="sidebar-title">
-      <div className="sidebar-content">
+      <div className="sidebar-content" {...sidebarSwipe}>
         <div className="row">
           <h2 id="sidebar-title" className="brand"><Brand /></h2>
           <button type="button" className="sidebar-close" aria-label={t('closeMenu')} onClick={() => sidebar.current?.close()}>
