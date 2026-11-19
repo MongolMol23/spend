@@ -20,7 +20,20 @@
 .history-disclosure[open] > summary .history-disclosure-chevron { rotate: 180deg }
 .feature-heading:has(> .history-page-trigger) h1 { flex-basis: 0; min-inline-size: 0 }
 .history-page-trigger { display: inline-flex; align-items: center; gap: 6px; padding-inline: 10px; font-size: .875rem; flex: none }
-.panel.history-page-dialog { inline-size: min(44rem, calc(100% - 24px)); padding: 0; margin: auto }
+.panel.history-page-dialog {
+  inline-size: min(44rem, calc(100% - 24px));
+  max-block-size: min(40rem, calc(100dvh - 24px));
+  padding: 0;
+  margin: auto;
+  overflow: clip;
+}
+.history-page-dialog[open] { display: flex; flex-direction: column }
+.history-page-dialog > :is(.history-page-header, .history-dates) { flex: none }
+.history-page-dialog > .history-disclosure-content {
+  min-block-size: 0;
+  max-block-size: none;
+  overscroll-behavior-y: contain;
+}
 .history-page-dialog::backdrop { background: rgb(33 30 38 / .65) }
 .history-page-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px }
 .history-page-header h2 { margin: 0 }
