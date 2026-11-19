@@ -59,7 +59,7 @@ function GoalForm({ goal, busy, error, save, cancel }: {
         <label>{t('savingsName')}<input ref={name} name="name" defaultValue={goal?.name} dir="auto" required maxLength={120} /></label>
         <label>{t('savingsTarget')}<input name="target" defaultValue={goal ? (goal.target_minor / 100).toFixed(2) : ''}
           inputMode="decimal" dir="ltr" required /></label>
-        <label>{t('savingsOptionalDate')}<input name="targetOn" type="date" dir="ltr" min="0001-01-01" max="9999-12-31" defaultValue={goal?.target_on ?? ''} /></label>
+        <DateField label={t('savingsOptionalDate')} name="targetOn" defaultValue={goal?.target_on ?? ''} optional />
         {message && <Toast message={t(message)} />}
         <div className="debt-actions">
           <button type="submit" className="primary" aria-busy={busy}>{t('savingsSave')}</button>
@@ -181,3 +181,4 @@ export function Savings() {
       : <LedgerQueries key={owner}><SavingsWorkspace client={supabase} owner={owner} /></LedgerQueries>}
   </main>
 }
+import { DateField } from '../../ui/DateField'

@@ -107,7 +107,7 @@ export function SavingsDetail({ client, goal, date, busy, pending, movementError
             <input type="hidden" name="direction" value={movementType} />
             <div className="debt-pair">
               <label>{t('savingsAmount')}<input name="amount" inputMode="decimal" dir="ltr" required /></label>
-              <label>{t('savingsMovementDate')}<input name="movedOn" type="date" dir="ltr" min="0001-01-01" max="9999-12-31" defaultValue={ledgerToday()} required /></label>
+              <DateField label={t('savingsMovementDate')} name="movedOn" defaultValue={ledgerToday()} onChange={() => setInvalid(undefined)} />
             </div>
             {message && <Toast message={t(message)} />}
             <div><button type="submit" className="primary" aria-busy={pending === 'move'}>{t('savingsRecord')}</button></div>
@@ -139,3 +139,4 @@ export function SavingsDetail({ client, goal, date, busy, pending, movementError
     </Modal>
   </section>
 }
+import { DateField } from '../../ui/DateField'

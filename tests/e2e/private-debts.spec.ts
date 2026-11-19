@@ -1,6 +1,7 @@
 import AxeBuilder from '@axe-core/playwright'
 import { expect, test } from '@playwright/test'
 import { mailLink } from './mailpit'
+import { pickDate } from './date-picker'
 
 test('private debts flow through repayment, edits, dashboard balances, and history', async ({ page, request }) => {
   test.setTimeout(75_000)
@@ -30,7 +31,7 @@ test('private debts flow through repayment, edits, dashboard balances, and histo
   const history = page.locator('.debt-history')
   await entry.getByLabel('Contact name').fill('علي')
   await entry.getByLabel('Total amount (EGP)').fill('٢٠٠')
-  await entry.getByLabel('Due date (optional)').fill('2030-01-15')
+  await pickDate(page, entry.getByRole('button', { name: /^Due date/ }), 'Due date (optional)', '2030-01-15')
   await entry.getByRole('button', { name: 'Save debt' }).click()
   await expect(detail.getByRole('heading', { level: 2 })).toContainText('علي')
   const debtPath = new URL(page.url()).pathname + new URL(page.url()).search

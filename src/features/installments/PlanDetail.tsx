@@ -133,7 +133,7 @@ export function PlanDetail({ plan, dues, date, busy, pending, paymentError, arch
           <fieldset className="debt-form" disabled={busy} aria-labelledby="installment-payment-title">
             <div className="debt-pair">
               <label>{t('debtPaymentAmount')}<input name="amount" inputMode="decimal" dir="ltr" required /></label>
-              <label>{t('debtPaidOn')}<input name="paidOn" type="date" dir="ltr" min="0001-01-01" max="9999-12-31" defaultValue={today} required /></label>
+              <DateField label={t('debtPaidOn')} name="paidOn" defaultValue={today} onChange={() => { setInvalid(false); setShowPaymentError(false) }} />
             </div>
             {message && <Toast message={t(message)} />}
             <div className="debt-actions">
@@ -157,3 +157,4 @@ export function PlanDetail({ plan, dues, date, busy, pending, paymentError, arch
     </Modal>
   </section>
 }
+import { DateField } from '../../ui/DateField'

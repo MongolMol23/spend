@@ -49,7 +49,7 @@ export function DebtForm({ debt, busy, error, save, cancel }: {
         </label>}
         <label>{t('debtAmount')}<input name="amount" defaultValue={debt ? (debt.amount_minor / 100).toFixed(2) : ''}
           inputMode="decimal" dir="ltr" required /></label>
-        <label>{t('debtDue')}<input name="dueOn" type="date" dir="ltr" min="0001-01-01" max="9999-12-31" defaultValue={debt?.due_on ?? ''} /></label>
+        <DateField label={t('debtDue')} name="dueOn" defaultValue={debt?.due_on ?? ''} optional />
         {message && <Toast message={t(message)} />}
         <div className="debt-actions">
           <button type="submit" className="primary" aria-busy={busy}>{t('debtSave')}</button>
@@ -59,3 +59,4 @@ export function DebtForm({ debt, busy, error, save, cancel }: {
     </form>
   </section>
 }
+import { DateField } from '../../ui/DateField'

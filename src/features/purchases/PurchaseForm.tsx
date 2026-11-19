@@ -1,4 +1,5 @@
 import { Toast } from '../../ui/Toast'
+import { DateField } from '../../ui/DateField'
 import { useEffect, useRef, useState, type FormEvent, type FocusEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { Label } from '../../i18n/locales'
@@ -65,7 +66,8 @@ export function PurchaseForm({ expense, busy, error, onSave, onCancel }: {
       const fields = result.error.issues.map(issue => issue.path[0] as Field)
       setInvalid(Object.fromEntries(fields.map(field => [field, true])))
       const first = form.elements.namedItem(fields[0])
-      if (first instanceof HTMLElement) first.focus()
+      if (fields[0] === 'spentOn') form.querySelector<HTMLButtonElement>('.date-field-trigger')?.focus()
+      else if (first instanceof HTMLElement) first.focus()
       return
     }
     if (await onSave(result.data) && !expense) {
@@ -85,8 +87,12 @@ export function PurchaseForm({ expense, busy, error, onSave, onCancel }: {
         <div className="purchase-form-pair">
           <label>{t('purchaseAmount')}<input {...fieldProps('amount')} inputMode="decimal" dir="ltr"
             defaultValue={expense ? (expense.amount_minor / 100).toFixed(2) : ''} required />{fieldError('amount')}</label>
-          <label>{t('purchaseDate')}<input {...fieldProps('spentOn')} type="date" dir="ltr" max="9999-12-31"
-            defaultValue={expense?.spent_on ?? purchaseToday()} required />{fieldError('spentOn')}</label>
+          <div>
+            <DateField label={t('purchaseDate')} name="spentOn" defaultValue={expense?.spent_on ?? purchaseToday()}
+              invalid={invalid.spentOn} describedBy={fieldProps('spentOn')['aria-describedby']}
+              onChange={() => setInvalid(previous => ({ ...previous, spentOn: false }))} />
+            {fieldError('spentOn')}
+          </div>
         </div>
         <label>{t('purchaseCategory')}
           <Select {...fieldProps('category')} defaultValue={expense?.category ?? ''} required>

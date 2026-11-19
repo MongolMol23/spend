@@ -41,6 +41,12 @@
 .history-calendar-dialog header { display: flex; align-items: center; justify-content: space-between; gap: 8px }
 .history-calendar-controls { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 8px; margin-block: 12px }
 .history-calendar-controls select { inline-size: 100%; min-inline-size: 0 }
+.history-calendar-controls .calendar-year-input { inline-size: 100%; min-inline-size: 0; text-align: center; appearance: textfield }
+.calendar-year-input::-webkit-inner-spin-button { appearance: none }
+.date-field { display: grid; align-content: start; gap: 6px; min-inline-size: 0; font-weight: 700 }
+.date-field .date-field-trigger { position: relative; justify-content: center; inline-size: 100%; min-block-size: 48px; padding-inline: 34px }
+.date-field-trigger svg { position: absolute; inset-inline-end: 11px }
+.date-field-clear { margin-block-start: 12px }
 .history-calendar-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 3px; text-align: center }
 .history-calendar-grid > span { font-size: .75rem; color: var(--muted) }
 .history-calendar-grid.month-picker-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin-block: 12px }

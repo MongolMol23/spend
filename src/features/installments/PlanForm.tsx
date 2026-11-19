@@ -54,8 +54,7 @@ export function PlanForm({ plan, dues, busy, error, save, cancel }: {
           <p className="muted">{t(locked ? 'installmentLocked' : 'installmentScheduleHint')}</p>
           {rows.map((row, index) => <div className="installment-schedule-row" key={row.key}>
             <div className="debt-pair">
-              <label>{t('installmentDueDate')}<input name="dueOn" type="date" dir="ltr" min="0001-01-01" max="9999-12-31"
-                defaultValue={row.date} required readOnly={locked} /></label>
+              <DateField label={t('installmentDueDate')} name="dueOn" defaultValue={row.date} readOnly={locked} onChange={() => setInvalid(false)} />
               <label>{t('installmentAmount')}<input name="amount" inputMode="decimal" dir="ltr"
                 defaultValue={row.amount} required readOnly={locked} /></label>
             </div>
@@ -75,3 +74,4 @@ export function PlanForm({ plan, dues, busy, error, save, cancel }: {
     </form>
   </section>
 }
+import { DateField } from '../../ui/DateField'

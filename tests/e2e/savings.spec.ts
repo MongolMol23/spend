@@ -1,6 +1,7 @@
 import AxeBuilder from '@axe-core/playwright'
 import { expect, test } from '@playwright/test'
 import { mailLink } from './mailpit'
+import { pickDate } from './date-picker'
 
 test('savings goals track deposits, withdrawals, progress, and private history', async ({ page, request }) => {
   test.setTimeout(75_000)
@@ -29,7 +30,7 @@ test('savings goals track deposits, withdrawals, progress, and private history',
   const history = page.locator('.savings-history')
   await entry.getByLabel('Goal name').fill('عجلة')
   await entry.getByLabel('Target amount').fill('١٠٠')
-  await entry.getByLabel('Target date (optional)').fill('2030-01-15')
+  await pickDate(page, entry.getByRole('button', { name: /^Target date/ }), 'Target date (optional)', '2030-01-15')
   await entry.getByRole('button', { name: 'Save goal' }).click()
   await expect(detail.getByRole('heading', { level: 2 })).toHaveText('عجلة')
   const goalPath = new URL(page.url()).pathname + new URL(page.url()).search

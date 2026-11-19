@@ -91,7 +91,7 @@ export function DebtDetail({ client, debt, date, busy, pending, payError, archiv
       <fieldset className="debt-form" disabled={busy} aria-label={t('debtPay')}>
         <div className="debt-pair">
           <label>{t('debtPaymentAmount')}<input name="amount" inputMode="decimal" dir="ltr" required /></label>
-          <label>{t('debtPaidOn')}<input name="paidOn" type="date" dir="ltr" min="0001-01-01" max="9999-12-31" defaultValue={ledgerToday()} required /></label>
+          <DateField label={t('debtPaidOn')} name="paidOn" defaultValue={ledgerToday()} onChange={() => setInvalid(false)} />
         </div>
         {paymentError && <Toast message={t(paymentError)} />}
         <div><button type="submit" className="primary" aria-busy={pending === 'pay'}>{t('debtPay')}</button></div>
@@ -123,3 +123,4 @@ export function DebtDetail({ client, debt, date, busy, pending, payError, archiv
     </Modal>
   </section>
 }
+import { DateField } from '../../ui/DateField'

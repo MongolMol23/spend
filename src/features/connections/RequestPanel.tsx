@@ -118,7 +118,7 @@ export function RequestPanel({ client, userId, friends, names, requests, payment
           </Select></div>
           <label>{t('requestAmount')}<input name="amount" inputMode="decimal" dir="ltr" required /></label>
           <label>{t('reason')}<textarea name="reason" dir="auto" maxLength={500} required /></label>
-          <label>{t('optionalDueDate')}<input name="deadline" type="date" dir="ltr" /></label>
+          <DateField label={t('optionalDueDate')} name="deadline" optional />
           {invalid && <Toast message={t('invalidRequest')} />}
           <button className="primary request-send" disabled={busy} aria-busy={pending === 'send-request'}>{t('sendRequest')}</button>
         </form>
@@ -230,3 +230,4 @@ export function RequestPanel({ client, userId, friends, names, requests, payment
   </div>
 }
 
+import { DateField } from '../../ui/DateField'
