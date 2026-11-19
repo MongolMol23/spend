@@ -1,5 +1,5 @@
 import { useId, useState, type FormEvent } from 'react'
-import { CalendarMinus, Trash2 } from 'lucide-react'
+import { CalendarMinus, Pencil, Trash2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
 import { ledgerToday } from '../../data/calendar'
@@ -16,7 +16,7 @@ export type MonthlyEditorMode = { kind: 'add' } | { kind: 'pay' | 'unpay' | 'man
 export function MonthlyEditor({ mode, busy, failed, close, save, choose }: {
   mode: MonthlyEditorMode; busy: boolean; failed: boolean; close: () => void
   save: (change: MonthlyChange) => void
-  choose: (kind: 'stop' | 'remove', due: MonthlyDue) => void
+  choose: (kind: 'pay' | 'stop' | 'remove', due: MonthlyDue) => void
 }) {
   const { t } = useTranslation()
   const title = useId()
@@ -51,7 +51,7 @@ export function MonthlyEditor({ mode, busy, failed, close, save, choose }: {
       return
     }
     if (mode.kind === 'add' && category) save({ kind: 'add', id: operationId, name, amount, day, category })
-    if (mode.kind === 'pay') save({ kind: 'pay', due: mode.due, expenseId: operationId, amount, date: paidOn })
+    if (mode.kind === 'pay') save({ kind: 'pay', due: mode.due, amount, date: paidOn })
   }
 
   return <LedgerEditor titleId={title} busy={busy} onClose={close}>
@@ -59,12 +59,17 @@ export function MonthlyEditor({ mode, busy, failed, close, save, choose }: {
       <h2 id={title}>{t(labels[mode.kind])}</h2>
       {mode.kind !== 'add' && <p className="monthly-editor-name"><bdi>{mode.due.name}</bdi></p>}
       {mode.kind === 'manage' ? <div className="monthly-manage-options">
-        {!mode.due.stops_on && <button type="button" className="secondary" onClick={() => choose('stop', mode.due)}>
-          <CalendarMinus size={18} aria-hidden="true" />{t('monthlyStop')}
+        {!mode.due.expense_id && <button type="button" className="secondary" onClick={() => choose('pay', mode.due)}>
+          <Pencil size={18} aria-hidden="true" />{t('monthlyPaymentDetails')}
         </button>}
-        <button type="button" className="secondary monthly-remove" onClick={() => choose('remove', mode.due)}>
-          <Trash2 size={18} aria-hidden="true" />{t('monthlyRemove')}
-        </button>
+        {mode.due.due_on.slice(0, 7) === today.slice(0, 7) && <>
+          {!mode.due.stops_on && <button type="button" className="secondary" onClick={() => choose('stop', mode.due)}>
+            <CalendarMinus size={18} aria-hidden="true" />{t('monthlyStop')}
+          </button>}
+          <button type="button" className="secondary monthly-remove" onClick={() => choose('remove', mode.due)}>
+            <Trash2 size={18} aria-hidden="true" />{t('monthlyRemove')}
+          </button>
+        </>}
       </div> : <form onSubmit={submit} onChange={() => setInvalid(false)} noValidate>
         {mode.kind === 'add' && <label>{t('monthlyName')}<input name="name" dir="auto" maxLength={120} required /></label>}
         {(mode.kind === 'add' || mode.kind === 'pay') && <label>{t(mode.kind === 'pay' ? 'monthlyActual' : 'monthlyExpected')}

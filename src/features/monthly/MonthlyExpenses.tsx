@@ -15,11 +15,11 @@ import { Toast } from '../../ui/Toast'
 import { SignInLink } from '../accounts/SignInLink'
 import { budgetKey, budgetWarning } from '../budget/budget'
 import { categoryLabel, purchasesKey, type PurchaseClient } from '../purchases/api'
-import { changeMonthly, monthlyKey, readMonthly, type MonthlyChange } from './api'
+import { changeMonthly, monthlyKey, readMonthly, type MonthlyChange, type MonthlyDue } from './api'
 import { MonthlyEditor, type MonthlyEditorMode } from './MonthlyEditor'
 import './monthly.css'
 
-function MonthlyWorkspace({ client }: { client: PurchaseClient }) {
+function MonthlyWorkspace({ client, owner }: { client: PurchaseClient; owner: string }) {
   const { t, i18n } = useTranslation()
   const { date } = useFormats()
   const [params, setParams] = useSearchParams()
@@ -36,7 +36,7 @@ function MonthlyWorkspace({ client }: { client: PurchaseClient }) {
     refetchInterval: 30_000,
   })
   const mutation = useMutation({
-    mutationFn: (change: MonthlyChange) => changeMonthly(client, change),
+    mutationFn: (change: MonthlyChange) => changeMonthly(client, owner, change),
     onSuccess: async (_, change) => {
       setEditor(undefined)
       await Promise.all([
@@ -48,7 +48,7 @@ function MonthlyWorkspace({ client }: { client: PurchaseClient }) {
       setNotice(warning ?? (change.kind === 'add' ? 'monthlyAdded' : change.kind === 'pay' ? 'monthlyPaidSaved'
         : change.kind === 'unpay' ? 'monthlyUnpaidSaved' : change.kind === 'stop' ? 'monthlyStopped' : 'monthlyRemoved'))
     },
-    onError: () => { void cache.invalidateQueries({ queryKey: monthlyKey }) },
+    onError: () => cache.invalidateQueries({ queryKey: monthlyKey }),
   })
   const entries = list.data ?? []
   const paid = entries.filter(entry => entry.expense_id !== null)
@@ -63,8 +63,19 @@ function MonthlyWorkspace({ client }: { client: PurchaseClient }) {
     setEditor(mode)
   }
 
+  function recordPayment(due: MonthlyDue) {
+    if (mutation.isPending) return
+    if (due.expense_id) {
+      open({ kind: 'unpay', due })
+      return
+    }
+    setNotice(undefined)
+    mutation.mutate({ kind: 'pay', due, amount: due.expected_minor, date: ledgerToday() })
+  }
+
   return <>
     {notice && <Toast kind={notice.startsWith('budget') ? 'error' : 'success'} message={t(notice)} />}
+    {!editor && mutation.isError && <Toast key={mutation.submittedAt} message={t('monthlyChanged')} />}
     {editor && <MonthlyEditor key={editor.kind} mode={editor} busy={mutation.isPending} failed={mutation.isError}
       close={() => { setEditor(undefined); mutation.reset() }} save={change => mutation.mutate(change)}
       choose={(kind, due) => open({ kind, due })} />}
@@ -98,11 +109,12 @@ function MonthlyWorkspace({ client }: { client: PurchaseClient }) {
           {entries.map(entry => {
             const isPaid = entry.expense_id !== null
             const overdue = !isPaid && entry.due_on < today
+            const paying = !editor && mutation.isPending && mutation.variables?.kind === 'pay' && mutation.variables.due.id === entry.id
             return <li key={entry.id} data-paid={isPaid} className="monthly-item">
               <button type="button" className="secondary monthly-check" disabled={mutation.isPending || month > currentMonth}
                 aria-label={t(isPaid ? 'monthlyUndoName' : 'monthlyPayName', { name: entry.name })}
-                aria-pressed={isPaid} onClick={() => open({ kind: isPaid ? 'unpay' : 'pay', due: entry })}>
-                {isPaid && <Check size={20} aria-hidden="true" />}
+                aria-busy={paying} aria-pressed={isPaid} onClick={() => recordPayment(entry)}>
+                {isPaid && !paying && <Check size={20} aria-hidden="true" />}
               </button>
               <div className="monthly-item-copy">
                 <div className="monthly-item-title">
@@ -117,7 +129,7 @@ function MonthlyWorkspace({ client }: { client: PurchaseClient }) {
                 </div>
                 {entry.stops_on && <small className="muted">{t('monthlyStoppedNote')}</small>}
               </div>
-              {month === currentMonth && <button type="button" className="secondary monthly-menu" disabled={mutation.isPending}
+              {(month === currentMonth || (!isPaid && month < currentMonth)) && <button type="button" className="secondary monthly-menu" disabled={mutation.isPending}
                 aria-label={t('monthlyManageName', { name: entry.name })} aria-haspopup="dialog"
                 onClick={() => open({ kind: 'manage', due: entry })}>
                 <MoreHorizontal size={19} aria-hidden="true" />
@@ -136,6 +148,6 @@ export function MonthlyExpenses() {
   return <main id="main" className="shell" tabIndex={-1}>
     <FeatureHeading title={t('monthlyExpenses')} icon={CalendarCheck} accent="mint" />
     {!supabase ? <Toast message={t('failed')} /> : owner === undefined ? <p className="loading-state" role="status">{t('loading')}</p>
-      : !owner ? <SignInLink /> : <LedgerQueries key={owner}><MonthlyWorkspace client={supabase} /></LedgerQueries>}
+      : !owner ? <SignInLink /> : <LedgerQueries key={owner}><MonthlyWorkspace client={supabase} owner={owner} /></LedgerQueries>}
   </main>
 }

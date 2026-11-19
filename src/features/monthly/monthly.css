@@ -24,7 +24,7 @@
 .monthly-overdue { color: var(--danger); font-weight: 750 }
 .monthly-check, .monthly-menu { padding: 0; inline-size: 44px; min-block-size: 44px; display: grid; place-items: center }
 .monthly-check::before { content: ''; inline-size: 16px; block-size: 16px; border: 1.5px solid currentColor; border-radius: 5px }
-.monthly-check[aria-pressed="true"]::before { display: none }
+.monthly-check:is([aria-pressed="true"], [aria-busy="true"])::before { display: none }
 .monthly-check[aria-pressed="true"] { background: var(--mint); color: var(--ink) }
 .monthly-menu { box-shadow: none }
 .monthly-editor { --panel-fill: var(--mint-panel) }
