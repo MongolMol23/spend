@@ -140,14 +140,19 @@ main.account-shell {
 }
 .account-switch a { gap: 6px; border-radius: 9px; padding-inline: 10px }
 .account-switch a:dir(rtl) svg { transform: scaleX(-1) }
-.profile-layout { display: grid; gap: var(--space-4) }
-.profile-header {
+.account-shell:has(.profile-layout) { max-inline-size: 680px; padding-block-start: clamp(20px, 4vh, 40px) }
+.profile-layout { display: grid; gap: var(--space-3) }
+.profile-layout .profile-header {
+  --panel-fill: var(--lavender-panel);
   display: grid;
-  gap: 8px;
-  padding: 12px 16px;
+  gap: 12px;
+  padding: clamp(12px, 3vw, 20px);
 }
 .profile-intro, .profile-meta { min-inline-size: 0 }
-.profile-intro { display: flex; align-items: center; gap: 12px }
+.profile-intro { display: flex; align-items: center; gap: 10px }
+.profile-intro .profile-identity { flex: 1 }
+.profile-edit { display: inline-flex; align-items: center; flex: none; gap: 6px; margin-inline-start: auto; padding-inline: 9px; font-size: .875rem }
+.profile-retry { justify-self: start }
 .profile-meta {
   display: flex;
   flex-wrap: wrap;
@@ -173,45 +178,45 @@ main.account-shell {
 }
 .profile-identity { min-inline-size: 0; overflow-wrap: anywhere }
 .profile-identity h1 { margin: 0; font-size: clamp(1.25rem, 3vw, 1.65rem) }
-.profile-handle { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-weight: 750 }
-.profile-handle .profile-copy { inline-size: 34px; min-block-size: 32px; padding: 0 }
-.profile-email { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 7px; margin: 0; font-size: .875rem }
+.profile-handle { display: flex; flex-wrap: wrap; align-items: center; gap: 2px; font-weight: 750; font-size: .875rem }
+.profile-copy { display: grid; place-items: center; flex: none; inline-size: 44px; padding: 0; border: 0; border-radius: 8px; background: transparent }
+.profile-email { display: flex; flex: 1 0 100%; flex-wrap: wrap; align-items: center; gap: 4px 7px; margin: 0; min-inline-size: 0; font-size: .875rem }
 .profile-email svg { flex: none }
 .profile-member { display: flex; align-items: center; gap: 7px; margin: 0; font-size: .875rem }
 .profile-member svg { flex: none }
-.profile-security {
-  --panel-fill: var(--mint-panel);
+.profile-layout .profile-actions {
+  display: grid;
+  padding: 5px 12px;
+}
+.profile-option {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  gap: var(--space-3);
+  gap: 10px;
+  min-block-size: 56px;
+  inline-size: 100%;
+  padding: 8px 4px;
+  border: 0;
+  color: inherit;
+  background: transparent;
+  text-decoration: none;
+  text-align: start;
 }
-.profile-security > .icon-tile {
-  --icon-fill: var(--yellow);
-  inline-size: 48px;
-  block-size: 48px;
-  box-shadow: var(--shadow-control);
-}
-.profile-security-copy h2 { margin: 0 0 4px; font-size: 1.125rem }
-.profile-security-copy p { margin: 0; color: var(--muted); font-size: .875rem }
-@media (max-width: 540px) {
-  .profile-security { grid-template-columns: auto minmax(0, 1fr); gap: var(--space-2) }
-  .profile-security > button { grid-column: 1 / -1 }
-}
-.profile-details .icon-tile { --icon-fill: var(--mint) }
-.profile-details .account-form { margin-block: var(--space-3) 0; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: end }
-.profile-details .account-form .primary { grid-column: 1 / -1; justify-self: end }
-.profile-details .account-form label:first-child { grid-column: 1 / -1 }
-.profile-actions { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--space-2) }
-.profile-shortcut { display: inline-flex; align-items: center; gap: 7px; text-decoration: none }
-.profile-actions button { display: inline-flex; align-items: center; gap: 7px }
+.profile-option + .profile-option { border-block-start: 1px solid var(--line) }
+.profile-option-copy { display: grid; gap: 2px }
+.profile-option-copy small { color: var(--muted); font-size: .8125rem }
+.profile-option .icon-tile[data-accent="yellow"] { --icon-fill: var(--yellow) }
+.profile-option .icon-tile[data-accent="mint"] { --icon-fill: var(--mint) }
+.profile-option .icon-tile[data-accent="peach"] { --icon-fill: var(--peach) }
+.profile-option-arrow:dir(rtl) { scale: -1 1 }
+.profile-option[aria-busy="true"] .profile-option-arrow { display: none }
+.profile-signout { color: var(--danger) }
 @media (hover: hover) {
-  .profile-actions .secondary:hover:not(:disabled) { background: var(--peach-panel); color: var(--text) }
+  .profile-copy:hover, .profile-option:hover:not(:disabled) { background: var(--inset-surface) }
+  .profile-signout:hover:not(:disabled) { background: var(--danger-surface) }
 }
-@media (max-width: 540px) {
-  .profile-details .account-form { grid-template-columns: minmax(0, 1fr) }
-  .profile-details .account-form .primary { justify-self: stretch }
-}
+.profile-details { --panel-fill: var(--lavender-panel) }
+.profile-details .account-form { min-inline-size: 0; padding: 0; border: 0; margin-inline: 0 }
 
 @media (max-width: 820px) and (min-width: 721px) {
   .signup-names { grid-template-columns: minmax(0, 1fr) }

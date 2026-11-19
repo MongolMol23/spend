@@ -2,10 +2,11 @@ import { Toast } from '../../ui/Toast'
 import { useState, type FormEvent } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
-import { CalendarDays, Copy, LogOut, Mail, Shield, UserRound, UserRoundPen, UsersRound } from 'lucide-react'
+import { CalendarDays, ChevronRight, Copy, LogOut, Mail, Pencil, Shield, ShieldCheck, UserRound, UsersRound } from 'lucide-react'
 import { Link } from 'react-router'
 import type { Label } from '../../i18n/locales'
 import { supabase } from '../../data/supabase'
+import { LedgerEditor } from '../../ui/LedgerEditor'
 import { signupProfileSchema } from './validation'
 
 export function ProfileSettings({ userId, email, emailVerified, createdAt }: {
@@ -25,6 +26,7 @@ export function ProfileSettings({ userId, email, emailVerified, createdAt }: {
   })
   const [notice, setNotice] = useState<Label>()
   const [error, setError] = useState<Label>()
+  const [editing, setEditing] = useState(false)
   const [pending, setPending] = useState<'save' | 'signout'>()
   const busy = pending !== undefined
   const [sendingReset, setSendingReset] = useState(false)
@@ -98,6 +100,7 @@ export function ProfileSettings({ userId, email, emailVerified, createdAt }: {
       if (failure?.code === '23505') return setError('usernameTaken')
       if (failure) throw failure
       queryClient.setQueryData(queryKey, updated)
+      setEditing(false)
       setNotice('profileSaved')
     } catch {
       setError('accountError')
@@ -119,22 +122,37 @@ export function ProfileSettings({ userId, email, emailVerified, createdAt }: {
     }
   }
 
+  function openEditor() {
+    setError(undefined)
+    setNotice(undefined)
+    setEditing(true)
+  }
+
+  function closeEditor() {
+    setError(undefined)
+    setEditing(false)
+  }
+
   return <>
     <header className="panel profile-header">
       <div className="profile-intro">
         <div className="profile-avatar" aria-hidden="true">{initial || <UserRound size={24} />}</div>
         <div className="profile-identity">
-        <h1><bdi>{name || t('account')}</bdi></h1>
-        {details?.username && <div className="profile-handle">
-          <bdi>@{details.username}</bdi>
-          <button type="button" className="secondary profile-copy" title={t('copyUsername')} aria-label={t('copyUsername')}
-            onClick={() => void copyUsername(details.username)}>
-            <Copy size={15} aria-hidden="true" />
-          </button>
-        </div>}
+          <h1><bdi>{name || t('account')}</bdi></h1>
+          {details?.username && <div className="profile-handle">
+            <bdi>@{details.username}</bdi>
+            <button type="button" className="profile-copy" title={t('copyUsername')} aria-label={t('copyUsername')}
+              onClick={() => void copyUsername(details.username)}>
+              <Copy size={16} aria-hidden="true" />
+            </button>
+          </div>}
         </div>
       </div>
-      {(email || joinedLabel) && <div className="profile-meta">
+      {profile.isPending && <p className="loading-state" role="status">{t('loading')}</p>}
+      {profile.isError && <><Toast message={t('accountError')} />
+        <button type="button" className="secondary profile-retry" disabled={profile.isFetching}
+          aria-busy={profile.isFetching} onClick={() => void profile.refetch()}>{t('retry')}</button></>}
+      {(email || joinedLabel || profile.isSuccess) && <div className="profile-meta">
         {email && <p className="profile-email"><Mail size={16} aria-hidden="true" /><bdi>{email}</bdi>
           <span className="status" data-state={emailVerified ? 'accepted' : 'pending'}>{t(emailVerified ? 'emailVerified' : 'emailUnverified')}</span>
         </p>}
@@ -142,42 +160,50 @@ export function ProfileSettings({ userId, email, emailVerified, createdAt }: {
           <CalendarDays size={16} aria-hidden="true" />
           <span>{t('memberSince')} <time dateTime={createdAt}>{joinedLabel}</time></span>
         </p>}
+        {profile.isSuccess && <button type="button" className="secondary profile-edit" disabled={busy || sendingReset} onClick={openEditor}>
+          <Pencil size={16} aria-hidden="true" />{t('editProfile')}
+        </button>}
       </div>}
     </header>
-    <section className="panel profile-details" aria-labelledby="profile-details-title">
-    <h2 id="profile-details-title" className="section-heading">
-      <span className="icon-tile" aria-hidden="true"><UserRoundPen size={18} /></span>{t('profileDetails')}
-    </h2>
-    {profile.isPending && <p className="loading-state" role="status">{t('loading')}</p>}
-    {profile.isError && <Toast message={t('accountError')} />}
-    {profile.isSuccess && <form className="account-form" onSubmit={save} noValidate>
-      <label>{t('username')}<input name="username" defaultValue={profile.data?.username} autoComplete="username" required dir="ltr" /></label>
-      <label>{t('nameArabic')}<input name="name_ar" defaultValue={arabicName} maxLength={80} required dir="rtl" /></label>
-      <label>{t('nameEnglish')}<input name="name_en" defaultValue={englishName} maxLength={80} required dir="ltr" /></label>
-      <button className="primary" disabled={busy} aria-busy={pending === 'save'}>{t('saveProfile')}</button>
-    </form>}
-    {error && <Toast message={t(error)} />}
+    {editing && <LedgerEditor titleId="profile-details-title" busy={busy} onClose={closeEditor}>
+      <section className="panel profile-details">
+        <h2 id="profile-details-title">{t('profileDetails')}</h2>
+        <form onSubmit={save} noValidate>
+          <fieldset className="account-form" disabled={busy} aria-labelledby="profile-details-title">
+            <label>{t('username')}<input name="username" defaultValue={details?.username} autoComplete="username" required dir="ltr" /></label>
+            <label>{t('nameArabic')}<input name="name_ar" defaultValue={arabicName} maxLength={80} required dir="rtl" /></label>
+            <label>{t('nameEnglish')}<input name="name_en" defaultValue={englishName} maxLength={80} required dir="ltr" /></label>
+            {error && <Toast message={t(error)} />}
+            <button type="submit" className="primary" aria-busy={pending === 'save'}>{t('saveProfile')}</button>
+          </fieldset>
+        </form>
+      </section>
+    </LedgerEditor>}
+    {!editing && error && <Toast message={t(error)} />}
     {notice && <Toast kind="success" message={t(notice)} />}
-    </section>
-    {email && <section className="panel profile-security" aria-labelledby="profile-security-title">
-      <span className="icon-tile" aria-hidden="true"><Shield size={23} /></span>
-      <div className="profile-security-copy">
-        <h2 id="profile-security-title">{t('accountSecurity')}</h2>
-        <p>{t('manualRecoveryHint')}</p>
-      </div>
-      <button type="button" className="primary" disabled={sendingReset} aria-busy={sendingReset} onClick={() => void sendPasswordLink()}>
-        {t('changePassword')}
-      </button>
-    </section>}
-    <footer className="profile-actions">
-      {admin.data && <Link className="secondary profile-shortcut" to="/admin">{t('adminAccounts')}</Link>}
-      <Link className="secondary profile-shortcut" to="/connections">
-        <UsersRound size={17} aria-hidden="true" />{t('connections')}
+    <div className="panel profile-actions">
+      {email && <button type="button" className="profile-option" disabled={busy || sendingReset}
+        aria-busy={sendingReset} aria-labelledby="profile-reset-label" aria-describedby="profile-reset-hint"
+        onClick={() => void sendPasswordLink()}>
+        <span className="icon-tile" data-accent="yellow" aria-hidden="true"><Shield size={18} /></span>
+        <span className="profile-option-copy"><strong id="profile-reset-label">{t('changePassword')}</strong>
+          <small id="profile-reset-hint">{t('manualRecoveryHint')}</small></span>
+        <ChevronRight className="profile-option-arrow" size={17} aria-hidden="true" />
+      </button>}
+      {admin.data && <Link className="profile-option" to="/admin">
+        <span className="icon-tile" aria-hidden="true"><ShieldCheck size={18} /></span>
+        <strong>{t('adminAccounts')}</strong><ChevronRight className="profile-option-arrow" size={17} aria-hidden="true" />
+      </Link>}
+      <Link className="profile-option" to="/connections">
+        <span className="icon-tile" data-accent="mint" aria-hidden="true"><UsersRound size={18} /></span>
+        <strong>{t('connections')}</strong><ChevronRight className="profile-option-arrow" size={17} aria-hidden="true" />
       </Link>
-      <button className="secondary" disabled={busy} aria-busy={pending === 'signout'} onClick={() => void signOut()}>
-        <LogOut size={17} aria-hidden="true" />{t('signout')}
+      <button type="button" className="profile-option profile-signout" disabled={busy || sendingReset}
+        aria-busy={pending === 'signout'} onClick={() => void signOut()}>
+        <span className="icon-tile" data-accent="peach" aria-hidden="true"><LogOut size={18} /></span>
+        <strong>{t('signout')}</strong>
       </button>
-    </footer>
+    </div>
   </>
 }
 
