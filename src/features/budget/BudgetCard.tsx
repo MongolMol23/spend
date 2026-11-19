@@ -76,7 +76,6 @@ export function BudgetCard({ client }: { client: PurchaseClient }) {
       aria-busy={budget.isFetching} onClick={() => void budget.refetch()}>{t('retry')}</button>}
     {data === null && <p className="muted">{t('budgetIntro')}</p>}
     {data && progress && <>
-      <p className="muted">{t('budgetScope')}</p>
       <p className="budget-pace muted">
         <span>{t('budgetAmount')} <Amount value={data.amount_minor / 100} /></span>
         <span>{t('budgetUntil')} <time dateTime={data.ends_on}>{date.format(new Date(data.ends_on))}</time></span>
@@ -88,7 +87,6 @@ export function BudgetCard({ client }: { client: PurchaseClient }) {
       </dl>
       {progress.days > 0 && <p className="budget-pace">
         {t('budgetDaysLeft', { days: progress.days.toLocaleString(i18n.language === 'ar' ? 'ar-EG' : 'en-EG') })}
-        <span>{t('budgetDailyTarget')} <Amount value={progress.allowance / 100} /></span>
       </p>}
       {warning && <p className="budget-warning" role="status">
         {warning === 'budgetOverToday'
