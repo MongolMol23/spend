@@ -111,10 +111,12 @@ function MonthlyWorkspace({ client, owner }: { client: PurchaseClient; owner: st
             const overdue = !isPaid && entry.due_on < today
             const paying = !editor && mutation.isPending && mutation.variables?.kind === 'pay' && mutation.variables.due.id === entry.id
             return <li key={entry.id} data-paid={isPaid} className="monthly-item">
-              <button type="button" className="secondary monthly-check" disabled={mutation.isPending || month > currentMonth}
+              <button type="button" className="monthly-check" disabled={mutation.isPending || month > currentMonth}
                 aria-label={t(isPaid ? 'monthlyUndoName' : 'monthlyPayName', { name: entry.name })}
                 aria-busy={paying} aria-pressed={isPaid} onClick={() => recordPayment(entry)}>
-                {isPaid && !paying && <Check size={20} aria-hidden="true" />}
+                <span className="monthly-check-box" aria-hidden="true">
+                  {isPaid && !paying && <Check size={18} strokeWidth={3} />}
+                </span>
               </button>
               <div className="monthly-item-copy">
                 <div className="monthly-item-title">

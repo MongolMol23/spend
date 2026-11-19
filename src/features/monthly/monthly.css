@@ -23,9 +23,27 @@
 .monthly-item-meta, .monthly-item-copy > small { color: var(--muted); font-size: .8rem }
 .monthly-overdue { color: var(--danger); font-weight: 750 }
 .monthly-check, .monthly-menu { padding: 0; inline-size: 44px; min-block-size: 44px; display: grid; place-items: center }
-.monthly-check::before { content: ''; inline-size: 16px; block-size: 16px; border: 1.5px solid currentColor; border-radius: 5px }
-.monthly-check:is([aria-pressed="true"], [aria-busy="true"])::before { display: none }
-.monthly-check[aria-pressed="true"] { background: var(--mint); color: var(--ink) }
+.monthly-check { border: 0; border-radius: 8px; background: transparent }
+.monthly-check-box {
+  grid-area: 1 / 1;
+  display: grid;
+  place-items: center;
+  inline-size: 28px;
+  block-size: 28px;
+  border: var(--stroke);
+  border-radius: 6px;
+  background: var(--card-surface);
+}
+.monthly-check[aria-busy="true"]::after { grid-area: 1 / 1 }
+.monthly-check[aria-pressed="true"] .monthly-check-box { background: var(--mint); color: var(--ink) }
+.monthly-check:disabled:not([aria-busy="true"]):not([aria-pressed="true"]) .monthly-check-box { opacity: .55 }
+.monthly-check:active:not(:disabled) .monthly-check-box { scale: .92 }
+@media (hover: hover) {
+  .monthly-check[aria-pressed="false"]:hover:not(:disabled) .monthly-check-box { background: var(--mint-panel) }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .monthly-check-box { transition: scale 120ms var(--motion-out), background-color 160ms ease-out }
+}
 .monthly-menu { box-shadow: none }
 .monthly-editor { --panel-fill: var(--mint-panel) }
 .monthly-editor h2 { font-size: 1.3rem }
