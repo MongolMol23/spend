@@ -11,21 +11,44 @@
   position: relative;
   z-index: 1;
   display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   place-items: center;
   inline-size: 100%;
-  padding: 8px 12px;
+  gap: 8px;
+  min-block-size: 62px;
+  padding: 10px 12px;
   border: var(--stroke);
   border-radius: var(--radius-sm);
-  background: var(--ink);
+  background: linear-gradient(#403747, var(--ink));
+  box-shadow: inset 0 -4px #15121a;
   touch-action: none;
   user-select: none;
 }
 .invite-slot {
   position: absolute;
-  inset-inline: max(12px, 12%);
-  block-size: 6px;
+  inset-inline: 18px;
+  inset-block-end: 8px;
+  block-size: 7px;
   border-radius: var(--pill);
-  background: #635968;
+  background: #15121a;
+  border-block-start: 1px solid #635968;
+}
+.invite-roller {
+  position: relative;
+  inline-size: 27px;
+  aspect-ratio: 1;
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  background: repeating-conic-gradient(var(--mint) 0 24deg, #82ab9b 24deg 45deg);
+  box-shadow: 0 0 0 1px #75697e;
+  rotate: var(--invite-roll, 0turn);
+}
+.invite-roller::after {
+  content: '';
+  position: absolute;
+  inset: 7px;
+  border-radius: 50%;
+  background: var(--ink);
 }
 .invite-pull-tab {
   position: relative;
@@ -41,21 +64,23 @@
   font-weight: 800;
 }
 .invite-pull-tab svg { flex: none }
-.invite-machine[data-open="true"] { --invite-reveal: 1fr; --invite-lift: 0% }
+.invite-machine[data-open="true"] { --invite-reveal: 1fr; --invite-lift: 0%; --invite-roll: 1.5turn }
 .invite-machine[data-open="true"] .invite-pull-tab svg { rotate: 180deg }
+.invite-machine[data-cut-ready] .invite-roller { box-shadow: 0 0 0 2px var(--yellow) }
 .invite-paper { display: grid; grid-template-rows: minmax(0, var(--invite-reveal, 0fr)); }
 .invite-paper-clip { min-block-size: 0; overflow: hidden; padding-inline: 7px }
+.invite-feed { padding-block-end: 14px; translate: 0 var(--invite-lift, -100%) }
 .invite-ticket {
   max-inline-size: 28rem;
   margin-inline: auto;
-  margin-block-end: 3px;
   border: 2px solid var(--ink);
-  border-block-start: 0;
-  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+  border-block-start-style: dashed;
+  border-radius: 3px 3px var(--radius-sm) var(--radius-sm);
   background: var(--paper);
   color: var(--ink);
-  translate: 0 var(--invite-lift, -100%);
 }
+.invite-machine[data-open="true"] .invite-ticket { translate: 0 8px }
+.invite-machine[data-cut-ready] .invite-ticket { border-block-start-color: var(--purple) }
 .invite-ticket-top {
   display: flex;
   flex-wrap: wrap;
@@ -71,16 +96,40 @@
   justify-self: start;
   inline-size: 34px;
   block-size: 34px;
-  border: 2px solid var(--ink);
+  border: 2px dashed var(--purple);
   border-radius: 9px;
   background: var(--lavender);
+  color: var(--purple);
+  font-size: 1.15rem;
+  rotate: -9deg;
+  opacity: 0;
 }
+.invite-machine:is([data-cut-ready], [data-open="true"]) .invite-stamp { opacity: 1 }
 .invite-qr { display: block; flex: none; inline-size: 112px; block-size: 112px; image-rendering: pixelated }
 .invite-ticket-bottom { padding: 10px 12px 12px; border-block-start: 2px dashed var(--paper-line) }
+.invite-machine:not([data-open="true"]) .invite-ticket-bottom > button { visibility: hidden }
 .invite-ticket-bottom .secondary { --button-fill: var(--yellow); --button-text: var(--ink); font-size: .875rem }
 @media (prefers-reduced-motion: no-preference) {
-  .invite-paper { transition: grid-template-rows 380ms var(--motion-out) }
-  .invite-ticket { transition: translate 380ms var(--motion-out) }
+  .invite-paper { transition: grid-template-rows 420ms var(--motion-out) }
+  .invite-feed { transition: translate 420ms var(--motion-out) }
+  .invite-roller { transition: rotate 420ms var(--motion-out) }
   .invite-pull-tab svg { transition: rotate 220ms var(--motion-out) }
-  .invite-machine[data-pulling] :is(.invite-paper, .invite-ticket) { transition: none }
+  .invite-machine[data-pulling] :is(.invite-paper, .invite-feed, .invite-roller) { transition: none }
+  .invite-machine[data-open="true"] .invite-ticket { animation: invite-detach 240ms 380ms var(--motion-out) both }
+  .invite-machine[data-open="true"] .invite-stamp { animation: invite-ink 200ms 200ms var(--motion-out) both }
+  .invite-machine[data-open="true"] .invite-ticket-bottom > button { animation: invite-share-in 150ms 610ms ease-out both }
+}
+@keyframes invite-detach {
+  0% { translate: 0 0 }
+  44% { translate: 0 13px }
+  100% { translate: 0 8px }
+}
+@keyframes invite-ink {
+  0% { opacity: 0; scale: 1.45 }
+  55% { opacity: 1; scale: .93 }
+  100% { opacity: 1; scale: 1 }
+}
+@keyframes invite-share-in {
+  from { visibility: hidden; opacity: 0; transform: translateY(4px) }
+  to { visibility: visible; opacity: 1; transform: translateY(0) }
 }

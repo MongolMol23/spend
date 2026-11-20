@@ -7,6 +7,7 @@ import { friendInvitePath } from '../connections/friendInvite'
 import './invite-machine.css'
 
 const pullDistance = 112
+const cutDistance = pullDistance / 2
 
 export function InviteMachine({ username, initial }: { username: string; initial?: string }) {
   const { t } = useTranslation()
@@ -43,8 +44,10 @@ export function InviteMachine({ username, initial }: { username: string; initial
     const amount = Math.min(1, Math.max(0, distance / pullDistance))
     const element = machine.current
     element?.setAttribute('data-pulling', '')
+    element?.toggleAttribute('data-cut-ready', distance >= cutDistance)
     element?.style.setProperty('--invite-reveal', amount + 'fr')
     element?.style.setProperty('--invite-lift', (amount - 1) * 100 + '%')
+    element?.style.setProperty('--invite-roll', amount * 1.5 + 'turn')
   }
 
   function finishPull(event: PointerEvent<HTMLButtonElement>, cancelled = false) {
@@ -55,10 +58,12 @@ export function InviteMachine({ username, initial }: { username: string; initial
     if (!active.moved) return
     const element = machine.current
     if (element) getComputedStyle(element).getPropertyValue('--invite-reveal')
-    if (!cancelled && event.clientY - active.start >= pullDistance / 2) setOpen(true)
+    if (!cancelled && event.clientY - active.start >= cutDistance) setOpen(true)
     element?.removeAttribute('data-pulling')
+    element?.removeAttribute('data-cut-ready')
     element?.style.removeProperty('--invite-reveal')
     element?.style.removeProperty('--invite-lift')
+    element?.style.removeProperty('--invite-roll')
   }
 
   async function share() {
@@ -95,26 +100,30 @@ export function InviteMachine({ username, initial }: { username: string; initial
         setOpen(visible => !visible)
       }}>
       <span className="invite-slot" aria-hidden="true" />
+      <span className="invite-roller" aria-hidden="true" />
       <span className="invite-pull-tab">
         {t(open ? 'inviteHide' : 'invitePrint')}<ChevronDown size={16} aria-hidden="true" />
       </span>
+      <span className="invite-roller" aria-hidden="true" />
     </button>
     <div id={ticketId} className="invite-paper" inert={!open}>
       <div className="invite-paper-clip">
-        <div className="invite-ticket">
-          <div className="invite-ticket-top">
-            <div className="invite-ticket-person">
-              <span className="invite-stamp" aria-hidden="true">{initial || <Ticket size={18} />}</span>
-              <strong><bdi>Spend</bdi></strong>
-              <bdi dir="ltr">@{username}</bdi>
+        <div className="invite-feed">
+          <div className="invite-ticket">
+            <div className="invite-ticket-top">
+              <div className="invite-ticket-person">
+                <span className="invite-stamp" aria-hidden="true">{initial || <Ticket size={18} />}</span>
+                <strong><bdi>Spend</bdi></strong>
+                <bdi dir="ltr">@{username}</bdi>
+              </div>
+              <img src={qr} className="invite-qr" alt={t('inviteQr', { username })} width={112} height={112} />
             </div>
-            <img src={qr} className="invite-qr" alt={t('inviteQr', { username })} width={112} height={112} />
-          </div>
-          <div className="invite-ticket-bottom">
-            <button type="button" className="secondary" disabled={sharing} aria-busy={sharing} onClick={() => void share()}>
-              {typeof navigator.share === 'function' ? <Share2 size={16} aria-hidden="true" /> : <Link2 size={16} aria-hidden="true" />}
-              {t(typeof navigator.share === 'function' ? 'inviteShare' : 'inviteCopy')}
-            </button>
+            <div className="invite-ticket-bottom">
+              <button type="button" className="secondary" disabled={sharing} aria-busy={sharing} onClick={() => void share()}>
+                {typeof navigator.share === 'function' ? <Share2 size={16} aria-hidden="true" /> : <Link2 size={16} aria-hidden="true" />}
+                {t(typeof navigator.share === 'function' ? 'inviteShare' : 'inviteCopy')}
+              </button>
+            </div>
           </div>
         </div>
       </div>
