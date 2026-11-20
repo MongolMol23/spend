@@ -1,10 +1,10 @@
 import { Toast } from '../../ui/Toast'
-import { useRef, useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ScanLine, Search, UserPlus, UsersRound } from 'lucide-react'
 import type { Database } from '../../data/database.types'
 import type { Client, RunAction } from './api'
-import { FriendQrScanner } from './FriendQrScanner'
+import { FriendQrScanner, requestQrCamera } from './FriendQrScanner'
 
 type Friendship = Database['public']['Tables']['friendships']['Row']
 type Person = Database['public']['Functions']['connection_names']['Returns'][number]
@@ -16,10 +16,16 @@ type FriendActions = {
 export function FriendSearch({ client, userId, names, busy, pending, run, initialUsername }: FriendActions & { initialUsername?: string }) {
   const { t } = useTranslation()
   const usernameInput = useRef<HTMLInputElement>(null)
-  const [scannerOpen, setScannerOpen] = useState(false)
+  const [camera, setCamera] = useState<ReturnType<typeof requestQrCamera>>()
   const [match, setMatch] = useState<{ username: string; display_name: string } | null>()
   const [searching, setSearching] = useState(false)
   const [searchFailed, setSearchFailed] = useState(false)
+
+  useEffect(() => () => camera?.stop(), [camera])
+
+  function requestCamera() {
+    setCamera(requestQrCamera())
+  }
 
   function search(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -53,11 +59,11 @@ export function FriendSearch({ client, userId, names, busy, pending, run, initia
       </button>
     </form>
     <button type="button" className="secondary friend-qr-launch" aria-haspopup="dialog" disabled={searching || busy}
-      onClick={() => setScannerOpen(true)}>
+      onClick={requestCamera}>
       <ScanLine size={20} aria-hidden="true" />{t('friendQrTitle')}
     </button>
-    {scannerOpen && <FriendQrScanner onClose={() => setScannerOpen(false)} onScan={username => {
-      setScannerOpen(false)
+    {camera && <FriendQrScanner camera={camera} onRetry={requestCamera} onClose={() => setCamera(undefined)} onScan={username => {
+      setCamera(undefined)
       if (usernameInput.current) usernameInput.current.value = username
       void findFriend(username)
     }} />}

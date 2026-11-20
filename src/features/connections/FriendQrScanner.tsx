@@ -23,6 +23,30 @@ function cameraFailure(error: unknown) {
   return 'unavailable'
 }
 
+export function requestQrCamera() {
+  const controller = new AbortController()
+  const { signal } = controller
+  async function open() {
+    try {
+      if (!navigator.mediaDevices?.getUserMedia) throw new Error('Camera unavailable')
+      let stream: MediaStream
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } }, audio: false })
+      } catch (error) {
+        if (signal.aborted || cameraFailure(error) !== 'missing') throw error
+        stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+      }
+      const stopStream = () => stream.getTracks().forEach(track => track.stop())
+      if (signal.aborted) stopStream()
+      else signal.addEventListener('abort', stopStream, { once: true })
+      return { stream } as const
+    } catch (error) {
+      return { failure: cameraFailure(error) } as const
+    }
+  }
+  return { ready: open(), stop: () => controller.abort() }
+}
+
 async function readPhoto(file: File) {
   const url = URL.createObjectURL(file)
   try {
@@ -44,7 +68,12 @@ async function readPhoto(file: File) {
   }
 }
 
-export function FriendQrScanner({ onScan, onClose }: { onScan: (username: string) => void; onClose: () => void }) {
+export function FriendQrScanner({ camera, onRetry, onScan, onClose }: {
+  camera: ReturnType<typeof requestQrCamera>
+  onRetry: () => void
+  onScan: (username: string) => void
+  onClose: () => void
+}) {
   const { t } = useTranslation()
   const titleId = useId()
   const video = useRef<HTMLVideoElement>(null)
@@ -52,30 +81,23 @@ export function FriendQrScanner({ onScan, onClose }: { onScan: (username: string
   const readingPhoto = useRef(false)
   const [status, setStatus] = useState<keyof typeof messages>('starting')
   const [photoMessage, setPhotoMessage] = useState<'friendQrReadingPhoto' | 'friendQrNoCodeInPhoto' | 'friendQrPhotoError' | 'friendQrInvalid'>()
-  const [attempt, setAttempt] = useState(0)
   const reportScan = useEffectEvent(onScan)
 
   useEffect(() => {
     const preview = video.current
     if (!preview) return
     let active = true
-    let stream: MediaStream | undefined
     let timer: number | undefined
 
     async function start(preview: HTMLVideoElement) {
       try {
-        if (!navigator.mediaDevices?.getUserMedia) throw new Error('Camera unavailable')
-        try {
-          stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } }, audio: false })
-        } catch (error) {
-          if (!active || cameraFailure(error) !== 'missing') throw error
-          stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false })
-        }
-        if (!active) {
-          stream.getTracks().forEach(track => track.stop())
+        const result = await camera.ready
+        if (!active) return
+        if (!result.stream) {
+          setStatus(result.failure)
           return
         }
-        preview.srcObject = stream
+        preview.srcObject = result.stream
         preview.muted = true
         await preview.play()
         const { default: decode } = await import('jsqr')
@@ -109,7 +131,7 @@ export function FriendQrScanner({ onScan, onClose }: { onScan: (username: string
         }
         scan()
       } catch (error) {
-        stream?.getTracks().forEach(track => track.stop())
+        camera.stop()
         if (active) {
           preview.srcObject = null
           setStatus(cameraFailure(error))
@@ -121,10 +143,9 @@ export function FriendQrScanner({ onScan, onClose }: { onScan: (username: string
     return () => {
       active = false
       window.clearTimeout(timer)
-      stream?.getTracks().forEach(track => track.stop())
       preview.srcObject = null
     }
-  }, [attempt])
+  }, [camera])
 
   async function scanPhoto(event: ChangeEvent<HTMLInputElement>) {
     const input = event.currentTarget
@@ -165,8 +186,8 @@ export function FriendQrScanner({ onScan, onClose }: { onScan: (username: string
           <ImageIcon size={17} aria-hidden="true" />{t('friendQrChoosePhoto')}
         </button>
         {failed && <button type="button" className="secondary" disabled={photoMessage === 'friendQrReadingPhoto'}
-          onClick={() => { setPhotoMessage(undefined); setStatus('starting'); setAttempt(attempt + 1) }}>
-          {t('retry')}
+          onClick={() => { setPhotoMessage(undefined); setStatus('starting'); onRetry() }}>
+          {t(status === 'denied' ? 'friendQrRequestPermission' : 'retry')}
         </button>}
       </div>
     </section>
