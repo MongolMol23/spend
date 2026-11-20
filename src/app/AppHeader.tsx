@@ -95,10 +95,7 @@ export function AppHeader({ admin = false, authPage = false }: { admin?: boolean
     }}>{t('skip')}</a>
     <header className="site-header"><div ref={header} className="top shell" data-admin={admin || undefined} data-auth-page={authPage || undefined}>
       <div className="overview-brand">
-        <Link className="brand" to={admin ? '/admin' : '/'} aria-label="Spend"><Brand /></Link>
-        {showMemberNavigation && <button type="button" className="nav-more" aria-label={t('navMore')} aria-haspopup="dialog" aria-controls="sidebar" onClick={openNavigation}>
-          <Menu size={20} aria-hidden="true" />
-        </button>}
+        <Link className="brand" to={admin ? '/admin' : '/'}><Brand /></Link>
       </div>
       <HeaderPreferences notification={showMemberNavigation && <ResponseBadge userId={userId} />}>
         {userId && !authPage && <button type="button" className="secondary header-signout" disabled={!!signingOut} aria-busy={signingOut === 'header'}
@@ -107,6 +104,9 @@ export function AppHeader({ admin = false, authPage = false }: { admin?: boolean
         </button>}
       </HeaderPreferences>
       {showMemberNavigation && <div className="header-nav">
+        <button type="button" className="nav-more" aria-label={t('navMore')} aria-haspopup="dialog" aria-controls="sidebar" onClick={openNavigation}>
+          <Menu size={20} aria-hidden="true" />
+        </button>
         <Navigation showIndicator />
       </div>}
     </div></header>

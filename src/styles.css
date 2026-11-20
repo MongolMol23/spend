@@ -179,8 +179,13 @@ main.shell { padding-block: clamp(24px, 5vw, 50px) clamp(36px, 7vw, 80px) }
 }
 .site-nav a:focus-visible { outline-color: var(--nav-focus); outline-offset: -2px; outline-style: dashed }
 .site-nav a[aria-current]:focus-visible { outline-color: var(--purple) }
-.nav-short-label, .overview-brand > .nav-more { display: none }
+.nav-short-label, .header-nav > .nav-more { display: none }
 
+.top:not([data-expanded-nav]) > .header-nav {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  gap: 8px;
+}
 .top:not([data-expanded-nav]) .nav-indicator { border-radius: var(--radius-sm) }
 .top:not([data-expanded-nav]) .header-nav > .site-nav {
   display: grid;
@@ -204,32 +209,18 @@ main.shell { padding-block: clamp(24px, 5vw, 50px) clamp(36px, 7vw, 80px) }
   line-height: 1.15;
   text-align: center;
 }
-.top:not([data-expanded-nav]) .overview-brand > .nav-more {
+.top:not([data-expanded-nav]) .header-nav > .nav-more {
   display: grid;
   place-items: center;
-  flex: 0 0 44px;
   min-block-size: 44px;
   padding: 0;
-  border: 0;
-  border-radius: var(--radius-sm);
-  background: transparent;
+  border: var(--stroke);
+  border-radius: var(--radius);
+  background: var(--nav-fill);
+  color: var(--nav-text);
+  box-shadow: var(--nav-shadow);
 }
-.overview-brand > .nav-more:focus-visible { outline-offset: -3px }
-@media (width < 375px) {
-  .overview-brand:has(.nav-more) > .brand bdi { display: none }
-}
-@media (width < 450px) {
-  .overview-brand:has(.nav-more) { gap: 5px }
-  .top > .overview-brand:has(.nav-more) .brand { gap: 5px; font-size: 1rem }
-  .top:has(.nav-more) > .header-preferences { gap: 4px }
-  .top:has(.nav-more) .select-control .language { padding-inline: 8px 26px }
-  .top:has(.nav-more) .select-control .language + svg { inset-inline-end: 6px }
-  @supports (appearance: base-select) and selector(select::picker(select)) {
-    @media (forced-colors: none) {
-      .top:has(.nav-more) .select-control .language { padding-inline-end: 8px; gap: 6px }
-    }
-  }
-}
+.header-nav > .nav-more:focus-visible { outline-color: var(--nav-focus); outline-offset: -4px; outline-style: dashed }
 
 @media (min-width: 1200px) {
   .top { --content: 1800px }
@@ -252,7 +243,7 @@ main.shell { padding-block: clamp(24px, 5vw, 50px) clamp(36px, 7vw, 80px) }
 .theme-toggle[aria-pressed="true"] { --button-fill: var(--lavender); --button-text: var(--ink) }
 @media (hover: hover) {
   .site-nav a:not([aria-current]):hover { border-color: var(--link); color: var(--link) }
-  .overview-brand > .nav-more:hover { color: var(--link) }
+  .top:not([data-expanded-nav]) .header-nav > .nav-more:hover { border-color: var(--link); color: var(--link) }
 }
 
 .sidebar {
