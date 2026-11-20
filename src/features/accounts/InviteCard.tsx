@@ -9,6 +9,8 @@ import { friendInvitePath } from '../connections/friendInvite'
 import { makeInviteImage } from './inviteImage'
 import './invite-card.css'
 
+const inviteOpenThreshold = .72
+
 type InviteDrag = {
   pointerId: number
   x: number
@@ -69,8 +71,11 @@ export function InviteCard({ username, initial }: { username: string; initial?: 
     }
     if (active.axis !== 'horizontal') return
     const distance = Math.max(0, Math.min(active.travel, dx * active.direction))
+    const progress = Math.min(1, distance / (active.travel * inviteOpenThreshold))
     const button = event.currentTarget
     button.setAttribute('data-dragging', '')
+    button.toggleAttribute('data-invite-ready', progress === 1)
+    button.style.setProperty('--invite-hint-progress', String(progress))
     button.style.setProperty('--invite-offset', distance * active.direction + 'px')
     button.style.setProperty('--invite-fill', distance + 'px')
   }
@@ -83,11 +88,13 @@ export function InviteCard({ username, initial }: { username: string; initial?: 
     drag.current = null
     const button = event.currentTarget
     button.removeAttribute('data-dragging')
+    button.removeAttribute('data-invite-ready')
+    button.style.removeProperty('--invite-hint-progress')
     button.style.removeProperty('--invite-offset')
     button.style.removeProperty('--invite-fill')
     if (!released) suppressClick.current = true
     if (released && active.axis === 'horizontal' &&
-      (event.clientX - active.x) * active.direction >= active.travel * .72) openCard()
+      (event.clientX - active.x) * active.direction >= active.travel * inviteOpenThreshold) openCard()
   }
 
   async function share(kind: 'link' | 'image') {
@@ -136,7 +143,10 @@ export function InviteCard({ username, initial }: { username: string; initial?: 
       </span>
       <span className="profile-invite-label">
         <strong>{t('inviteTitle')}</strong>
-        <small id={hintId}>{t('inviteSwipeHint')}</small>
+        <small className="profile-invite-hint">
+          <span id={hintId}>{t('inviteSwipeHint')}</span>
+          <span className="profile-invite-release" aria-hidden="true">{t('inviteReleaseHint')}</span>
+        </small>
       </span>
       <span className="profile-invite-paper" aria-hidden="true"><QrCode size={16} /></span>
     </button>

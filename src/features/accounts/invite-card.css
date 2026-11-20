@@ -52,11 +52,36 @@
   justify-items: center;
   gap: 2px;
 }
-.profile-invite-label small {
+.profile-invite-hint {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  padding-block-end: 2px;
   font-size: .75rem;
   font-weight: 600;
   color: var(--muted);
 }
+.profile-invite-hint > span { grid-area: 1 / 1 }
+.profile-invite-hint::after {
+  content: '';
+  position: absolute;
+  inset-block-end: 0;
+  inset-inline-start: 0;
+  inline-size: 100%;
+  block-size: 2px;
+  border-radius: 2px;
+  background: var(--link);
+  transform: scaleX(var(--invite-hint-progress, 0));
+  transform-origin: left;
+}
+.profile-invite-hint:dir(rtl)::after { transform-origin: right }
+.profile-invite-release {
+  opacity: 0;
+  color: var(--link);
+  font-weight: 800;
+}
+.profile-invite[data-invite-ready] .profile-invite-hint > :first-child { opacity: 0 }
+.profile-invite[data-invite-ready] .profile-invite-release { opacity: 1 }
 .profile-invite-paper {
   position: relative;
   isolation: isolate;
@@ -96,6 +121,10 @@
 }
 @media (prefers-reduced-motion: no-preference) {
   .profile-invite:not([data-dragging]) .profile-invite-thumb { transition: transform 230ms var(--motion-out) }
+  .profile-invite:not([data-dragging]) .profile-invite-hint::after {
+    transition: transform 230ms var(--motion-out);
+  }
+  .profile-invite-hint > span { transition: opacity 130ms ease-out }
   .profile-invite-paper::before { transition: transform 160ms var(--motion-out) }
   .profile-invite:is(:hover, :focus-visible, :active) .profile-invite-paper::before {
     transform: translateX(-8px) rotate(-22deg);
