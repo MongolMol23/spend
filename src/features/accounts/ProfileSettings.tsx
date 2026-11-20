@@ -200,7 +200,7 @@ export function ProfileSettings({ userId, email, emailVerified, createdAt }: {
       </Link>}
     </div>
     {email && <span hidden id="profile-reset-hint">{t('manualRecoveryHint')}</span>}
-    {details?.username && <InviteCard key={details.username} username={details.username} initial={initial} />}
+    {details?.username && <InviteCard key={details.username} username={details.username} />}
     <button type="button" className="secondary profile-signout" disabled={busy || sendingReset}
       aria-busy={pending === 'signout'} onClick={() => void signOut()}>
       <LogOut size={17} aria-hidden="true" />{t('signout')}
