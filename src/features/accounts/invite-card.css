@@ -1,0 +1,27 @@
+.profile-layout .profile-invite {
+  --button-fill: var(--card-surface);
+  --button-text: var(--ink);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 10px;
+  padding: 8px 12px;
+  text-align: start;
+}
+.profile-invite .icon-tile { --icon-fill: var(--mint) }
+.profile-invite-arrow:dir(rtl) { scale: -1 1 }
+.invite-card { --panel-fill: var(--lavender-panel) }
+.invite-card-code {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  margin-block: 14px;
+  padding: 14px;
+  border: var(--stroke);
+  border-radius: var(--radius-sm);
+  background: var(--card-surface);
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+.invite-card-code img { display: block; inline-size: min(100%, 160px); block-size: auto; image-rendering: pixelated }
+.invite-card-actions { display: flex; flex-wrap: wrap; gap: 8px }
+.invite-card-actions button { flex: 1 1 auto }
