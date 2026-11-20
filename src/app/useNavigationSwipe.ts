@@ -34,7 +34,7 @@ export function useNavigationSwipe(header: RefObject<HTMLDivElement | null>, ena
   useEffect(() => {
     const headerNav = header.current?.querySelector(':scope > .header-nav')
     const nav = headerNav?.querySelector('.site-nav')
-    const more = headerNav?.querySelector('.nav-more')
+    const more = header.current?.querySelector('.nav-more')
     if (!enabled || !nav || !more) return
 
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')

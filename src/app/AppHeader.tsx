@@ -1,7 +1,7 @@
 import { Modal } from '../ui/Modal'
 import { useEffect, useLayoutEffect, useRef, useState, type MouseEvent } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Ellipsis, LogOut, X } from 'lucide-react'
+import { LogOut, Menu, X } from 'lucide-react'
 import { Link, useNavigate } from 'react-router'
 import { HeaderPreferences } from '../ui/HeaderPreferences'
 import { Brand } from '../ui/Brand'
@@ -95,7 +95,10 @@ export function AppHeader({ admin = false, authPage = false }: { admin?: boolean
     }}>{t('skip')}</a>
     <header className="site-header"><div ref={header} className="top shell" data-admin={admin || undefined} data-auth-page={authPage || undefined}>
       <div className="overview-brand">
-        <Link className="brand" to={admin ? '/admin' : '/'}><Brand /></Link>
+        <Link className="brand" to={admin ? '/admin' : '/'} aria-label="Spend"><Brand /></Link>
+        {showMemberNavigation && <button type="button" className="nav-more" aria-label={t('navMore')} aria-haspopup="dialog" aria-controls="sidebar" onClick={openNavigation}>
+          <Menu size={20} aria-hidden="true" />
+        </button>}
       </div>
       <HeaderPreferences notification={showMemberNavigation && <ResponseBadge userId={userId} />}>
         {userId && !authPage && <button type="button" className="secondary header-signout" disabled={!!signingOut} aria-busy={signingOut === 'header'}
@@ -105,9 +108,6 @@ export function AppHeader({ admin = false, authPage = false }: { admin?: boolean
       </HeaderPreferences>
       {showMemberNavigation && <div className="header-nav">
         <Navigation showIndicator />
-        <button type="button" className="nav-more" aria-label={t('navMore')} aria-haspopup="dialog" aria-controls="sidebar" onClick={openNavigation}>
-          <Ellipsis size={22} aria-hidden="true" />
-        </button>
       </div>}
     </div></header>
     {userId && signOutFailed === 'header' && <Toast message={t('accountError')} />}
