@@ -154,13 +154,11 @@ export function InviteCard({ username }: { username: string }) {
           </div>
         </div>
         <p className="invite-scan-hint">{t('inviteScanHint')}</p>
-        <div className="invite-card-actions">
-          <button type="button" className="primary" disabled={sharing} aria-busy={sharing}
-            onClick={() => void shareLink()}>
-            {canShare ? <Share2 size={16} aria-hidden="true" /> : <Link2 size={16} aria-hidden="true" />}
-            {t(canShare ? 'inviteShare' : 'inviteCopy')}
-          </button>
-        </div>
+        <button type="button" className="primary invite-share-action" disabled={sharing} aria-busy={sharing}
+          onClick={() => void shareLink()}>
+          {canShare ? <Share2 size={16} aria-hidden="true" /> : <Link2 size={16} aria-hidden="true" />}
+          {t(canShare ? 'inviteShare' : 'inviteCopy')}
+        </button>
         {feedback && <Toast kind={feedback === 'inviteShareFailed' ? 'error' : 'success'} message={t(feedback)} />}
       </section>
     </LedgerEditor>}

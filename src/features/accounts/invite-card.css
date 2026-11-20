@@ -239,8 +239,7 @@
   overflow-wrap: anywhere;
 }
 .invite-scan-hint { margin: 0 0 12px; color: var(--muted); font-size: .875rem }
-.invite-card-actions { display: flex; justify-content: flex-end }
-.invite-card-actions button { min-inline-size: 50%; max-inline-size: 100% }
+.invite-share-action { inline-size: 100% }
 
 @media (prefers-reduced-motion: no-preference) {
   .invite-paper-leaf { animation: invite-paper-unfold 540ms var(--motion-out) both }
