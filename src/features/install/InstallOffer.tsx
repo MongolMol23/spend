@@ -9,6 +9,7 @@ type InstallPrompt = Event & {
 }
 
 const dismissalKey = 'spend-install-offer-dismissed'
+const installedKey = 'spend-app-installed'
 const device = navigator as Navigator & { standalone?: boolean }
 const standalone = window.matchMedia('(display-mode: standalone)').matches || device.standalone === true
 const ios = /iPhone|iPad|iPod/.test(device.userAgent) || (device.platform === 'MacIntel' && device.maxTouchPoints > 1)
@@ -16,7 +17,9 @@ const listeners = new Set<() => void>()
 let offer: InstallPrompt | 'ios' | null = !standalone && ios ? 'ios' : null
 let hidden = standalone
 
-try { hidden ||= sessionStorage.getItem(dismissalKey) === 'true' } catch { /* Storage may be blocked. */ }
+try {
+  hidden ||= localStorage.getItem(installedKey) === 'true' || sessionStorage.getItem(dismissalKey) === 'true'
+} catch { /* Storage may be blocked. */ }
 
 function subscribe(listener: () => void) {
   listeners.add(listener)
@@ -29,11 +32,19 @@ function updateOffer(next: typeof offer) {
   listeners.forEach(listener => listener())
 }
 
+function markInstalled() {
+  hidden = true
+  try { localStorage.setItem(installedKey, 'true') } catch { /* Keep it hidden in memory. */ }
+  updateOffer(null)
+}
+
 window.addEventListener('beforeinstallprompt', event => {
   event.preventDefault()
   if (!hidden) updateOffer(event as InstallPrompt)
 })
-window.addEventListener('appinstalled', () => {
+window.addEventListener('appinstalled', markInstalled)
+window.addEventListener('storage', event => {
+  if (event.key !== installedKey || event.newValue !== 'true') return
   hidden = true
   updateOffer(null)
 })
@@ -48,7 +59,8 @@ export function InstallOffer() {
     setFailed(false)
     updateOffer(null)
     try {
-      await prompt.prompt()
+      const { outcome } = await prompt.prompt()
+      if (outcome === 'accepted') markInstalled()
     } catch {
       setFailed(true)
     }
@@ -76,7 +88,10 @@ export function InstallOffer() {
       <button type="button" className="install-offer-dismiss" aria-label={t('installSpendDismiss')} onClick={dismiss}>
         <X size={17} aria-hidden="true" />
       </button>
-      {available === 'ios' && showInstructions && <p className="install-offer-instructions">{t('installSpendIos')}</p>}
+      {available === 'ios' && showInstructions && <div className="install-offer-instructions">
+        <p>{t('installSpendIos')}</p>
+        <button type="button" className="secondary" onClick={markInstalled}>{t('installSpendDone')}</button>
+      </div>}
     </section>}
     {failed && <Toast message={t('installSpendFailed')} />}
   </>

@@ -29,11 +29,16 @@
 }
 .install-offer-dismiss:hover { border-color: currentColor; background: var(--paper) }
 .install-offer-instructions {
+  display: grid;
+  justify-items: start;
+  gap: 8px;
   grid-column: 2 / -1;
   margin: 0;
   padding-block-start: 8px;
   border-block-start: 1px dashed currentColor;
 }
+.install-offer-instructions p { margin: 0 }
+.install-offer-instructions button { min-block-size: 44px }
 @media (max-width: 500px) {
   .install-offer { grid-template-columns: auto minmax(0, 1fr) auto }
   .install-offer-dismiss { grid-column: 3; grid-row: 1 }
