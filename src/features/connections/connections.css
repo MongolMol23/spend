@@ -76,6 +76,8 @@
   box-shadow: var(--shadow-control);
 }
 .friend-qr-preview video { position: absolute; inset: 0; inline-size: 100%; block-size: 100%; object-fit: cover }
+.friend-qr-preview[data-failed] { aspect-ratio: auto; block-size: 104px; max-inline-size: none }
+.friend-qr-preview[data-failed] :is(video, .friend-qr-reticle) { visibility: hidden }
 .friend-qr-reticle {
   position: absolute;
   inset: 14%;
@@ -103,7 +105,8 @@
   color: var(--ink);
 }
 .friend-qr-status { margin-block: var(--space-2); text-align: center; font-size: .875rem }
-.friend-qr-scanner > button { inline-size: 100% }
+.friend-qr-actions { display: flex; flex-wrap: wrap; gap: 8px }
+.friend-qr-actions button { flex: 1 1 auto; min-block-size: 44px }
 @media (prefers-reduced-motion: no-preference) {
   .friend-qr-reticle span { inset-block-start: 10%; animation: friend-qr-sweep 1.8s ease-in-out infinite alternate }
 }
