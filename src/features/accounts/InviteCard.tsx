@@ -1,12 +1,28 @@
-import { useId, useMemo, useState } from 'react'
-import { ChevronRight, Image, Link2, QrCode, Share2 } from 'lucide-react'
+import { useId, useMemo, useState, type PointerEvent } from 'react'
+import { ChevronRight, Image, Link2, QrCode, Share2, Sparkles } from 'lucide-react'
 import qrcode from 'qrcode-generator'
 import { useTranslation } from 'react-i18next'
 import { LedgerEditor } from '../../ui/LedgerEditor'
+import { Brand } from '../../ui/Brand'
 import { Toast } from '../../ui/Toast'
 import { friendInvitePath } from '../connections/friendInvite'
 import { makeInviteImage } from './inviteImage'
 import './invite-card.css'
+
+function moveFoil(event: PointerEvent<HTMLDivElement>) {
+  if (!event.isPrimary || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+  const card = event.currentTarget
+  const bounds = card.getBoundingClientRect()
+  const horizontal = Math.max(0, Math.min(1, (event.clientX - bounds.left) / bounds.width))
+  const vertical = Math.max(0, Math.min(1, (event.clientY - bounds.top) / bounds.height))
+  card.style.setProperty('--foil-x', horizontal * 100 + '%')
+  card.style.setProperty('--foil-y', vertical * 100 + '%')
+}
+
+function resetFoil(event: PointerEvent<HTMLDivElement>) {
+  event.currentTarget.style.removeProperty('--foil-x')
+  event.currentTarget.style.removeProperty('--foil-y')
+}
 
 export function InviteCard({ username, initial }: { username: string; initial?: string }) {
   const { t } = useTranslation()
@@ -27,7 +43,7 @@ export function InviteCard({ username, initial }: { username: string; initial?: 
     setFeedback(undefined)
     setSharing(kind)
     try {
-      const file = kind === 'image' ? await makeInviteImage(username, initial ?? '', '#d9c6ff', code) : undefined
+      const file = kind === 'image' ? await makeInviteImage(username, initial ?? '', code) : undefined
       const data = file ? { files: [file] } : { url }
       if (canShare && (!file || navigator.canShare?.({ files: [file] }))) {
         try {
@@ -69,10 +85,21 @@ export function InviteCard({ username, initial }: { username: string; initial?: 
     {open && <LedgerEditor titleId={titleId} busy={!!sharing} onClose={() => setOpen(false)}>
       <section className="panel invite-card">
         <h2 id={titleId}>{t('inviteTitle')}</h2>
-        <div className="invite-card-code">
-          <img src={qr} alt={t('inviteQr', { username })} width={160} height={160} />
-          <strong><bdi dir="ltr">@{username}</bdi></strong>
+        <div className="invite-pass" onPointerDown={moveFoil} onPointerMove={moveFoil} onPointerLeave={resetFoil}
+          onPointerCancel={resetFoil} onPointerUp={event => { if (event.pointerType !== 'mouse') resetFoil(event) }}>
+          <div className="invite-pass-art" aria-hidden="true" />
+          <div className="invite-pass-heading">
+            <span className="brand"><Brand /></span>
+            <span className="invite-pass-seal" aria-hidden="true">
+              {initial || <Sparkles size={22} />}
+            </span>
+          </div>
+          <div className="invite-card-code">
+            <img src={qr} alt={t('inviteQr', { username })} width={164} height={164} />
+          </div>
+          <strong className="invite-pass-handle"><bdi dir="ltr">@{username}</bdi></strong>
         </div>
+        <p className="invite-scan-hint">{t('inviteScanHint')}</p>
         <div className="invite-card-actions">
           <button type="button" className="primary" disabled={!!sharing} aria-busy={sharing === 'link'}
             onClick={() => void share('link')}>

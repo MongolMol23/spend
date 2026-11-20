@@ -8,7 +8,6 @@ import type { Label } from '../../i18n/locales'
 import { supabase } from '../../data/supabase'
 import { LedgerEditor } from '../../ui/LedgerEditor'
 import { InviteCard } from './InviteCard'
-import { MoneyMuseum } from './MoneyMuseum'
 import { signupProfileSchema } from './validation'
 
 export function ProfileSettings({ userId, email, emailVerified, createdAt }: {
@@ -205,7 +204,6 @@ export function ProfileSettings({ userId, email, emailVerified, createdAt }: {
       aria-busy={pending === 'signout'} onClick={() => void signOut()}>
       <LogOut size={17} aria-hidden="true" />{t('signout')}
     </button>
-    <MoneyMuseum owner={userId} />
     {details?.username && <InviteCard key={details.username} username={details.username} initial={initial} />}
   </>
 }
