@@ -1,4 +1,4 @@
-import { useId, useMemo, useState } from 'react'
+import { useId, useMemo, useRef, useState, type PointerEvent } from 'react'
 import { ChevronRight, Image, Link2, QrCode, Share2, Sparkles } from 'lucide-react'
 import qrcode from 'qrcode-generator'
 import { useTranslation } from 'react-i18next'
@@ -9,9 +9,23 @@ import { friendInvitePath } from '../connections/friendInvite'
 import { makeInviteImage } from './inviteImage'
 import './invite-card.css'
 
+type InviteDrag = {
+  pointerId: number
+  x: number
+  y: number
+  direction: number
+  travel: number
+  axis?: 'horizontal' | 'vertical'
+}
+
 export function InviteCard({ username, initial }: { username: string; initial?: string }) {
   const { t } = useTranslation()
   const titleId = useId()
+  const hintId = useId()
+  const rail = useRef<HTMLSpanElement>(null)
+  const thumb = useRef<HTMLSpanElement>(null)
+  const drag = useRef<InviteDrag | null>(null)
+  const suppressClick = useRef(false)
   const [open, setOpen] = useState(false)
   const [sharing, setSharing] = useState<'link' | 'image'>()
   const [feedback, setFeedback] = useState<'inviteCopied' | 'inviteShareFailed' | 'inviteImageSaved'>()
@@ -23,6 +37,58 @@ export function InviteCard({ username, initial }: { username: string; initial?: 
     return { code, qr: code.createDataURL(5, 20) }
   }, [url])
   const canShare = typeof navigator.share === 'function'
+
+  function openCard() {
+    setFeedback(undefined)
+    setOpen(true)
+  }
+
+  function startDrag(event: PointerEvent<HTMLButtonElement>) {
+    if (!event.isPrimary || event.button !== 0 || !rail.current || !thumb.current) return
+    const button = event.currentTarget
+    suppressClick.current = false
+    drag.current = {
+      pointerId: event.pointerId,
+      x: event.clientX,
+      y: event.clientY,
+      direction: getComputedStyle(button).direction === 'rtl' ? -1 : 1,
+      travel: Math.max(1, rail.current.clientWidth - thumb.current.offsetWidth),
+    }
+    button.setPointerCapture(event.pointerId)
+  }
+
+  function moveDrag(event: PointerEvent<HTMLButtonElement>) {
+    const active = drag.current
+    if (active?.pointerId !== event.pointerId) return
+    const dx = event.clientX - active.x
+    const dy = event.clientY - active.y
+    if (!active.axis) {
+      if (Math.max(Math.abs(dx), Math.abs(dy)) < 8) return
+      active.axis = Math.abs(dx) > Math.abs(dy) ? 'horizontal' : 'vertical'
+      suppressClick.current = true
+    }
+    if (active.axis !== 'horizontal') return
+    const distance = Math.max(0, Math.min(active.travel, dx * active.direction))
+    const button = event.currentTarget
+    button.setAttribute('data-dragging', '')
+    button.style.setProperty('--invite-offset', distance * active.direction + 'px')
+    button.style.setProperty('--invite-fill', distance + 'px')
+  }
+
+  function finishDrag(event: PointerEvent<HTMLButtonElement>) {
+    const active = drag.current
+    if (active?.pointerId !== event.pointerId) return
+    const released = event.type === 'pointerup'
+    if (released) moveDrag(event)
+    drag.current = null
+    const button = event.currentTarget
+    button.removeAttribute('data-dragging')
+    button.style.removeProperty('--invite-offset')
+    button.style.removeProperty('--invite-fill')
+    if (!released) suppressClick.current = true
+    if (released && active.axis === 'horizontal' &&
+      (event.clientX - active.x) * active.direction >= active.travel * .72) openCard()
+  }
 
   async function share(kind: 'link' | 'image') {
     setFeedback(undefined)
@@ -61,11 +127,18 @@ export function InviteCard({ username, initial }: { username: string; initial?: 
   }
 
   return <>
-    <button type="button" className="secondary profile-invite" aria-haspopup="dialog"
-      onClick={() => { setFeedback(undefined); setOpen(true) }}>
+    <button type="button" className="secondary profile-invite" aria-haspopup="dialog" aria-describedby={hintId}
+      aria-label={t('inviteTitle')} onPointerDown={startDrag} onPointerMove={moveDrag} onPointerUp={finishDrag}
+      onPointerCancel={finishDrag} onLostPointerCapture={finishDrag}
+      onClick={event => { if (event.detail === 0 || !suppressClick.current) openCard() }}>
+      <span className="profile-invite-rail" ref={rail} aria-hidden="true">
+        <span className="profile-invite-thumb" ref={thumb}><ChevronRight size={21} /></span>
+      </span>
+      <span className="profile-invite-label">
+        <strong>{t('inviteTitle')}</strong>
+        <small id={hintId}>{t('inviteSwipeHint')}</small>
+      </span>
       <span className="profile-invite-paper" aria-hidden="true"><QrCode size={16} /></span>
-      <strong>{t('inviteTitle')}</strong>
-      <ChevronRight className="profile-invite-arrow" size={17} aria-hidden="true" />
     </button>
     {open && <LedgerEditor titleId={titleId} busy={!!sharing} onClose={() => setOpen(false)}>
       <section className="panel invite-card">
