@@ -63,7 +63,7 @@ export function InviteCard({ username, initial }: { username: string; initial?: 
   return <>
     <button type="button" className="secondary profile-invite" aria-haspopup="dialog"
       onClick={() => { setFeedback(undefined); setOpen(true) }}>
-      <span className="icon-tile" aria-hidden="true"><QrCode size={20} /></span>
+      <span className="profile-invite-paper" aria-hidden="true"><QrCode size={16} /></span>
       <strong>{t('inviteTitle')}</strong>
       <ChevronRight className="profile-invite-arrow" size={17} aria-hidden="true" />
     </button>

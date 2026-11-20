@@ -1,14 +1,63 @@
 .profile-layout .profile-invite {
-  --button-fill: var(--lavender);
-  --button-text: var(--ink);
+  --button-fill: var(--card-surface);
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
-  gap: 10px;
-  padding: 8px 12px;
+  gap: 13px;
+  padding: 8px 13px;
   text-align: start;
 }
-.profile-invite .icon-tile { --icon-fill: var(--paper) }
+.profile-invite-paper {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  place-items: center;
+  inline-size: 43px;
+  block-size: 34px;
+  color: var(--ink);
+}
+.profile-invite-paper::before,
+.profile-invite-paper::after {
+  position: absolute;
+  z-index: -1;
+  inset-block: 3px;
+  inset-inline: 6px;
+  border: 1.5px solid var(--ink);
+  border-radius: 5px;
+  content: '';
+}
+.profile-invite-paper::before {
+  background: var(--mint);
+  transform: translateX(-5px) rotate(-15deg);
+}
+.profile-invite-paper::after {
+  background: var(--lavender);
+  box-shadow: 1px 2px 0 var(--ink);
+  transform: translateX(3px) rotate(8deg);
+}
+.profile-invite-paper svg { transform: translateX(3px) rotate(8deg) }
+.profile-invite-arrow {
+  inline-size: 27px;
+  block-size: 27px;
+  padding: 4px;
+  border: 1px solid var(--ink);
+  border-radius: 50%;
+  background: var(--lavender);
+  color: var(--ink);
+}
 .profile-invite-arrow:dir(rtl) { scale: -1 1 }
+@media (hover: hover) {
+  .profile-layout .profile-invite:hover:not(:disabled) {
+    background: var(--lavender-panel);
+    color: var(--text);
+  }
+  .profile-invite:hover .profile-invite-arrow { background: var(--mint) }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .profile-invite-paper::before { transition: transform 160ms var(--motion-out) }
+  .profile-invite:is(:hover, :focus-visible, :active) .profile-invite-paper::before {
+    transform: translateX(-8px) rotate(-22deg);
+  }
+}
 .invite-card { --panel-fill: var(--card-surface) }
 .invite-card h2 { margin-block: 0 }
 
