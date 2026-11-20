@@ -104,7 +104,7 @@ export function AppHeader({ admin = false, authPage = false }: { admin?: boolean
         </button>}
       </HeaderPreferences>
       {showMemberNavigation && <div className="header-nav">
-        <button type="button" className="nav-more" aria-label={t('navMore')} aria-haspopup="dialog" aria-controls="sidebar" onClick={openNavigation}>
+        <button type="button" className="secondary nav-more" aria-label={t('navMore')} aria-haspopup="dialog" aria-controls="sidebar" onClick={openNavigation}>
           <Menu size={20} aria-hidden="true" />
         </button>
         <Navigation showIndicator />

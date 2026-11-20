@@ -179,7 +179,7 @@ main.shell { padding-block: clamp(24px, 5vw, 50px) clamp(36px, 7vw, 80px) }
 }
 .site-nav a:focus-visible { outline-color: var(--nav-focus); outline-offset: -2px; outline-style: dashed }
 .site-nav a[aria-current]:focus-visible { outline-color: var(--purple) }
-.nav-short-label, .header-nav > .nav-more { display: none }
+.nav-short-label, .top[data-expanded-nav] .header-nav > .nav-more { display: none }
 
 .top:not([data-expanded-nav]) > .header-nav {
   display: grid;
@@ -209,18 +209,16 @@ main.shell { padding-block: clamp(24px, 5vw, 50px) clamp(36px, 7vw, 80px) }
   line-height: 1.15;
   text-align: center;
 }
-.top:not([data-expanded-nav]) .header-nav > .nav-more {
+.header-nav > .nav-more {
   display: grid;
   place-items: center;
-  min-block-size: 44px;
+  align-self: center;
+  block-size: 48px;
   padding: 0;
-  border: var(--stroke);
-  border-radius: var(--radius);
-  background: var(--nav-fill);
-  color: var(--nav-text);
-  box-shadow: var(--nav-shadow);
+  --button-fill: var(--lavender-panel);
+  --button-text: var(--ink);
 }
-.header-nav > .nav-more:focus-visible { outline-color: var(--nav-focus); outline-offset: -4px; outline-style: dashed }
+.header-nav > .nav-more:focus-visible { outline-offset: 3px }
 
 @media (min-width: 1200px) {
   .top { --content: 1800px }
@@ -243,7 +241,7 @@ main.shell { padding-block: clamp(24px, 5vw, 50px) clamp(36px, 7vw, 80px) }
 .theme-toggle[aria-pressed="true"] { --button-fill: var(--lavender); --button-text: var(--ink) }
 @media (hover: hover) {
   .site-nav a:not([aria-current]):hover { border-color: var(--link); color: var(--link) }
-  .top:not([data-expanded-nav]) .header-nav > .nav-more:hover { border-color: var(--link); color: var(--link) }
+  .header-nav > .nav-more:hover:not(:disabled) { background: var(--lavender) }
 }
 
 .sidebar {
