@@ -8,6 +8,7 @@ import { OverviewLoading } from '../features/dashboard/OverviewLoading'
 import { purchaseToday } from '../features/purchases/api'
 import { LedgerQueries, useLedgerOwner } from '../data/LedgerSession'
 import { SignInLink } from '../features/accounts/SignInLink'
+import { InstallOffer } from '../features/install/InstallOffer'
 
 export function App() {
   const { t, i18n } = useTranslation()
@@ -24,6 +25,7 @@ export function App() {
         </div>
         {owner && <Link className="primary" to="/purchases"><Plus size={18} aria-hidden="true" />{t('addPurchase')}</Link>}
       </div>
+      <InstallOffer />
       {!supabase ? <Toast message={t('accountUnavailable')} />
         : owner === undefined ? <OverviewLoading />
         : owner ? <LedgerQueries key={owner}><PurchaseOverview client={supabase} month={month} /></LedgerQueries>

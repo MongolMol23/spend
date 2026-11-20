@@ -1,0 +1,47 @@
+.install-offer {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 10px;
+  margin-block: 0 var(--space-3);
+  padding: 10px;
+  border: var(--stroke);
+  border-radius: var(--radius-sm);
+  background: var(--lavender-panel);
+  color: var(--ink);
+  box-shadow: var(--shadow-control);
+}
+.landing-hero + .install-offer { margin-block-start: var(--space-3) }
+.install-offer-icon { transform: rotate(-6deg) }
+.install-offer-copy { display: grid; gap: 2px; overflow-wrap: anywhere }
+.install-offer-copy span, .install-offer-instructions { font-size: .875rem; line-height: 1.45 }
+.install-offer-action { min-block-size: 44px; padding-inline: 12px }
+.install-offer-dismiss {
+  display: grid;
+  place-items: center;
+  inline-size: 44px;
+  block-size: 44px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: inherit;
+}
+.install-offer-dismiss:hover { border-color: currentColor; background: var(--paper) }
+.install-offer-instructions {
+  grid-column: 2 / -1;
+  margin: 0;
+  padding-block-start: 8px;
+  border-block-start: 1px dashed currentColor;
+}
+@media (max-width: 500px) {
+  .install-offer { grid-template-columns: auto minmax(0, 1fr) auto }
+  .install-offer-dismiss { grid-column: 3; grid-row: 1 }
+  .install-offer-action, .install-offer-instructions { grid-column: 1 / -1 }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .install-offer { animation: install-offer-enter 240ms var(--motion-out) both }
+}
+@keyframes install-offer-enter {
+  from { opacity: 0; translate: 0 5px }
+}

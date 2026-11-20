@@ -7,6 +7,7 @@ import { Brand } from '../../ui/Brand'
 import { HeaderPreferences } from '../../ui/HeaderPreferences'
 import { HowItWorks } from './HowItWorks'
 import { PrivacyAndFaq } from './PrivacyAndFaq'
+import { InstallOffer } from '../install/InstallOffer'
 import './landing.css'
 
 const features = [
@@ -45,6 +46,7 @@ export function Landing() {
             </>}
         </div>
       </section>
+      <InstallOffer />
       <ul className="landing-features">
         {features.map(([title, description, Icon]) => <li className="panel" key={title}>
           <h2 className="section-heading"><span className="icon-tile" aria-hidden="true"><Icon size={18} /></span>{t(title)}</h2>
