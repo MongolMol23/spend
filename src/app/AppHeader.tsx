@@ -1,7 +1,7 @@
 import { Modal } from '../ui/Modal'
 import { useEffect, useLayoutEffect, useRef, useState, type MouseEvent } from 'react'
 import { useTranslation } from 'react-i18next'
-import { LogOut, X } from 'lucide-react'
+import { Ellipsis, LogOut, X } from 'lucide-react'
 import { Link, useNavigate } from 'react-router'
 import { HeaderPreferences } from '../ui/HeaderPreferences'
 import { Brand } from '../ui/Brand'
@@ -26,7 +26,7 @@ export function AppHeader({ admin = false, authPage = false }: { admin?: boolean
 
   useLayoutEffect(() => {
     const top = header.current
-    const nav = top?.querySelector<HTMLElement>(':scope > .site-nav')
+    const nav = top?.querySelector<HTMLElement>(':scope > .header-nav > .site-nav')
     const brand = top?.querySelector<HTMLElement>(':scope > .overview-brand')
     const preferences = top?.querySelector<HTMLElement>(':scope > .header-preferences')
     if (!top || !nav || !brand || !preferences) return
@@ -103,7 +103,12 @@ export function AppHeader({ admin = false, authPage = false }: { admin?: boolean
           <LogOut size={18} aria-hidden="true" />
         </button>}
       </HeaderPreferences>
-      {showMemberNavigation && <Navigation onMore={openNavigation} />}
+      {showMemberNavigation && <div className="header-nav">
+        <Navigation showIndicator />
+        <button type="button" className="nav-more" aria-haspopup="dialog" aria-controls="sidebar" onClick={openNavigation}>
+          <Ellipsis size={18} aria-hidden="true" />{t('navMore')}
+        </button>
+      </div>}
     </div></header>
     {userId && signOutFailed === 'header' && <Toast message={t('accountError')} />}
     {showMemberNavigation && <Modal id="sidebar" className="sidebar" ref={sidebar} aria-labelledby="sidebar-title">

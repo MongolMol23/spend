@@ -32,8 +32,9 @@ export function useNavigationSwipe(header: RefObject<HTMLDivElement | null>, ena
   }, [pathname, search])
 
   useEffect(() => {
-    const nav = header.current?.querySelector(':scope > .site-nav')
-    const more = nav?.querySelector('.nav-more')
+    const headerNav = header.current?.querySelector(':scope > .header-nav')
+    const nav = headerNav?.querySelector('.site-nav')
+    const more = headerNav?.querySelector('.nav-more')
     if (!enabled || !nav || !more) return
 
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')

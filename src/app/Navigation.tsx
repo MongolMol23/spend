@@ -1,20 +1,19 @@
-import { type MouseEvent } from 'react'
-import { CalendarCheck, CalendarDays, ChartColumn, CircleUserRound, Ellipsis, LayoutDashboard, ReceiptText, Scale, UsersRound, Vault } from 'lucide-react'
+import { CalendarCheck, CalendarDays, ChartColumn, CircleUserRound, LayoutDashboard, ReceiptText, Scale, UsersRound, Vault } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { NavLink, useLocation } from 'react-router'
 import { ActiveLinkIndicator } from '../ui/ActiveLinkIndicator'
 
-export function Navigation({ label, onNavigate, onMore }: {
+export function Navigation({ label, onNavigate, showIndicator }: {
   label?: string
   onNavigate?: () => void
-  onMore?: (event: MouseEvent<HTMLButtonElement>) => void
+  showIndicator?: boolean
 }) {
   const { t } = useTranslation()
   const { pathname } = useLocation()
 
   return (
     <nav className="site-nav" aria-label={label ?? t('navigation')}>
-      {onMore && <ActiveLinkIndicator selection={pathname} />}
+      {showIndicator && <ActiveLinkIndicator selection={pathname} />}
       <NavLink to="/overview" onClick={onNavigate}>
         <LayoutDashboard size={18} aria-hidden="true" />{t('dashboard')}
       </NavLink>
@@ -26,9 +25,6 @@ export function Navigation({ label, onNavigate, onMore }: {
       <NavLink className="nav-secondary" to="/analytics" onClick={onNavigate}><ChartColumn size={18} aria-hidden="true" />{t('analytics')}</NavLink>
       <NavLink className="nav-secondary" to="/account" onClick={onNavigate}><CircleUserRound size={18} aria-hidden="true" />{t('account')}</NavLink>
       <NavLink className="nav-secondary" to="/connections" onClick={onNavigate}><UsersRound size={18} aria-hidden="true" />{t('connections')}</NavLink>
-      {onMore && <button type="button" className="nav-more" aria-haspopup="dialog" aria-controls="sidebar" onClick={onMore}>
-        <Ellipsis size={18} aria-hidden="true" />{t('navMore')}
-      </button>}
     </nav>
   )
 }

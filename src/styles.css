@@ -147,12 +147,12 @@ main.shell { padding-block: clamp(24px, 5vw, 50px) clamp(36px, 7vw, 80px) }
   .header-response { padding-inline: 5px; gap: 3px }
   .top:has(.header-response) > .overview-brand .brand { gap: 5px; font-size: 1rem }
 }
-.top > .site-nav {
+.header-nav {
   grid-column: 1 / -1;
   min-inline-size: 0;
-  flex-wrap: nowrap;
 }
-.top > .site-nav a { flex: 1 0 auto; justify-content: center; padding-inline: 10px; white-space: nowrap }
+.header-nav > .site-nav { min-inline-size: 0; flex-wrap: nowrap }
+.header-nav > .site-nav a { flex: 1 0 auto; justify-content: center; padding-inline: 10px; white-space: nowrap }
 .brand { display: inline-flex; align-items: center; gap: 9px; color: var(--text); font-weight: 850; font-size: 1.35rem; text-decoration: none }
 .brand-mark { display: grid; place-items: center; inline-size: 40px; block-size: 40px; background: var(--orange); color: var(--ink); border: var(--stroke); border-radius: 13px; box-shadow: var(--shadow-control) }
 .site-nav { position: relative; display: flex; align-items: center; flex-wrap: wrap; gap: 4px; padding: 4px; border: var(--stroke); border-radius: var(--pill); background: var(--nav-fill); box-shadow: var(--nav-shadow) }
@@ -179,39 +179,50 @@ main.shell { padding-block: clamp(24px, 5vw, 50px) clamp(36px, 7vw, 80px) }
 }
 .site-nav a:focus-visible { outline-color: var(--nav-focus); outline-offset: -2px; outline-style: dashed }
 .site-nav a[aria-current]:focus-visible { outline-color: var(--purple) }
-.nav-short-label, .site-nav .nav-more { display: none }
+.nav-short-label, .header-nav > .nav-more { display: none }
 
-  .top:not([data-expanded-nav]) .nav-indicator { border-radius: var(--radius-sm) }
-  .top:not([data-expanded-nav]) > .site-nav {
-    display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    border-radius: var(--radius);
-    gap: 2px;
-  }
-  .top:not([data-expanded-nav]) > .site-nav :is(.nav-secondary, .nav-full-label) { display: none }
-  .top:not([data-expanded-nav]) > .site-nav .nav-short-label { display: inline }
-  .top:not([data-expanded-nav]) > .site-nav a, .top:not([data-expanded-nav]) > .site-nav .nav-more {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 4px;
-    min-block-size: 52px;
-    padding: 4px 0;
-    border-radius: var(--radius-sm);
-    font-size: clamp(.625rem, 2.9vw, .8rem);
-    font-weight: 750;
-    line-height: 1.15;
-    text-align: center;
-  }
-  .site-nav .nav-more { border: 2px solid transparent; background: transparent; color: var(--nav-text) }
-  .site-nav .nav-more:focus-visible { outline-color: var(--nav-focus); outline-offset: -2px; outline-style: dashed }
+.top:not([data-expanded-nav]) > .header-nav {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(48px, 16vw, 64px);
+  gap: 8px;
+}
+.top:not([data-expanded-nav]) .nav-indicator { border-radius: var(--radius-sm) }
+.top:not([data-expanded-nav]) .header-nav > .site-nav {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border-radius: var(--radius);
+  gap: 2px;
+}
+.top:not([data-expanded-nav]) .header-nav > .site-nav :is(.nav-secondary, .nav-full-label) { display: none }
+.top:not([data-expanded-nav]) .header-nav .nav-short-label { display: inline }
+.top:not([data-expanded-nav]) .header-nav :is(.site-nav a, .nav-more) {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  min-block-size: 52px;
+  padding: 4px 0;
+  border-radius: var(--radius-sm);
+  font-size: clamp(.625rem, 2.9vw, .8rem);
+  font-weight: 750;
+  line-height: 1.15;
+  text-align: center;
+}
+.top:not([data-expanded-nav]) .header-nav > .nav-more {
+  border: var(--stroke);
+  border-radius: var(--radius);
+  background: var(--nav-fill);
+  color: var(--nav-text);
+  box-shadow: var(--nav-shadow);
+}
+.header-nav > .nav-more:focus-visible { outline-color: var(--nav-focus); outline-offset: -4px; outline-style: dashed }
 
 @media (min-width: 1200px) {
   .top { --content: 1800px }
   .top[data-inline-nav] { grid-template-columns: auto minmax(0, 1fr) auto }
   .top[data-inline-nav] > .header-preferences { grid-column: 3; grid-row: 1 }
-  .top[data-inline-nav] > .site-nav { grid-column: 2; grid-row: 1; inline-size: 100% }
+  .top[data-inline-nav] > .header-nav { grid-column: 2; grid-row: 1; inline-size: 100% }
 }
 .header-preferences { display: flex; align-items: center; gap: var(--space-1) }
 .header-preferences .theme-toggle { inline-size: 44px; padding: 0; border-radius: var(--pill) }
@@ -228,6 +239,7 @@ main.shell { padding-block: clamp(24px, 5vw, 50px) clamp(36px, 7vw, 80px) }
 .theme-toggle[aria-pressed="true"] { --button-fill: var(--lavender); --button-text: var(--ink) }
 @media (hover: hover) {
   .site-nav a:not([aria-current]):hover { border-color: var(--link); color: var(--link) }
+  .top:not([data-expanded-nav]) .header-nav > .nav-more:hover { border-color: var(--link); color: var(--link) }
 }
 
 .sidebar {
