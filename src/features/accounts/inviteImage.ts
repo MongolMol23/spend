@@ -16,35 +16,30 @@ export function makeInviteImage(username: string, initial: string, code: ReturnT
   ctx.fill()
   ctx.beginPath()
   ctx.roundRect(20, 20, 752, 396, 24)
-  const foil = ctx.createLinearGradient(36, 20, 720, 406)
-  foil.addColorStop(0, '#e2d4ff')
-  foil.addColorStop(.34, '#b6e6f1')
-  foil.addColorStop(.55, '#cff3db')
-  foil.addColorStop(.77, '#ffe5ab')
-  foil.addColorStop(1, '#f8c9df')
-  ctx.fillStyle = foil
+  ctx.fillStyle = '#f6eedf'
   ctx.fill()
-  ctx.save()
-  ctx.clip()
-  const light = ctx.createRadialGradient(565, 74, 6, 565, 74, 300)
-  light.addColorStop(0, '#ffffffed')
-  light.addColorStop(1, '#ffffff00')
-  ctx.fillStyle = light
-  ctx.fillRect(20, 20, 752, 396)
-  ctx.strokeStyle = '#392b5a22'
-  for (let radius = 178; radius < 640; radius += 38) {
-    ctx.beginPath()
-    ctx.ellipse(740, -48, radius, radius * .75, -.35, 0, Math.PI * 2)
-    ctx.stroke()
-  }
-  ctx.restore()
-  ctx.beginPath()
-  ctx.roundRect(20, 20, 752, 396, 24)
   ctx.lineWidth = 4
   ctx.strokeStyle = dark
   ctx.stroke()
 
-  ctx.fillStyle = '#fffef9'
+  for (const [outer, fill, edge] of [[45, '#c7ead4', '#93b9a2'], [748, '#dac7fa', '#aa91d1']] as const) {
+    ctx.beginPath()
+    ctx.moveTo(outer, 78)
+    ctx.lineTo(396, 104)
+    ctx.lineTo(396, 389)
+    ctx.lineTo(outer, 362)
+    ctx.closePath()
+    ctx.save()
+    ctx.shadowColor = dark
+    ctx.shadowOffsetY = 5
+    ctx.fillStyle = edge
+    ctx.fill()
+    ctx.restore()
+    ctx.fillStyle = fill
+    ctx.fill()
+    ctx.stroke()
+  }
+  ctx.fillStyle = '#ffe58d'
   ctx.beginPath()
   ctx.arc(118, 136, 52, 0, Math.PI * 2)
   ctx.fill()
@@ -66,7 +61,15 @@ export function makeInviteImage(username: string, initial: string, code: ReturnT
   const x = Math.round(593 - codeSize / 2)
   const y = Math.round(217 - codeSize / 2)
   ctx.fillStyle = '#fff'
-  ctx.fillRect(x, y, codeSize, codeSize)
+  ctx.beginPath()
+  ctx.roundRect(447, 71, 292, 292, 12)
+  ctx.save()
+  ctx.shadowColor = dark
+  ctx.shadowOffsetX = 4
+  ctx.shadowOffsetY = 5
+  ctx.fill()
+  ctx.restore()
+  ctx.stroke()
   ctx.fillStyle = '#000'
   for (let row = 0; row < modules; row++) {
     for (let col = 0; col < modules; col++) {
