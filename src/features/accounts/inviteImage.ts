@@ -1,6 +1,6 @@
 import type qrcode from 'qrcode-generator'
 
-export function makeInviteImage(username: string, initial: string, pigment: string, code: ReturnType<typeof qrcode>) {
+export function makeInviteImage(username: string, initial: string, code: ReturnType<typeof qrcode>) {
   const canvas = document.createElement('canvas')
   canvas.width = 800
   canvas.height = 440
@@ -16,15 +16,39 @@ export function makeInviteImage(username: string, initial: string, pigment: stri
   ctx.fill()
   ctx.beginPath()
   ctx.roundRect(20, 20, 752, 396, 24)
-  ctx.fillStyle = pigment
+  const foil = ctx.createLinearGradient(36, 20, 720, 406)
+  foil.addColorStop(0, '#e2d4ff')
+  foil.addColorStop(.34, '#b6e6f1')
+  foil.addColorStop(.55, '#cff3db')
+  foil.addColorStop(.77, '#ffe5ab')
+  foil.addColorStop(1, '#f8c9df')
+  ctx.fillStyle = foil
   ctx.fill()
+  ctx.save()
+  ctx.clip()
+  const light = ctx.createRadialGradient(565, 74, 6, 565, 74, 300)
+  light.addColorStop(0, '#ffffffed')
+  light.addColorStop(1, '#ffffff00')
+  ctx.fillStyle = light
+  ctx.fillRect(20, 20, 752, 396)
+  ctx.strokeStyle = '#392b5a22'
+  for (let radius = 178; radius < 640; radius += 38) {
+    ctx.beginPath()
+    ctx.ellipse(740, -48, radius, radius * .75, -.35, 0, Math.PI * 2)
+    ctx.stroke()
+  }
+  ctx.restore()
+  ctx.beginPath()
+  ctx.roundRect(20, 20, 752, 396, 24)
   ctx.lineWidth = 4
   ctx.strokeStyle = dark
   ctx.stroke()
 
   ctx.fillStyle = '#fffef9'
-  ctx.fillRect(66, 84, 104, 104)
-  ctx.strokeRect(66, 84, 104, 104)
+  ctx.beginPath()
+  ctx.arc(118, 136, 52, 0, Math.PI * 2)
+  ctx.fill()
+  ctx.stroke()
   ctx.fillStyle = dark
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
