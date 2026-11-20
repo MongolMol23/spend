@@ -179,6 +179,15 @@ export function FriendQrScanner({ camera, onRetry, onScan, onClose }: {
         {(failed || status === 'starting') && <span className="friend-qr-placeholder"><Camera size={26} /></span>}
       </div>
       <p className="friend-qr-status" role="status">{t(photoMessage ?? messages[status])}</p>
+      {status === 'denied' && <details className="friend-qr-help">
+        <summary>{t('friendQrPermissionHelp')}</summary>
+        <ol>
+          <li>{t('friendQrChromeSettings')}</li>
+          <li>{t('friendQrAllowSite')}</li>
+          <li>{t('friendQrTryAgain')}</li>
+        </ol>
+        <p>{t('friendQrAndroidPermission')}</p>
+      </details>}
       <input ref={photoInput} type="file" accept="image/*" hidden onChange={event => void scanPhoto(event)} />
       <div className="friend-qr-actions">
         <button type="button" className={failed ? 'primary' : 'secondary'} disabled={photoMessage === 'friendQrReadingPhoto'}

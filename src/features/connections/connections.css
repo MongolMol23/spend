@@ -61,6 +61,12 @@
 .ledger-editor:has(.friend-qr-scanner) { inline-size: min(26rem, 100% - 2 * var(--gutter)) }
 .friend-qr-scanner h2 { display: flex; align-items: center; gap: 8px; min-block-size: 40px; margin: 0 0 12px }
 .friend-qr-scanner h2:focus { outline: none }
+.friend-qr-help { margin-block: 8px 14px; border: 1px solid currentColor; border-radius: var(--radius-sm); text-align: start }
+.friend-qr-help summary { padding: 12px; cursor: pointer; font-weight: 700 }
+.friend-qr-help summary::marker { color: currentColor }
+.friend-qr-help ol { margin: 0; padding-inline: 2.1rem 1rem; line-height: 1.6 }
+.friend-qr-help li + li { margin-block-start: 6px }
+.friend-qr-help p { margin: 12px; padding-block-start: 10px; border-block-start: 1px dashed currentColor; font-size: .9rem }
 .friend-qr-preview {
   position: relative;
   isolation: isolate;
