@@ -105,8 +105,8 @@ export function AppHeader({ admin = false, authPage = false }: { admin?: boolean
       </HeaderPreferences>
       {showMemberNavigation && <div className="header-nav">
         <Navigation showIndicator />
-        <button type="button" className="nav-more" aria-haspopup="dialog" aria-controls="sidebar" onClick={openNavigation}>
-          <Ellipsis size={18} aria-hidden="true" />{t('navMore')}
+        <button type="button" className="nav-more" aria-label={t('navMore')} aria-haspopup="dialog" aria-controls="sidebar" onClick={openNavigation}>
+          <Ellipsis size={22} aria-hidden="true" />
         </button>
       </div>}
     </div></header>
