@@ -136,7 +136,9 @@ export function InviteCard({ username }: { username: string }) {
     </button>
     {open && <LedgerEditor titleId={titleId} busy={sharing} onClose={() => setOpen(false)}>
       <section className="panel invite-card">
-        <h2 id={titleId}>{t('inviteTitle')}</h2>
+        <h2 id={titleId} tabIndex={-1} ref={heading => { heading?.setAttribute('autofocus', '') }}>
+          {t('inviteTitle')}
+        </h2>
         <div className="invite-pass">
           <div className="invite-paper-book" aria-hidden="true">
             <span className="invite-paper-leaf invite-paper-leaf-left" />

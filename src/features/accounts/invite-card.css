@@ -132,6 +132,7 @@
 }
 .invite-card { --panel-fill: var(--card-surface) }
 .invite-card h2 { margin-block: 0 }
+.invite-card h2:focus { outline: none }
 
 .invite-pass {
   --invite-ink: #211e26;
