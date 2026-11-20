@@ -7,6 +7,38 @@
 .invite-heading .icon-tile { --icon-fill: var(--yellow) }
 .invite-heading h2 { margin: 0; font-size: 1.15rem }
 .invite-heading p { margin: 3px 0 0; font-size: .875rem; color: var(--muted) }
+.invite-ink-picker {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  margin-block-end: 10px;
+  padding: 4px 10px;
+  border: var(--stroke);
+  border-radius: var(--radius-sm);
+  background: var(--card-surface);
+  color: var(--ink);
+  font-size: .875rem;
+  touch-action: pan-y;
+  user-select: none;
+}
+.invite-ink-dial {
+  position: relative;
+  flex: none;
+  inline-size: 29px;
+  block-size: 29px;
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  background: conic-gradient(#d9c6ff 0 33.33%, #ffe488 33.33% 66.66%, #c9ebd2 66.66%);
+  rotate: calc(var(--invite-ink-turn) + var(--invite-ink-drag, 0deg));
+}
+.invite-ink-dial::after {
+  content: '';
+  position: absolute;
+  inset: 5px;
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  background: var(--invite-ink);
+}
 .invite-dispenser {
   position: relative;
   z-index: 1;
@@ -39,7 +71,7 @@
   aspect-ratio: 1;
   border: 2px solid var(--ink);
   border-radius: 50%;
-  background: repeating-conic-gradient(var(--mint) 0 24deg, #82ab9b 24deg 45deg);
+  background: repeating-conic-gradient(var(--invite-ink) 0 24deg, #75697e 24deg 45deg);
   box-shadow: 0 0 0 1px #75697e;
   rotate: var(--invite-roll, 0turn);
 }
@@ -76,7 +108,7 @@
   border: 2px solid var(--ink);
   border-block-start-style: dashed;
   border-radius: 3px 3px var(--radius-sm) var(--radius-sm);
-  background: var(--paper);
+  background: color-mix(in srgb, var(--invite-ink), var(--paper) 66%);
   color: var(--ink);
 }
 .invite-machine[data-open="true"] .invite-ticket { translate: 0 8px }
@@ -98,7 +130,7 @@
   block-size: 34px;
   border: 2px dashed var(--purple);
   border-radius: 9px;
-  background: var(--lavender);
+  background: var(--invite-ink);
   color: var(--purple);
   font-size: 1.15rem;
   rotate: -9deg;
@@ -106,10 +138,12 @@
 }
 .invite-machine:is([data-cut-ready], [data-open="true"]) .invite-stamp { opacity: 1 }
 .invite-qr { display: block; flex: none; inline-size: 112px; block-size: 112px; image-rendering: pixelated }
-.invite-ticket-bottom { padding: 10px 12px 12px; border-block-start: 2px dashed var(--paper-line) }
+.invite-ticket-bottom { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px 12px 12px; border-block-start: 2px dashed var(--paper-line) }
 .invite-machine:not([data-open="true"]) .invite-ticket-bottom > button { visibility: hidden }
-.invite-ticket-bottom .secondary { --button-fill: var(--yellow); --button-text: var(--ink); font-size: .875rem }
+.invite-ticket-bottom .secondary { --button-fill: var(--yellow); --button-text: var(--ink); font-size: .875rem; touch-action: manipulation }
+.invite-ticket-bottom .invite-image { --button-fill: var(--invite-ink) }
 @media (prefers-reduced-motion: no-preference) {
+  .invite-ink-picker:not(:active) .invite-ink-dial { transition: rotate 250ms var(--motion-out) }
   .invite-paper { transition: grid-template-rows 420ms var(--motion-out) }
   .invite-feed { transition: translate 420ms var(--motion-out) }
   .invite-roller { transition: rotate 420ms var(--motion-out) }
