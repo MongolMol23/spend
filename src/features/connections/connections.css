@@ -51,6 +51,63 @@
 .friend-search { grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: var(--space-1) }
 .friend-search input { min-inline-size: 0 }
 .friend-search button { display: flex; align-items: center; justify-content: center; gap: 6px; min-block-size: 44px }
+.friend-panel .friend-qr-launch {
+  --button-fill: var(--lavender);
+  --button-text: var(--ink);
+  inline-size: 100%;
+  min-block-size: 44px;
+  margin-block-start: var(--space-2);
+}
+.ledger-editor:has(.friend-qr-scanner) { inline-size: min(26rem, 100% - 2 * var(--gutter)) }
+.friend-qr-scanner h2 { display: flex; align-items: center; gap: 8px; min-block-size: 40px; margin: 0 0 12px }
+.friend-qr-scanner h2:focus { outline: none }
+.friend-qr-preview {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  aspect-ratio: 1;
+  max-inline-size: min(100%, 48dvh);
+  margin-inline: auto;
+  border: var(--stroke);
+  border-radius: var(--radius-sm);
+  background: #211e26;
+  box-shadow: var(--shadow-control);
+}
+.friend-qr-preview video { position: absolute; inset: 0; inline-size: 100%; block-size: 100%; object-fit: cover }
+.friend-qr-reticle {
+  position: absolute;
+  inset: 14%;
+  border: 2px solid var(--mint);
+  border-radius: 13px;
+  box-shadow: 0 0 0 100px rgb(33 30 38 / .38);
+}
+.friend-qr-preview[data-status="invalid"] .friend-qr-reticle { border-color: var(--yellow) }
+.friend-qr-reticle span {
+  position: absolute;
+  inset: 50% 8% auto;
+  block-size: 2px;
+  background: var(--mint);
+  box-shadow: 0 0 7px #c9ebd2;
+}
+.friend-qr-preview:not([data-status="live"]) .friend-qr-reticle span { display: none }
+.friend-qr-placeholder {
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  inline-size: 48px;
+  block-size: 48px;
+  border-radius: var(--radius-sm);
+  background: var(--lavender);
+  color: var(--ink);
+}
+.friend-qr-status { margin-block: var(--space-2); text-align: center; font-size: .875rem }
+.friend-qr-scanner > button { inline-size: 100% }
+@media (prefers-reduced-motion: no-preference) {
+  .friend-qr-reticle span { inset-block-start: 10%; animation: friend-qr-sweep 1.8s ease-in-out infinite alternate }
+}
+@keyframes friend-qr-sweep { to { inset-block-start: 90% } }
 .friend-search-result {
   display: flex;
   flex-wrap: wrap;

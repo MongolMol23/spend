@@ -1,9 +1,10 @@
 import { Toast } from '../../ui/Toast'
-import { useState, type FormEvent } from 'react'
+import { useRef, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Search, UserPlus, UsersRound } from 'lucide-react'
+import { ScanLine, Search, UserPlus, UsersRound } from 'lucide-react'
 import type { Database } from '../../data/database.types'
 import type { Client, RunAction } from './api'
+import { FriendQrScanner } from './FriendQrScanner'
 
 type Friendship = Database['public']['Tables']['friendships']['Row']
 type Person = Database['public']['Functions']['connection_names']['Returns'][number]
@@ -14,13 +15,18 @@ type FriendActions = {
 
 export function FriendSearch({ client, userId, names, busy, pending, run, initialUsername }: FriendActions & { initialUsername?: string }) {
   const { t } = useTranslation()
+  const usernameInput = useRef<HTMLInputElement>(null)
+  const [scannerOpen, setScannerOpen] = useState(false)
   const [match, setMatch] = useState<{ username: string; display_name: string } | null>()
   const [searching, setSearching] = useState(false)
   const [searchFailed, setSearchFailed] = useState(false)
 
-  async function search(event: FormEvent<HTMLFormElement>) {
+  function search(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    const username = String(new FormData(event.currentTarget).get('username') ?? '').trim()
+    void findFriend(usernameInput.current?.value.trim() ?? '')
+  }
+
+  async function findFriend(username: string) {
     if (!username || searching) return
     setSearching(true)
     setSearchFailed(false)
@@ -40,11 +46,21 @@ export function FriendSearch({ client, userId, names, busy, pending, run, initia
   return <section className="panel friend-panel">
     <h2 className="section-heading"><span className="icon-tile" aria-hidden="true"><UserPlus size={18} /></span>{t('addFriend')}</h2>
     <form className="connection-form friend-search" onSubmit={search}>
-      <label>{t('username')}<input name="username" dir="ltr" defaultValue={initialUsername} autoCapitalize="none" spellCheck={false} required /></label>
+      <label>{t('username')}<input ref={usernameInput} name="username" dir="ltr" defaultValue={initialUsername}
+        autoCapitalize="none" spellCheck={false} required /></label>
       <button className="primary" disabled={searching} aria-busy={searching} aria-label={t('findFriend')} title={t('findFriend')}>
         <Search size={18} aria-hidden="true" /><span>{t('findFriend')}</span>
       </button>
     </form>
+    <button type="button" className="secondary friend-qr-launch" aria-haspopup="dialog" disabled={searching || busy}
+      onClick={() => setScannerOpen(true)}>
+      <ScanLine size={20} aria-hidden="true" />{t('friendQrTitle')}
+    </button>
+    {scannerOpen && <FriendQrScanner onClose={() => setScannerOpen(false)} onScan={username => {
+      setScannerOpen(false)
+      if (usernameInput.current) usernameInput.current.value = username
+      void findFriend(username)
+    }} />}
     {searchFailed && <Toast message={t('connectionError')} />}
     {match === null && <p className="empty-state" role="status">{t('noFriendFound')}</p>}
     {match && <div className="friend-search-result">
