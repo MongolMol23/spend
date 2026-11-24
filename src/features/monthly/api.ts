@@ -2,16 +2,17 @@ import type { Database } from '../../data/database.types'
 import { clearRetryKey, retryKey } from '../../data/retryKey'
 import type { PurchaseClient } from '../purchases/api'
 
-export type MonthlyDue = Database['public']['Functions']['monthly_expense_list']['Returns'][number]
+export type MonthlyDue = Database['public']['Functions']['monthly_expense_balances']['Returns'][number]
+export const remainingMonthly = (due: MonthlyDue) => Math.max(0, due.expected_minor - due.paid_minor)
 export const monthlyKey = ['monthly-expenses'] as const
 export type MonthlyChange =
-  | { kind: 'add'; id: string; name: string; amount: number; day: number; category: string }
+  | { kind: 'add'; id: string; name: string; amount: number; day: number | null; category: string }
   | { kind: 'pay'; due: MonthlyDue; amount: number; date: string }
   | { kind: 'unpay'; due: MonthlyDue; expenseId: string }
   | { kind: 'stop' | 'remove'; due: MonthlyDue }
 
 export async function readMonthly(client: PurchaseClient, month: string, signal: AbortSignal) {
-  const { data, error } = await client.rpc('monthly_expense_list', { p_month: month + '-01' }).abortSignal(signal)
+  const { data, error } = await client.rpc('monthly_expense_balances', { p_month: month + '-01' }).abortSignal(signal)
   if (error) throw error
   return data
 }
@@ -20,7 +21,7 @@ export async function changeMonthly(client: PurchaseClient, owner: string, chang
   if (change.kind === 'pay') {
     const scope = owner + ':monthly:pay:' + change.due.id
     const expenseId = await retryKey(scope, { amount: change.amount, date: change.date })
-    const { error } = await client.rpc('monthly_expense_pay', {
+    const { error } = await client.rpc('monthly_expense_record_payment', {
       p_due: change.due.id, p_expense: expenseId, p_amount: change.amount, p_paid_on: change.date,
     })
     if (error) throw error

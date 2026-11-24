@@ -118,5 +118,34 @@ select is((select spent_minor from public.spend_budget_overview()),15000::bigint
 select is((select today_minor from public.spend_budget_overview()),15000::bigint,'only the purchase reduces today’s allowance');
 select is((select sum(total_minor) from public.expense_month_summary((now() at time zone 'Africa/Cairo')::date)),
  76000::numeric,'total spending includes purchases and paid bills');
+select lives_ok($$select public.monthly_expense_add('10000000-0000-4000-8000-000000000050',
+ 'Rent',100000,null,'other')$$,'add an obligation without a due day');
+select lives_ok($$select public.monthly_expense_add('10000000-0000-4000-8000-000000000050',
+ 'Rent',100000,null,'other')$$,'retry an obligation without a due day');
+select is((select due_on from public.monthly_expense_balances((now() at time zone 'Africa/Cairo')::date)),
+ null::date,'optional day does not create a due date');
+select lives_ok($$select public.monthly_expense_record_payment(
+ (select id from public.monthly_expense_dues where item_id='10000000-0000-4000-8000-000000000050'),
+ '10000000-0000-4000-8000-000000000051',30000,(now() at time zone 'Africa/Cairo')::date)$$,'record first partial payment');
+select lives_ok($$select public.monthly_expense_record_payment(
+ (select id from public.monthly_expense_dues where item_id='10000000-0000-4000-8000-000000000050'),
+ '10000000-0000-4000-8000-000000000051',30000,(now() at time zone 'Africa/Cairo')::date)$$,'retry partial payment');
+select throws_ok($$select public.monthly_expense_record_payment(
+ (select id from public.monthly_expense_dues where item_id='10000000-0000-4000-8000-000000000050'),
+ '10000000-0000-4000-8000-000000000052',70001,(now() at time zone 'Africa/Cairo')::date)$$,
+ 'P0001','monthly_changed','cannot pay more than the remaining balance');
+select lives_ok($$select public.monthly_expense_record_payment(
+ (select id from public.monthly_expense_dues where item_id='10000000-0000-4000-8000-000000000050'),
+ '10000000-0000-4000-8000-000000000052',70000,(now() at time zone 'Africa/Cairo')::date)$$,'record the final payment');
+select is((select paid_minor from public.monthly_expense_balances((now() at time zone 'Africa/Cairo')::date)),
+ 100000::bigint,'two payments cover the expected amount');
+select is((select jsonb_array_length(payments) from public.monthly_expense_balances((now() at time zone 'Africa/Cairo')::date)),
+ 2,'payment history contains two distinct entries');
+select lives_ok($$select public.monthly_expense_unpay(
+ (select id from public.monthly_expense_dues where item_id='10000000-0000-4000-8000-000000000050'),
+ '10000000-0000-4000-8000-000000000051')$$,'undo only one payment');
+select is((select paid_minor from public.monthly_expense_balances((now() at time zone 'Africa/Cairo')::date)),
+ 70000::bigint,'other payment stays recorded');
+select is((select spent_minor from public.spend_budget_overview()),15000::bigint,'partial payments stay outside the purchase budget');
 select * from finish();
 rollback;

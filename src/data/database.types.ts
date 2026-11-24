@@ -289,11 +289,17 @@ isOneToOne: false
             [_ in never]: never
           }
           Functions: {
-            monthly_expense_add: { Args: { p_id: string; p_name: string; p_amount: number; p_day: number; p_category: string }; Returns: undefined }
+            monthly_expense_add: { Args: { p_id: string; p_name: string; p_amount: number; p_day: number | null; p_category: string }; Returns: undefined }
             monthly_expense_list: { Args: { p_month: string }; Returns: {
-              id: string; item_id: string; name: string; expected_minor: number; category: string; due_on: string;
+              id: string; item_id: string; name: string; expected_minor: number; category: string; due_on: string | null;
               expense_id: string | null; paid_minor: number | null; paid_on: string | null; stops_on: string | null
             }[] }
+            monthly_expense_balances: { Args: { p_month: string }; Returns: {
+              id: string; item_id: string; name: string; expected_minor: number; category: string; due_on: string | null;
+              month: string; paid_minor: number; stops_on: string | null;
+              payments: { id: string; amount_minor: number; paid_on: string }[]
+            }[] }
+            monthly_expense_record_payment: { Args: { p_due: string; p_expense: string; p_amount: number; p_paid_on: string }; Returns: undefined }
             monthly_expense_pay: { Args: { p_due: string; p_expense: string; p_amount: number; p_paid_on: string }; Returns: undefined }
             monthly_expense_unpay: { Args: { p_due: string; p_expense: string }; Returns: undefined }
             monthly_expense_stop: { Args: { p_item: string }; Returns: undefined }

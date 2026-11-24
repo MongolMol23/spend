@@ -15,35 +15,17 @@
 .monthly-summary .amount, .monthly-item-amount .amount { white-space: normal; overflow-wrap: anywhere }
 .monthly-empty { color: var(--muted); margin: 0; padding-block: 18px 8px; border-block-start: 1px solid var(--line) }
 .monthly-items { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px }
-.monthly-item { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 12px; border: var(--stroke); border-radius: var(--radius-sm); background: var(--card-surface) }
+.monthly-item { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 12px; border: var(--stroke); border-radius: var(--radius-sm); background: var(--card-surface) }
 .monthly-item[data-paid="true"] { background: var(--inset-surface) }
 .monthly-item-copy { min-inline-size: 0; display: grid; gap: 4px; overflow-wrap: anywhere }
 .monthly-item-title, .monthly-item-meta { display: flex; flex-wrap: wrap; gap: 3px 10px }
 .monthly-item-title { justify-content: space-between }
 .monthly-item-meta, .monthly-item-copy > small { color: var(--muted); font-size: .8rem }
 .monthly-overdue { color: var(--danger); font-weight: 750 }
-.monthly-check, .monthly-menu { padding: 0; inline-size: 44px; min-block-size: 44px; display: grid; place-items: center }
-.monthly-check { border: 0; border-radius: 8px; background: transparent }
-.monthly-check-box {
-  grid-area: 1 / 1;
-  display: grid;
-  place-items: center;
-  inline-size: 28px;
-  block-size: 28px;
-  border: var(--stroke);
-  border-radius: 6px;
-  background: var(--card-surface);
-}
-.monthly-check[aria-busy="true"]::after { grid-area: 1 / 1 }
-.monthly-check[aria-pressed="true"] .monthly-check-box { background: var(--mint); color: var(--ink) }
-.monthly-check:disabled:not([aria-busy="true"]):not([aria-pressed="true"]) .monthly-check-box { opacity: .55 }
-.monthly-check:active:not(:disabled) .monthly-check-box { scale: .92 }
-@media (hover: hover) {
-  .monthly-check[aria-pressed="false"]:hover:not(:disabled) .monthly-check-box { background: var(--mint-panel) }
-}
-@media (prefers-reduced-motion: no-preference) {
-  .monthly-check-box { transition: scale 120ms var(--motion-out), background-color 160ms ease-out }
-}
+.monthly-item-detail { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 10px; min-block-size: 44px; padding: 0; text-align: start; border: 0; background: transparent; border-radius: 6px }
+.monthly-check-box { display: grid; place-items: center; inline-size: 28px; block-size: 28px; border: var(--stroke); border-radius: 6px; background: var(--lavender-panel); color: var(--ink) }
+.monthly-item[data-paid="true"] .monthly-check-box { background: var(--mint-panel) }
+.monthly-menu, .monthly-undo { padding: 0; inline-size: 44px; display: grid; place-items: center }
 .monthly-menu { box-shadow: none }
 .monthly-editor { --panel-fill: var(--mint-panel) }
 .monthly-editor h2 { font-size: 1.3rem }
@@ -62,3 +44,7 @@
   .monthly-toolbar button { font-size: .8rem; padding-inline: 9px }
   .monthly-item { gap: 8px; padding: 9px }
 }
+
+.monthly-payment-totals { padding: 10px; margin-block-end: 16px; border-radius: var(--radius-sm); background: var(--surface); color: var(--text) }
+.monthly-payment-history { display: grid; list-style: none; padding: 0; margin-block-end: 0 }
+.monthly-payment-history li { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 8px; padding-block: 8px; border-block-start: 1px solid var(--line) }

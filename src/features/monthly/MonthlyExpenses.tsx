@@ -14,7 +14,7 @@ import { MonthPicker } from '../../ui/MonthPicker'
 import { Toast } from '../../ui/Toast'
 import { SignInLink } from '../accounts/SignInLink'
 import { categoryLabel, purchasesKey, type PurchaseClient } from '../purchases/api'
-import { changeMonthly, monthlyKey, readMonthly, type MonthlyChange, type MonthlyDue } from './api'
+import { changeMonthly, monthlyKey, readMonthly, remainingMonthly, type MonthlyChange } from './api'
 import { MonthlyEditor, type MonthlyEditorMode } from './MonthlyEditor'
 import './monthly.css'
 
@@ -48,11 +48,10 @@ function MonthlyWorkspace({ client, owner }: { client: PurchaseClient; owner: st
     onError: () => cache.invalidateQueries({ queryKey: monthlyKey }),
   })
   const entries = list.data ?? []
-  const paid = entries.filter(entry => entry.expense_id !== null)
-  const unpaid = entries.filter(entry => entry.expense_id === null)
+  const paid = entries.filter(entry => remainingMonthly(entry) === 0)
   const expected = entries.reduce((total, entry) => total + entry.expected_minor, 0)
-  const spent = paid.reduce((total, entry) => total + (entry.paid_minor ?? 0), 0)
-  const remaining = unpaid.reduce((total, entry) => total + entry.expected_minor, 0)
+  const spent = entries.reduce((total, entry) => total + entry.paid_minor, 0)
+  const remaining = entries.reduce((total, entry) => total + remainingMonthly(entry), 0)
 
   function open(mode: MonthlyEditorMode) {
     mutation.reset()
@@ -60,22 +59,12 @@ function MonthlyWorkspace({ client, owner }: { client: PurchaseClient; owner: st
     setEditor(mode)
   }
 
-  function recordPayment(due: MonthlyDue) {
-    if (mutation.isPending) return
-    if (due.expense_id) {
-      open({ kind: 'unpay', due })
-      return
-    }
-    setNotice(undefined)
-    mutation.mutate({ kind: 'pay', due, amount: due.expected_minor, date: ledgerToday() })
-  }
-
   return <>
     {notice && <Toast kind="success" message={t(notice)} />}
     {!editor && mutation.isError && <Toast key={mutation.submittedAt} message={t('monthlyChanged')} />}
     {editor && <MonthlyEditor key={editor.kind} mode={editor} busy={mutation.isPending} failed={mutation.isError}
       close={() => { setEditor(undefined); mutation.reset() }} save={change => mutation.mutate(change)}
-      choose={(kind, due) => open({ kind, due })} />}
+      choose={open} />}
     <section className="panel monthly-list">
       <div className="monthly-toolbar">
         <MonthPicker value={month} onChange={value => setParams({ month: value })} />
@@ -95,7 +84,7 @@ function MonthlyWorkspace({ client, owner }: { client: PurchaseClient; owner: st
               total: entries.length.toLocaleString(i18n.language === 'ar' ? 'ar-EG' : 'en-EG'),
             })}</p>
           </div>
-          <progress aria-label={t('monthlyPaid')} value={paid.length} max={entries.length} />
+          <progress aria-label={t('monthlyPaid')} value={expected - remaining} max={expected} />
           <dl className="monthly-totals">
             {([['monthlyPlanned', expected], ['monthlyPaid', spent]] as const).map(([label, amount]) =>
               <div key={label}><dt>{t(label)}</dt><dd><Amount value={amount / 100} /></dd></div>)}
@@ -104,31 +93,38 @@ function MonthlyWorkspace({ client, owner }: { client: PurchaseClient; owner: st
         {entries.length === 0 && <p className="monthly-empty">{t(month === currentMonth ? 'monthlyEmpty' : 'monthlyEmptyMonth')}</p>}
         <ul className="monthly-items">
           {entries.map(entry => {
-            const isPaid = entry.expense_id !== null
-            const overdue = !isPaid && entry.due_on < today
-            const paying = !editor && mutation.isPending && mutation.variables?.kind === 'pay' && mutation.variables.due.id === entry.id
+            const balance = remainingMonthly(entry)
+            const isPaid = balance === 0
+            const overdue = !isPaid && entry.due_on !== null && entry.due_on < today
+            const lastPayment = isPaid ? entry.payments[0]?.paid_on : undefined
+            const shownDate = lastPayment ?? entry.due_on
             return <li key={entry.id} data-paid={isPaid} className="monthly-item">
-              <button type="button" className="monthly-check" disabled={mutation.isPending || month > currentMonth}
-                aria-label={t(isPaid ? 'monthlyUndoName' : 'monthlyPayName', { name: entry.name })}
-                aria-busy={paying} aria-pressed={isPaid} onClick={() => recordPayment(entry)}>
+              <button type="button" className="monthly-item-detail" disabled={mutation.isPending}
+                aria-label={t('monthlyOpenName', { name: entry.name })} aria-haspopup="dialog"
+                onClick={() => open({ kind: 'pay', due: entry })}>
                 <span className="monthly-check-box" aria-hidden="true">
-                  {isPaid && !paying && <Check size={18} strokeWidth={3} />}
+                  {isPaid ? <Check size={18} strokeWidth={3} /> : <Plus size={17} />}
                 </span>
-              </button>
-              <div className="monthly-item-copy">
-                <div className="monthly-item-title">
+              <span className="monthly-item-copy">
+                <span className="monthly-item-title">
                   <strong><bdi>{entry.name}</bdi></strong>
-                  <strong className="monthly-item-amount"><Amount value={(entry.paid_minor ?? entry.expected_minor) / 100} /></strong>
-                </div>
-                <div className="monthly-item-meta">
-                  <span>{t(categoryLabel(entry.category))} · {t(isPaid ? 'monthlyPaidOn' : 'due')}{' '}
-                    <time dateTime={entry.paid_on ?? entry.due_on}>{date.format(new Date(entry.paid_on ?? entry.due_on))}</time>
-                  </span>
+                  <strong className="monthly-item-amount"><Amount value={entry.expected_minor / 100} /></strong>
+                </span>
+                <span className="monthly-item-meta">
+                  <span>{t(categoryLabel(entry.category))}</span>
+                  {shownDate && <span>{t(lastPayment ? 'monthlyPaidOn' : 'due')}{' '}
+                    <time dateTime={shownDate}>{date.format(new Date(shownDate))}</time>
+                  </span>}
                   {overdue && <span className="monthly-overdue">{t('monthlyOverdue')}</span>}
-                </div>
+                </span>
+                {entry.paid_minor > 0 && !isPaid && <span className="monthly-item-meta">
+                  <span>{t('monthlyPaid')} <Amount value={entry.paid_minor / 100} /></span>
+                  <span>{t('monthlyRemaining')} <Amount value={balance / 100} /></span>
+                </span>}
                 {entry.stops_on && <small className="muted">{t('monthlyStoppedNote')}</small>}
-              </div>
-              {(month === currentMonth || (!isPaid && month < currentMonth)) && <button type="button" className="secondary monthly-menu" disabled={mutation.isPending}
+              </span>
+              </button>
+              {month === currentMonth && <button type="button" className="secondary monthly-menu" disabled={mutation.isPending}
                 aria-label={t('monthlyManageName', { name: entry.name })} aria-haspopup="dialog"
                 onClick={() => open({ kind: 'manage', due: entry })}>
                 <MoreHorizontal size={19} aria-hidden="true" />
