@@ -109,19 +109,21 @@ export function PurchaseCollections({ client, owner, busy, onAddPurchase, purcha
               name: section?.name ?? group.name, collection: group.name })}>
             <Plus size={16} aria-hidden="true" />{t('addFolderPurchase')}
           </button>
-          {!section && <button className="secondary purchase-collection-add" type="button" disabled={busy || create.isPending}
-            onClick={() => openEditor(group.id)}>
-            <FolderPlus size={17} aria-hidden="true" />{t('addPurchaseSection')}
-          </button>}
         </div>
       </div>
       {expenses.length === 0 && (section || group.sections.length === 0) && <p className="muted">{t('noFolderPurchases')}</p>}
-      {!section && group.sections.length > 0 && <>
-        <h3 className="purchase-group-section-label">{t('purchaseGroupSections')}</h3>
-        <div className="purchase-folder-list purchase-section-list">
-          {group.sections.map(item => folderRow(item.id, item.name, totalMinor(item.purchases), () => setActiveSection(item.id)))}
+      {!section && <>
+        <div className="purchase-group-section-heading">
+          <h3 className="purchase-group-section-label">{t('purchaseGroupSections')}</h3>
+          <button className="secondary purchase-collection-add" type="button" disabled={busy || create.isPending}
+            onClick={() => openEditor(group.id)}>
+            <FolderPlus size={16} aria-hidden="true" />{t('addPurchaseSection')}
+          </button>
         </div>
-        {expenses.length > 0 && <h3 className="purchase-group-section-label">{t('purchaseGroupDirect')}</h3>}
+        {group.sections.length > 0 && <div className="purchase-folder-list purchase-section-list">
+          {group.sections.map(item => folderRow(item.id, item.name, totalMinor(item.purchases), () => setActiveSection(item.id)))}
+        </div>}
+        {group.sections.length > 0 && expenses.length > 0 && <h3 className="purchase-group-section-label">{t('purchaseGroupDirect')}</h3>}
       </>}
       {expenses.length > 0 && <ul className="purchase-folder-expenses">
         {expenses.map(expense => <li key={expense.id}>
