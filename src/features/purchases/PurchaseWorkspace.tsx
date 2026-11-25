@@ -174,6 +174,7 @@ export function PurchaseWorkspace({ client, owner }: { client: PurchaseClient; o
       <PurchaseForm key={editing?.id ?? 'new'} expense={editing} busy={busy}
         context={destination && <><bdi>{destination.collection}</bdi>{destination.kind === 'section' && <> / <bdi>{destination.name}</bdi></>}</>}
         defaultCategory={destination ? 'other' : undefined}
+        defaultDate={destination && purchaseToday().slice(0, 7) !== month ? month + '-01' : undefined}
         error={changeError(save.error, 'purchaseSaveFailed')}
         onCancel={closeEditor}
         onSave={async input => {
@@ -192,6 +193,7 @@ export function PurchaseWorkspace({ client, owner }: { client: PurchaseClient; o
       </Link>
     </nav>
     {view === 'groups' ? <PurchaseCollections client={client} owner={owner} busy={busy}
+      month={month} onMonthChange={value => { setMonth(value); setPage(0) }}
       purchaseActions={purchaseActions} onAddPurchase={destination => openPurchase(null, destination)} />
       : <section className="panel purchase-log" data-page-swipe-panel="purchase-view">
       <LedgerHeading title={t('purchaseList')} action={t('addPurchase')} busy={busy}

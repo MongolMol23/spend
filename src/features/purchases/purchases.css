@@ -119,11 +119,14 @@
 .purchase-folder-header { display: grid; grid-template-columns: minmax(44px, 1fr) minmax(0, auto); align-items: center; gap: 10px 6px }
 .purchase-folder-back { grid-area: 1 / 1; justify-self: start; min-inline-size: 44px; min-block-size: 44px }
 .purchase-folder-back bdi { overflow-wrap: anywhere }
-.purchase-folder-actions { grid-area: 1 / 2; display: flex; flex-wrap: wrap; align-items: center; justify-content: end; gap: 8px }
-.purchase-folder-actions button { padding: 4px 9px; font-size: .8rem }
-@media (max-width: 360px) {
-  .purchase-folder-actions { gap: 6px }
-  .purchase-folder-actions button { padding-inline: 7px }
+.purchase-group-month { margin-block-end: 12px }
+.purchase-group-month .month-picker-label { display: none }
+.purchase-group-month .month-picker-trigger { justify-content: center; min-block-size: 44px; padding: 5px 9px; font-size: .8rem }
+.purchase-group-toolbar { display: grid; grid-template-columns: minmax(0, 1.3fr) repeat(2, minmax(0, 1fr)); gap: 7px }
+.purchase-group-toolbar[data-compact="true"] { grid-template-columns: repeat(2, minmax(0, 1fr)) }
+.purchase-group-toolbar > button { min-inline-size: 0; padding: 5px 7px; font-size: .8rem }
+@media (max-width: 400px) {
+  .purchase-group-toolbar > button svg, .purchase-group-toolbar .month-picker-trigger svg { display: none }
 }
 .purchase-folder-heading { grid-area: 2 / 1 / auto / -1; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, auto); align-items: center; gap: 10px; padding-block-end: 10px }
 .purchase-folder-heading h2 { min-inline-size: 0; margin: 0; font-size: 1.15rem; overflow-wrap: anywhere; border-inline-start: 4px solid var(--link); padding-inline-start: 8px }
@@ -135,7 +138,6 @@
 .purchase-folder-header[data-root-group] .purchase-folder-heading { grid-area: 1 / 2; padding: 0 }
 .purchase-folder-header[data-root-group] .purchase-folder-heading h2 { border: 0; padding: 0; font-size: 1.3rem }
 .purchase-group-section-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-block: 2px 8px }
-.purchase-group-section-heading button { padding: 4px 9px; font-size: .8rem }
 .purchase-group-section-label { margin: 0; font-size: .875rem }
 .purchase-folder-empty { margin: 0 0 8px; font-size: .8rem }
 .purchase-folder-expenses + .purchase-group-section-heading { margin-block-start: 8px }

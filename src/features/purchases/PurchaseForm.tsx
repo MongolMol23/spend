@@ -19,12 +19,13 @@ function validate(form: HTMLFormElement) {
   return purchaseInput.safeParse(Object.fromEntries(new FormData(form)))
 }
 
-export function PurchaseForm({ expense, busy, error, context, defaultCategory, onSave, onCancel }: {
+export function PurchaseForm({ expense, busy, error, context, defaultCategory, defaultDate, onSave, onCancel }: {
   expense: Expense | null
   busy: boolean
   error: Label | undefined
   context?: ReactNode
   defaultCategory?: string
+  defaultDate?: string
   onSave: (input: PurchaseInput) => Promise<boolean>
   onCancel: () => void
 }) {
@@ -91,7 +92,7 @@ export function PurchaseForm({ expense, busy, error, context, defaultCategory, o
           <label>{t('purchaseAmount')}<input {...fieldProps('amount')} inputMode="decimal" dir="ltr"
             defaultValue={expense ? (expense.amount_minor / 100).toFixed(2) : ''} required />{fieldError('amount')}</label>
           <div>
-            <DateField label={t('purchaseDate')} name="spentOn" defaultValue={expense?.spent_on ?? purchaseToday()}
+            <DateField label={t('purchaseDate')} name="spentOn" defaultValue={expense?.spent_on ?? defaultDate ?? purchaseToday()}
               invalid={invalid.spentOn} describedBy={fieldProps('spentOn')['aria-describedby']}
               onChange={() => setInvalid(previous => ({ ...previous, spentOn: false }))} />
             {fieldError('spentOn')}

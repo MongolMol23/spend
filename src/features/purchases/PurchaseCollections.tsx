@@ -6,6 +6,7 @@ import { clearRetryKey, retryKey } from '../../data/retryKey'
 import { useFormats } from '../../i18n/useFormats'
 import { Amount } from '../../ui/Amount'
 import { LedgerEditor, LedgerHeading } from '../../ui/LedgerEditor'
+import { MonthPicker } from '../../ui/MonthPicker'
 import { Toast } from '../../ui/Toast'
 import { categoryLabel, purchasesKey, type Expense, type PurchaseClient } from './api'
 
@@ -13,8 +14,10 @@ const collectionsKey = [...purchasesKey, 'folders'] as const
 const totalMinor = (expenses: Expense[]) => expenses.reduce((sum, expense) => sum + expense.amount_minor, 0)
 export type PurchaseDestination = { kind: 'collection' | 'section'; id: string; name: string; collection: string }
 
-export function PurchaseCollections({ client, owner, busy, onAddPurchase, purchaseActions }: {
+export function PurchaseCollections({ client, owner, busy, month, onMonthChange, onAddPurchase, purchaseActions }: {
   client: PurchaseClient; owner: string; busy: boolean
+  month: string
+  onMonthChange: (month: string) => void
   onAddPurchase: (folder: PurchaseDestination) => void
   purchaseActions: (expense: Expense, descriptionId: string) => ReactNode
 }) {
@@ -66,7 +69,13 @@ export function PurchaseCollections({ client, owner, busy, onAddPurchase, purcha
     create.mutate({ name, collection: editor.collection })
   }
 
-  const group = list.data?.find(item => item.id === activeGroup)
+  const inMonth = (expense: Expense) => expense.spent_on.slice(0, 7) === month
+  const groups = list.data?.map(item => ({
+    ...item,
+    purchases: item.purchases.filter(inMonth),
+    sections: item.sections.map(subfolder => ({ ...subfolder, purchases: subfolder.purchases.filter(inMonth) })),
+  }))
+  const group = groups?.find(item => item.id === activeGroup)
   const section = group?.sections.find(item => item.id === activeSection)
   const expenses = section?.purchases ?? group?.purchases ?? []
   const total = group ? totalMinor(expenses) + (section ? 0 : group.sections.reduce((sum, item) => sum + totalMinor(item.purchases), 0)) : 0
@@ -91,7 +100,10 @@ export function PurchaseCollections({ client, owner, busy, onAddPurchase, purcha
     {list.isPending && <p className="loading-state" role="status">{t('loading')}</p>}
     {list.isError && <><Toast message={t('failed')} /><button className="secondary" type="button" onClick={() => void list.refetch()}>{t('retry')}</button></>}
     {list.data?.length === 0 && <p className="empty-state">{t('noPurchaseCollections')}</p>}
-    {!group && <div className="purchase-folder-list">{list.data?.map(item => folderRow(item.id, item.name,
+    {!group && <div className="purchase-group-month">
+      <MonthPicker value={month} onChange={onMonthChange} />
+    </div>}
+    {!group && <div className="purchase-folder-list">{groups?.map(item => folderRow(item.id, item.name,
       totalMinor(item.purchases) + item.sections.reduce((sum, subfolder) => sum + totalMinor(subfolder.purchases), 0),
       () => { setActiveSection(undefined); setActiveGroup(item.id) }))}</div>}
     {group && <>
@@ -108,13 +120,19 @@ export function PurchaseCollections({ client, owner, busy, onAddPurchase, purcha
             <strong><Amount value={total / 100} /></strong>
           </div>
         </div>
-        {section && <div className="purchase-folder-actions">{addPurchase}</div>}
+      </div>
+      <div className="purchase-group-month purchase-group-toolbar" data-compact={!!section}>
+        <MonthPicker value={month} onChange={onMonthChange} />
+        {addPurchase}
+        {!section && <button className="secondary purchase-collection-add" type="button" disabled={busy || create.isPending}
+          onClick={() => openEditor(group.id)}>
+          <FolderPlus size={16} aria-hidden="true" />{t('addPurchaseSection')}
+        </button>}
       </div>
       {!section && <div className="purchase-group-section-heading">
         <h3 className="purchase-group-section-label">{t('purchaseGroupDirect')}</h3>
-        {addPurchase}
       </div>}
-      {expenses.length === 0 && <p className="muted purchase-folder-empty">{t('noFolderPurchases')}</p>}
+      {expenses.length === 0 && <p className="muted purchase-folder-empty">{t('noFolderPurchasesThisMonth')}</p>}
       {expenses.length > 0 && <ul className="purchase-folder-expenses">
         {expenses.map(expense => <li key={expense.id}>
           <div className="purchase-group-copy" id={'folder-expense-' + expense.id}>
@@ -126,17 +144,13 @@ export function PurchaseCollections({ client, owner, busy, onAddPurchase, purcha
           {expense.note && <p className="reason purchase-group-note"><bdi>{expense.note}</bdi></p>}
         </li>)}
       </ul>}
-      {!section && <>
+      {!section && group.sections.length > 0 && <>
         <div className="purchase-group-section-heading">
           <h3 className="purchase-group-section-label">{t('purchaseGroupSections')}</h3>
-          <button className="secondary purchase-collection-add" type="button" disabled={busy || create.isPending}
-            onClick={() => openEditor(group.id)}>
-            <FolderPlus size={16} aria-hidden="true" />{t('addPurchaseSection')}
-          </button>
         </div>
-        {group.sections.length > 0 && <div className="purchase-folder-list purchase-section-list">
+        <div className="purchase-folder-list purchase-section-list">
           {group.sections.map(item => folderRow(item.id, item.name, totalMinor(item.purchases), () => setActiveSection(item.id)))}
-        </div>}
+        </div>
       </>}
     </>}
     {editor && <LedgerEditor titleId={titleId} busy={create.isPending} onClose={() => setEditor(undefined)}>
