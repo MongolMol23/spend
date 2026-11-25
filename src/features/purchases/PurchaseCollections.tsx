@@ -1,6 +1,6 @@
 import { useId, useState, type FormEvent, type ReactNode } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { ArrowLeft, ChevronRight, Folder, FolderPlus, Plus } from 'lucide-react'
+import { ArrowLeft, ChevronLeft, ChevronRight, Folder, FolderPlus, Plus } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { clearRetryKey, retryKey } from '../../data/retryKey'
 import { useFormats } from '../../i18n/useFormats'
@@ -93,7 +93,8 @@ export function PurchaseCollections({ client, owner, busy, onAddPurchase, purcha
       <div className="purchase-folder-header" data-root-group={!section || undefined}>
         <button type="button" className="purchase-folder-back" aria-label={section ? undefined : t('purchaseCollections')}
           onClick={() => section ? setActiveSection(undefined) : setActiveGroup(undefined)}>
-          <ArrowLeft size={18} aria-hidden="true" />{section && <bdi>{group.name}</bdi>}
+          {section ? <><ArrowLeft size={18} aria-hidden="true" /><bdi>{group.name}</bdi></>
+            : <ChevronLeft size={22} strokeWidth={2.5} aria-hidden="true" />}
         </button>
         <div className="purchase-folder-heading">
           <h2><bdi>{section?.name ?? group.name}</bdi></h2>

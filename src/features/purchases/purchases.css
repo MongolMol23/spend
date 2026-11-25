@@ -130,8 +130,9 @@
 .purchase-folder-heading h2 { min-inline-size: 0; margin: 0; font-size: 1.15rem; overflow-wrap: anywhere; border-inline-start: 4px solid var(--link); padding-inline-start: 8px }
 .purchase-folder-total { display: flex; flex-wrap: wrap; justify-content: end; align-items: baseline; gap: 3px 6px; padding: 4px 8px; border: 1px solid var(--edge); border-radius: 8px; background: var(--mint-panel); color: var(--ink); font-variant-numeric: tabular-nums }
 .purchase-folder-total small { font-size: .75rem }
-.purchase-folder-header[data-root-group] { grid-template-columns: 44px minmax(0, 1fr); gap: 10px 6px; padding-block-end: 12px }
-.purchase-folder-header[data-root-group] .purchase-folder-back { justify-content: center; border: 1px solid var(--line); border-radius: 8px; background: var(--inset-surface) }
+.purchase-folder-header[data-root-group] { grid-template-columns: 44px minmax(0, 1fr); gap: 10px 0; padding-block-end: 12px }
+.purchase-folder-header[data-root-group] .purchase-folder-back { justify-content: center; border-radius: 8px; color: var(--text) }
+.purchase-folder-header[data-root-group] .purchase-folder-back:hover { background: var(--inset-surface) }
 .purchase-folder-header[data-root-group] .purchase-folder-heading { grid-area: 1 / 2; padding: 0 }
 .purchase-folder-header[data-root-group] .purchase-folder-heading h2 { border: 0; padding: 0; font-size: 1.3rem }
 .purchase-folder-header[data-root-group] .purchase-folder-actions { grid-area: 2 / 1 / auto / -1 }
