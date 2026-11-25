@@ -10,6 +10,7 @@ import { ChevronDown, Layers, Pencil, ReceiptText, Trash2, Wallet } from 'lucide
 import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
+import { Link, useSearchParams } from 'react-router'
 import { clearRetryKey, retryKey } from '../../data/retryKey'
 import type { Label } from '../../i18n/locales'
 import { Amount } from '../../ui/Amount'
@@ -54,7 +55,12 @@ export function PurchaseWorkspace({ client, owner }: { client: PurchaseClient; o
   const historyDates = useHistoryDates()
   const { from, until } = historyDates
   const [editorOpen, setEditorOpen] = useState(false)
-  const [view, setView] = useState<'log' | 'collections'>('log')
+  const [params] = useSearchParams()
+  const view = params.get('view') === 'groups' ? 'groups' : 'log'
+  const logParams = new URLSearchParams(params)
+  logParams.delete('view')
+  const groupsParams = new URLSearchParams(params)
+  groupsParams.set('view', 'groups')
   const [destination, setDestination] = useState<PurchaseDestination>()
   const [editing, setEditing] = useState<Expense | null>(null)
   const [removing, setRemoving] = useState<Expense | null>(null)
@@ -176,16 +182,18 @@ export function PurchaseWorkspace({ client, owner }: { client: PurchaseClient; o
         }} />
     </LedgerEditor>}
     {notice && <Toast kind={notice.startsWith('budget') ? 'error' : 'success'} message={t(notice)} />}
-    <div className="site-nav purchase-view-switch" role="group" aria-label={t('purchases')}>
+    <nav className="site-nav purchase-view-switch" data-page-swipe-nav="purchase-view" aria-label={t('purchases')}>
       <ActiveLinkIndicator selection={view} />
-      <button type="button" aria-pressed={view === 'log'}
-        onClick={() => setView('log')}><ReceiptText size={18} aria-hidden="true" />{t('purchaseList')}</button>
-      <button type="button" aria-pressed={view === 'collections'}
-        onClick={() => setView('collections')}><Layers size={18} aria-hidden="true" />{t('purchaseCollections')}</button>
-    </div>
-    {view === 'collections' ? <PurchaseCollections client={client} owner={owner} busy={busy}
+      <Link to={{ search: logParams.toString() }} aria-current={view === 'log' ? 'page' : undefined}>
+        <ReceiptText size={18} aria-hidden="true" />{t('purchaseList')}
+      </Link>
+      <Link to={{ search: groupsParams.toString() }} aria-current={view === 'groups' ? 'page' : undefined}>
+        <Layers size={18} aria-hidden="true" />{t('purchaseCollections')}
+      </Link>
+    </nav>
+    {view === 'groups' ? <PurchaseCollections client={client} owner={owner} busy={busy}
       purchaseActions={purchaseActions} onAddPurchase={destination => openPurchase(null, destination)} />
-      : <section className="panel purchase-log">
+      : <section className="panel purchase-log" data-page-swipe-panel="purchase-view">
       <LedgerHeading title={t('purchaseList')} action={t('addPurchase')} busy={busy}
         onAdd={() => openPurchase(null)} />
       {summary.data && <div className="purchase-total">

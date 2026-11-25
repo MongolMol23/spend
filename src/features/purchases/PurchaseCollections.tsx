@@ -80,7 +80,7 @@ export function PurchaseCollections({ client, owner, busy, onAddPurchase, purcha
     </button>
   }
 
-  return <section className="panel purchase-collections">
+  return <section className="panel purchase-collections" data-page-swipe-panel="purchase-view">
     {!group && <LedgerHeading title={t('purchaseCollections')} action={t('addPurchaseCollection')} busy={busy || create.isPending}
       onAdd={() => openEditor()} />}
     {list.isPending && <p className="loading-state" role="status">{t('loading')}</p>}

@@ -195,7 +195,7 @@ main.shell { padding-block: clamp(24px, 5vw, 50px) clamp(36px, 7vw, 80px) }
 }
 .top:not([data-expanded-nav]) .header-nav > .site-nav :is(.nav-secondary, .nav-full-label) { display: none }
 .top:not([data-expanded-nav]) .header-nav .nav-short-label { display: inline }
-.top:not([data-expanded-nav]) .header-nav .site-nav a, .purchase-view-switch > button {
+.top:not([data-expanded-nav]) .header-nav .site-nav a, .purchase-view-switch > a {
   display: flex;
   flex-direction: column;
   justify-content: center;
