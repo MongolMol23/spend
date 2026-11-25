@@ -94,14 +94,19 @@ export function PurchaseCollections({ client, owner, busy, onAddPurchase, purcha
         <ArrowLeft size={16} aria-hidden="true" /><bdi>{section ? group.name : t('purchaseCollections')}</bdi>
       </button>
       <div className="purchase-folder-heading">
-        <h2><bdi>{section?.name ?? group.name}</bdi></h2>
-        <div><small>{t('purchaseFolderTotal')}</small><strong><Amount value={total / 100} /></strong></div>
+        <div className="purchase-folder-heading-name">
+          <span className="purchase-record-icon" aria-hidden="true"><Folder size={19} /></span>
+          <h2><bdi>{section?.name ?? group.name}</bdi></h2>
+        </div>
+        <div className="purchase-folder-total">
+          <small>{t('purchaseFolderTotal')}</small><strong><Amount value={total / 100} /></strong>
+        </div>
       </div>
       <div className="purchase-folder-actions">
         <button className="primary purchase-collection-add" type="button" disabled={busy}
           onClick={() => onAddPurchase({ kind: section ? 'section' : 'collection', id: section?.id ?? group.id,
             name: section?.name ?? group.name, collection: group.name })}>
-          <Plus size={16} aria-hidden="true" />{t('addPurchase')}
+          <Plus size={16} aria-hidden="true" />{t('addFolderPurchase')}
         </button>
         {!section && <button className="secondary purchase-collection-add" type="button" disabled={busy || create.isPending}
           onClick={() => openEditor(group.id)}>
