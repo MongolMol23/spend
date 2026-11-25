@@ -63,6 +63,7 @@
 .purchase-record[data-category="dining"] .purchase-record-icon { background: var(--mint-panel) }
 .purchase-record[data-category="transport"] .purchase-record-icon { background: var(--peach-panel) }
 .purchase-record[data-category="bills"] .purchase-record-icon { background: var(--amber-panel) }
+.purchase-record[data-category="entertainment"] .purchase-record-icon { background: var(--entertainment-fill); color: var(--ink) }
 .purchase-record-title { min-inline-size: 0; overflow-wrap: anywhere; line-height: 1.35 }
 .purchase-record-amount { text-align: end; font-size: 1.05rem }
 .purchase-record-amount .amount { white-space: normal; overflow-wrap: anywhere }

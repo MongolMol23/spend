@@ -75,6 +75,7 @@
 .spending-detail [data-category="bills"] { --category-color: var(--yellow) }
 .spending-detail [data-category="health"] { --category-color: var(--peach) }
 .spending-detail [data-category="shopping"] { --category-color: var(--purple) }
+.spending-detail [data-category="entertainment"] { --category-color: var(--entertainment-fill) }
 .spending-detail [data-category="other"] { --category-color: var(--paper-line) }
 .purchases bdi { overflow-wrap: anywhere }
 

@@ -5,7 +5,7 @@ import { toMinorUnits } from '../../data/money'
 
 export type PurchaseClient = SupabaseClient<Database>
 export type Expense = Tables<'expenses'>
-export const expenseCategories = ['groceries', 'transport', 'dining', 'bills', 'health', 'shopping', 'other'] as const
+export const expenseCategories = ['groceries', 'transport', 'dining', 'bills', 'health', 'shopping', 'entertainment', 'other'] as const
 export type ExpenseCategory = typeof expenseCategories[number]
 export const purchasesKey = ['purchases'] as const
 export const purchasePageSize = 15

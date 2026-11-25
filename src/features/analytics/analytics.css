@@ -114,6 +114,7 @@
 .analytics-workspace [data-category="bills"] { --category-fill: var(--yellow); }
 .analytics-workspace [data-category="health"] { --category-fill: var(--peach); }
 .analytics-workspace [data-category="shopping"] { --category-fill: var(--purple); }
+.analytics-workspace [data-category="entertainment"] { --category-fill: var(--entertainment-fill); }
 .analytics-workspace [data-category="other"] { --category-fill: var(--paper-line); }
 .analytics-legend {
   display: flex;
