@@ -122,12 +122,8 @@
 .purchase-group-month { margin-block-end: 12px }
 .purchase-group-month .month-picker-label { display: none }
 .purchase-group-month .month-picker-trigger { justify-content: center; min-block-size: 44px; padding: 5px 9px; font-size: .8rem }
-.purchase-group-toolbar { display: grid; grid-template-columns: minmax(0, 1.3fr) repeat(2, minmax(0, 1fr)); gap: 7px }
-.purchase-group-toolbar[data-compact="true"] { grid-template-columns: repeat(2, minmax(0, 1fr)) }
-.purchase-group-toolbar > button { min-inline-size: 0; padding: 5px 7px; font-size: .8rem }
-@media (max-width: 400px) {
-  .purchase-group-toolbar > button svg, .purchase-group-toolbar .month-picker-trigger svg { display: none }
-}
+.purchase-group-toolbar { display: flex; flex-wrap: wrap; gap: 8px; margin-block-end: 12px }
+.purchase-group-toolbar > button { flex: 1 1 118px; min-inline-size: 0; padding: 5px 7px; font-size: .8rem }
 .purchase-folder-heading { grid-area: 2 / 1 / auto / -1; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, auto); align-items: center; gap: 10px; padding-block-end: 10px }
 .purchase-folder-heading h2 { min-inline-size: 0; margin: 0; font-size: 1.15rem; overflow-wrap: anywhere; border-inline-start: 4px solid var(--link); padding-inline-start: 8px }
 .purchase-folder-total { display: flex; flex-wrap: wrap; justify-content: end; align-items: baseline; gap: 3px 6px; padding: 4px 8px; border: 1px solid var(--edge); border-radius: 8px; background: var(--mint-panel); color: var(--ink); font-variant-numeric: tabular-nums }

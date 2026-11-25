@@ -121,8 +121,7 @@ export function PurchaseCollections({ client, owner, busy, month, onMonthChange,
           </div>
         </div>
       </div>
-      <div className="purchase-group-month purchase-group-toolbar" data-compact={!!section}>
-        <MonthPicker value={month} onChange={onMonthChange} />
+      <div className="purchase-group-toolbar">
         {addPurchase}
         {!section && <button className="secondary purchase-collection-add" type="button" disabled={busy || create.isPending}
           onClick={() => openEditor(group.id)}>
