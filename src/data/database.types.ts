@@ -300,6 +300,9 @@ isOneToOne: false
               Database['public']['Functions']['list_purchase_collections']['Returns'][number]
               & { purchases: Database['public']['Tables']['expenses']['Row'][] }
             )[] }
+            list_purchase_folders_with_months: { Args: never; Returns: (
+              Database['public']['Functions']['list_purchase_folders']['Returns'][number] & { created_month: string }
+            )[] }
             list_purchase_collections: { Args: never; Returns: {
               id: string; name: string; sections: {
                 id: string; name: string; purchases: Database['public']['Tables']['expenses']['Row'][]

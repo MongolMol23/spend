@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { ArrowLeft, ChevronLeft, ChevronRight, Folder, FolderPlus, Plus } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { clearRetryKey, retryKey } from '../../data/retryKey'
+import { ledgerToday } from '../../data/calendar'
 import { useFormats } from '../../i18n/useFormats'
 import { Amount } from '../../ui/Amount'
 import { LedgerEditor, LedgerHeading } from '../../ui/LedgerEditor'
@@ -31,7 +32,7 @@ export function PurchaseCollections({ client, owner, busy, month, onMonthChange,
   const list = useQuery({
     queryKey: collectionsKey,
     queryFn: async ({ signal }) => {
-      const { data, error } = await client.rpc('list_purchase_folders').abortSignal(signal)
+      const { data, error } = await client.rpc('list_purchase_folders_with_months').abortSignal(signal)
       if (error) throw error
       return data
     },
@@ -48,6 +49,7 @@ export function PurchaseCollections({ client, owner, busy, month, onMonthChange,
       return id
     },
     onSuccess: async (id, { collection }) => {
+      if (!collection) onMonthChange(ledgerToday().slice(0, 7))
       setActiveGroup(collection ?? id)
       setActiveSection(collection ? id : undefined)
       setEditor(undefined)
@@ -74,7 +76,8 @@ export function PurchaseCollections({ client, owner, busy, month, onMonthChange,
     ...item,
     purchases: item.purchases.filter(inMonth),
     sections: item.sections.map(subfolder => ({ ...subfolder, purchases: subfolder.purchases.filter(inMonth) })),
-  }))
+  })).filter(item => item.created_month === month || item.purchases.length > 0
+    || item.sections.some(subfolder => subfolder.purchases.length > 0))
   const group = groups?.find(item => item.id === activeGroup)
   const section = group?.sections.find(item => item.id === activeSection)
   const expenses = section?.purchases ?? group?.purchases ?? []
@@ -103,6 +106,7 @@ export function PurchaseCollections({ client, owner, busy, month, onMonthChange,
     {!group && <div className="purchase-group-month">
       <MonthPicker value={month} onChange={onMonthChange} />
     </div>}
+    {!!list.data?.length && groups?.length === 0 && <p className="empty-state">{t('noPurchaseGroupsThisMonth')}</p>}
     {!group && <div className="purchase-folder-list">{groups?.map(item => folderRow(item.id, item.name,
       totalMinor(item.purchases) + item.sections.reduce((sum, subfolder) => sum + totalMinor(subfolder.purchases), 0),
       () => { setActiveSection(undefined); setActiveGroup(item.id) }))}</div>}
