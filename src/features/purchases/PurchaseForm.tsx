@@ -19,11 +19,12 @@ function validate(form: HTMLFormElement) {
   return purchaseInput.safeParse(Object.fromEntries(new FormData(form)))
 }
 
-export function PurchaseForm({ expense, busy, error, context, onSave, onCancel }: {
+export function PurchaseForm({ expense, busy, error, context, defaultCategory, onSave, onCancel }: {
   expense: Expense | null
   busy: boolean
   error: Label | undefined
   context?: ReactNode
+  defaultCategory?: string
   onSave: (input: PurchaseInput) => Promise<boolean>
   onCancel: () => void
 }) {
@@ -97,7 +98,7 @@ export function PurchaseForm({ expense, busy, error, context, onSave, onCancel }
           </div>
         </div>
         <label>{t('purchaseCategory')}
-          <Select {...fieldProps('category')} defaultValue={expense?.category ?? ''} required>
+          <Select {...fieldProps('category')} defaultValue={expense?.category ?? defaultCategory ?? ''} required>
             <option value="" disabled>{t('chooseCategory')}</option>
             {expenseCategories.map(category => <option value={category} key={category}>{t(category)}</option>)}
           </Select>

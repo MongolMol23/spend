@@ -293,6 +293,13 @@ isOneToOne: false
             save_section_purchase: { Args: {
               p_section: string; p_id: string; p_item: string; p_amount: number; p_category: string; p_spent_on: string; p_note?: string
             }; Returns: undefined }
+            save_collection_purchase: { Args: {
+              p_collection: string; p_id: string; p_item: string; p_amount: number; p_category: string; p_spent_on: string; p_note?: string
+            }; Returns: undefined }
+            list_purchase_folders: { Args: never; Returns: (
+              Database['public']['Functions']['list_purchase_collections']['Returns'][number]
+              & { purchases: Database['public']['Tables']['expenses']['Row'][] }
+            )[] }
             list_purchase_collections: { Args: never; Returns: {
               id: string; name: string; sections: {
                 id: string; name: string; purchases: Database['public']['Tables']['expenses']['Row'][]

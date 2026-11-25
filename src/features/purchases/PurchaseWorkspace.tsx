@@ -22,7 +22,7 @@ import {
 import { ArchivePurchase } from './ArchivePurchase'
 import { PurchaseForm } from './PurchaseForm'
 import { PurchaseHistory } from './PurchaseHistory'
-import { PurchaseCollections } from './PurchaseCollections'
+import { PurchaseCollections, type PurchaseDestination } from './PurchaseCollections'
 
 function changeError(error: unknown, fallback: Label): Label | undefined {
   if (!error) return undefined
@@ -54,7 +54,7 @@ export function PurchaseWorkspace({ client, owner }: { client: PurchaseClient; o
   const { from, until } = historyDates
   const [editorOpen, setEditorOpen] = useState(false)
   const [view, setView] = useState<'log' | 'collections'>('log')
-  const [section, setSection] = useState<{ id: string; name: string; collection: string }>()
+  const [destination, setDestination] = useState<PurchaseDestination>()
   const [editing, setEditing] = useState<Expense | null>(null)
   const [removing, setRemoving] = useState<Expense | null>(null)
   const [notice, setNotice] = useState<Label>()
@@ -75,14 +75,15 @@ export function PurchaseWorkspace({ client, owner }: { client: PurchaseClient; o
   })
 
   const save = useMutation({
-    mutationFn: async ({ input, expense, sectionId }: { input: PurchaseInput; expense: Expense | null; sectionId?: string }) => {
-      const scope = owner + ':purchase:create' + (sectionId ? ':' + sectionId : '')
+    mutationFn: async ({ input, expense, folder }: { input: PurchaseInput; expense: Expense | null; folder?: PurchaseDestination }) => {
+      const scope = owner + ':purchase:create' + (folder ? ':' + folder.kind + ':' + folder.id : '')
       const id = expense?.id ?? await retryKey(scope, input)
       const purchase = {
         p_id: id, p_item: input.item, p_amount: input.amount, p_category: input.category, p_spent_on: input.spentOn,
         ...(input.note ? { p_note: input.note } : {}),
       }
-      const { error } = await (sectionId ? client.rpc('save_section_purchase', { ...purchase, p_section: sectionId })
+      const { error } = await (folder?.kind === 'section' ? client.rpc('save_section_purchase', { ...purchase, p_section: folder.id })
+        : folder ? client.rpc('save_collection_purchase', { ...purchase, p_collection: folder.id })
         : client.rpc('save_expense', {
         ...purchase,
         ...(expense ? { p_version: expense.version } : {}),
@@ -93,7 +94,7 @@ export function PurchaseWorkspace({ client, owner }: { client: PurchaseClient; o
     onSuccess: async (_result, { input, expense }) => {
       setEditorOpen(false)
       setEditing(null)
-      setSection(undefined)
+      setDestination(undefined)
       setMonth(input.spentOn.slice(0, 7))
       setCategory('')
       setPage(0)
@@ -132,11 +133,11 @@ export function PurchaseWorkspace({ client, owner }: { client: PurchaseClient; o
   })
   const busy = save.isPending || archive.isPending
 
-  const closeEditor = () => { setEditorOpen(false); setEditing(null); setSection(undefined); save.reset() }
+  const closeEditor = () => { setEditorOpen(false); setEditing(null); setDestination(undefined); save.reset() }
 
-  function openPurchase(expense: Expense | null, destination?: typeof section) {
+  function openPurchase(expense: Expense | null, folder?: PurchaseDestination) {
     setEditing(expense)
-    setSection(destination)
+    setDestination(folder)
     save.reset()
     setNotice(undefined)
     setEditorOpen(true)
@@ -164,12 +165,13 @@ export function PurchaseWorkspace({ client, owner }: { client: PurchaseClient; o
     </FeatureHeading>
     {editorOpen && <LedgerEditor titleId="purchase-form-title" busy={busy} onClose={closeEditor}>
       <PurchaseForm key={editing?.id ?? 'new'} expense={editing} busy={busy}
-        context={section && <><bdi>{section.collection}</bdi> · <bdi>{section.name}</bdi></>}
+        context={destination && <><bdi>{destination.collection}</bdi>{destination.kind === 'section' && <> / <bdi>{destination.name}</bdi></>}</>}
+        defaultCategory={destination ? 'other' : undefined}
         error={changeError(save.error, 'purchaseSaveFailed')}
         onCancel={closeEditor}
         onSave={async input => {
           setNotice(undefined)
-          try { await save.mutateAsync({ input, expense: editing, sectionId: section?.id }); return true } catch { return false }
+          try { await save.mutateAsync({ input, expense: editing, folder: destination }); return true } catch { return false }
         }} />
     </LedgerEditor>}
     {notice && <Toast kind={notice.startsWith('budget') ? 'error' : 'success'} message={t(notice)} />}
