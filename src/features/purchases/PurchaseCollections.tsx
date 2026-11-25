@@ -70,6 +70,11 @@ export function PurchaseCollections({ client, owner, busy, onAddPurchase, purcha
   const section = group?.sections.find(item => item.id === activeSection)
   const expenses = section?.purchases ?? group?.purchases ?? []
   const total = group ? totalMinor(expenses) + (section ? 0 : group.sections.reduce((sum, item) => sum + totalMinor(item.purchases), 0)) : 0
+  const addPurchase = group && <button className="primary purchase-collection-add" type="button" disabled={busy}
+    onClick={() => onAddPurchase({ kind: section ? 'section' : 'collection', id: section?.id ?? group.id,
+      name: section?.name ?? group.name, collection: group.name })}>
+    <Plus size={16} aria-hidden="true" />{t('addFolderPurchase')}
+  </button>
 
   function folderRow(id: string, name: string, minor: number, onClick: () => void) {
     return <button type="button" className="purchase-folder-row" key={id} onClick={onClick}>
@@ -103,28 +108,13 @@ export function PurchaseCollections({ client, owner, busy, onAddPurchase, purcha
             <strong><Amount value={total / 100} /></strong>
           </div>
         </div>
-        <div className="purchase-folder-actions">
-          <button className="primary purchase-collection-add" type="button" disabled={busy}
-            onClick={() => onAddPurchase({ kind: section ? 'section' : 'collection', id: section?.id ?? group.id,
-              name: section?.name ?? group.name, collection: group.name })}>
-            <Plus size={16} aria-hidden="true" />{t('addFolderPurchase')}
-          </button>
-        </div>
+        {section && <div className="purchase-folder-actions">{addPurchase}</div>}
       </div>
-      {expenses.length === 0 && (section || group.sections.length === 0) && <p className="muted">{t('noFolderPurchases')}</p>}
-      {!section && <>
-        <div className="purchase-group-section-heading">
-          <h3 className="purchase-group-section-label">{t('purchaseGroupSections')}</h3>
-          <button className="secondary purchase-collection-add" type="button" disabled={busy || create.isPending}
-            onClick={() => openEditor(group.id)}>
-            <FolderPlus size={16} aria-hidden="true" />{t('addPurchaseSection')}
-          </button>
-        </div>
-        {group.sections.length > 0 && <div className="purchase-folder-list purchase-section-list">
-          {group.sections.map(item => folderRow(item.id, item.name, totalMinor(item.purchases), () => setActiveSection(item.id)))}
-        </div>}
-        {group.sections.length > 0 && expenses.length > 0 && <h3 className="purchase-group-section-label">{t('purchaseGroupDirect')}</h3>}
-      </>}
+      {!section && <div className="purchase-group-section-heading">
+        <h3 className="purchase-group-section-label">{t('purchaseGroupDirect')}</h3>
+        {addPurchase}
+      </div>}
+      {expenses.length === 0 && <p className="muted purchase-folder-empty">{t('noFolderPurchases')}</p>}
       {expenses.length > 0 && <ul className="purchase-folder-expenses">
         {expenses.map(expense => <li key={expense.id}>
           <div className="purchase-group-copy" id={'folder-expense-' + expense.id}>
@@ -136,6 +126,18 @@ export function PurchaseCollections({ client, owner, busy, onAddPurchase, purcha
           {expense.note && <p className="reason purchase-group-note"><bdi>{expense.note}</bdi></p>}
         </li>)}
       </ul>}
+      {!section && <>
+        <div className="purchase-group-section-heading">
+          <h3 className="purchase-group-section-label">{t('purchaseGroupSections')}</h3>
+          <button className="secondary purchase-collection-add" type="button" disabled={busy || create.isPending}
+            onClick={() => openEditor(group.id)}>
+            <FolderPlus size={16} aria-hidden="true" />{t('addPurchaseSection')}
+          </button>
+        </div>
+        {group.sections.length > 0 && <div className="purchase-folder-list purchase-section-list">
+          {group.sections.map(item => folderRow(item.id, item.name, totalMinor(item.purchases), () => setActiveSection(item.id)))}
+        </div>}
+      </>}
     </>}
     {editor && <LedgerEditor titleId={titleId} busy={create.isPending} onClose={() => setEditor(undefined)}>
       <section className="panel purchase-entry">
