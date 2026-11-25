@@ -1,6 +1,6 @@
 import { Toast } from '../../ui/Toast'
 import { DateField } from '../../ui/DateField'
-import { useEffect, useRef, useState, type FormEvent, type FocusEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent, type FocusEvent, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { Label } from '../../i18n/locales'
 import { Select } from '../../ui/Select'
@@ -19,10 +19,11 @@ function validate(form: HTMLFormElement) {
   return purchaseInput.safeParse(Object.fromEntries(new FormData(form)))
 }
 
-export function PurchaseForm({ expense, busy, error, onSave, onCancel }: {
+export function PurchaseForm({ expense, busy, error, context, onSave, onCancel }: {
   expense: Expense | null
   busy: boolean
   error: Label | undefined
+  context?: ReactNode
   onSave: (input: PurchaseInput) => Promise<boolean>
   onCancel: () => void
 }) {
@@ -79,6 +80,7 @@ export function PurchaseForm({ expense, busy, error, onSave, onCancel }: {
 
   return <section className="panel purchase-entry">
     <h2 id="purchase-form-title">{t(expense ? 'editPurchase' : 'addPurchase')}</h2>
+    {context && <p className="muted purchase-form-context">{context}</p>}
     <form onSubmit={submit} onBlur={event => validateField(event, true)}
       onChange={event => validateField(event, false)} noValidate>
       <fieldset className="purchase-form" aria-labelledby="purchase-form-title" disabled={busy}>

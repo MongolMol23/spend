@@ -289,6 +289,15 @@ isOneToOne: false
             [_ in never]: never
           }
           Functions: {
+            create_purchase_collection: { Args: { p_id: string; p_name: string; p_collection?: string }; Returns: undefined }
+            save_section_purchase: { Args: {
+              p_section: string; p_id: string; p_item: string; p_amount: number; p_category: string; p_spent_on: string; p_note?: string
+            }; Returns: undefined }
+            list_purchase_collections: { Args: never; Returns: {
+              id: string; name: string; sections: {
+                id: string; name: string; purchases: Database['public']['Tables']['expenses']['Row'][]
+              }[]
+            }[] }
             purchase_list_groups: { Args: { p_month: string; p_category: string | null; p_offset: number }; Returns: {
               group_key: string; purchases: Database['public']['Tables']['expenses']['Row'][]
             }[] }

@@ -22,6 +22,7 @@ import {
 import { ArchivePurchase } from './ArchivePurchase'
 import { PurchaseForm } from './PurchaseForm'
 import { PurchaseHistory } from './PurchaseHistory'
+import { PurchaseCollections } from './PurchaseCollections'
 
 function changeError(error: unknown, fallback: Label): Label | undefined {
   if (!error) return undefined
@@ -52,6 +53,8 @@ export function PurchaseWorkspace({ client, owner }: { client: PurchaseClient; o
   const historyDates = useHistoryDates()
   const { from, until } = historyDates
   const [editorOpen, setEditorOpen] = useState(false)
+  const [view, setView] = useState<'log' | 'collections'>('log')
+  const [section, setSection] = useState<{ id: string; name: string; collection: string }>()
   const [editing, setEditing] = useState<Expense | null>(null)
   const [removing, setRemoving] = useState<Expense | null>(null)
   const [notice, setNotice] = useState<Label>()
@@ -59,10 +62,12 @@ export function PurchaseWorkspace({ client, owner }: { client: PurchaseClient; o
   const list = useQuery({
     queryKey: [...purchasesKey, 'groups', month, category, page],
     queryFn: ({ signal }) => listPurchaseGroups(client, month, category, page, signal),
+    enabled: view === 'log',
   })
   const summary = useQuery({
     queryKey: [...purchasesKey, 'summary', month],
     queryFn: ({ signal }) => monthlyPurchases(client, month, signal),
+    enabled: view === 'log',
   })
   const history = useQuery({
     queryKey: [...purchasesKey, 'history', from, until],
@@ -70,20 +75,25 @@ export function PurchaseWorkspace({ client, owner }: { client: PurchaseClient; o
   })
 
   const save = useMutation({
-    mutationFn: async ({ input, expense }: { input: PurchaseInput; expense: Expense | null }) => {
-      const scope = owner + ':purchase:create'
+    mutationFn: async ({ input, expense, sectionId }: { input: PurchaseInput; expense: Expense | null; sectionId?: string }) => {
+      const scope = owner + ':purchase:create' + (sectionId ? ':' + sectionId : '')
       const id = expense?.id ?? await retryKey(scope, input)
-      const { error } = await client.rpc('save_expense', {
+      const purchase = {
         p_id: id, p_item: input.item, p_amount: input.amount, p_category: input.category, p_spent_on: input.spentOn,
         ...(input.note ? { p_note: input.note } : {}),
+      }
+      const { error } = await (sectionId ? client.rpc('save_section_purchase', { ...purchase, p_section: sectionId })
+        : client.rpc('save_expense', {
+        ...purchase,
         ...(expense ? { p_version: expense.version } : {}),
-      })
+      }))
       if (error) throw error
       if (!expense) clearRetryKey(scope)
     },
     onSuccess: async (_result, { input, expense }) => {
       setEditorOpen(false)
       setEditing(null)
+      setSection(undefined)
       setMonth(input.spentOn.slice(0, 7))
       setCategory('')
       setPage(0)
@@ -122,13 +132,21 @@ export function PurchaseWorkspace({ client, owner }: { client: PurchaseClient; o
   })
   const busy = save.isPending || archive.isPending
 
-  const closeEditor = () => { setEditorOpen(false); setEditing(null); save.reset() }
+  const closeEditor = () => { setEditorOpen(false); setEditing(null); setSection(undefined); save.reset() }
+
+  function openPurchase(expense: Expense | null, destination?: typeof section) {
+    setEditing(expense)
+    setSection(destination)
+    save.reset()
+    setNotice(undefined)
+    setEditorOpen(true)
+  }
 
   function purchaseActions(expense: Expense, descriptionId: string) {
     return <div className="purchase-record-actions">
       <button type="button" className="secondary" disabled={busy} aria-describedby={descriptionId}
         aria-label={t('editPurchase')} title={t('editPurchase')}
-        onClick={() => { setEditorOpen(true); setEditing(expense); save.reset(); setNotice(undefined) }}><Pencil size={17} aria-hidden="true" /></button>
+        onClick={() => openPurchase(expense)}><Pencil size={17} aria-hidden="true" /></button>
       <button type="button" className="secondary purchase-remove" disabled={busy} aria-describedby={descriptionId}
         aria-label={t('removePurchase')} title={t('removePurchase')}
         onClick={() => { archive.reset(); setRemoving(expense); setNotice(undefined) }}><Trash2 size={17} aria-hidden="true" /></button>
@@ -146,17 +164,26 @@ export function PurchaseWorkspace({ client, owner }: { client: PurchaseClient; o
     </FeatureHeading>
     {editorOpen && <LedgerEditor titleId="purchase-form-title" busy={busy} onClose={closeEditor}>
       <PurchaseForm key={editing?.id ?? 'new'} expense={editing} busy={busy}
+        context={section && <><bdi>{section.collection}</bdi> · <bdi>{section.name}</bdi></>}
         error={changeError(save.error, 'purchaseSaveFailed')}
         onCancel={closeEditor}
         onSave={async input => {
           setNotice(undefined)
-          try { await save.mutateAsync({ input, expense: editing }); return true } catch { return false }
+          try { await save.mutateAsync({ input, expense: editing, sectionId: section?.id }); return true } catch { return false }
         }} />
     </LedgerEditor>}
     {notice && <Toast kind={notice.startsWith('budget') ? 'error' : 'success'} message={t(notice)} />}
-    <section className="panel purchase-log">
+    <div className="purchase-view-switch" role="group" aria-label={t('purchases')}>
+      <button type="button" className={view === 'log' ? 'primary' : 'secondary'} aria-pressed={view === 'log'}
+        onClick={() => setView('log')}><ReceiptText size={17} aria-hidden="true" />{t('purchaseList')}</button>
+      <button type="button" className={view === 'collections' ? 'primary' : 'secondary'} aria-pressed={view === 'collections'}
+        onClick={() => setView('collections')}><Layers size={17} aria-hidden="true" />{t('purchaseCollections')}</button>
+    </div>
+    {view === 'collections' ? <PurchaseCollections client={client} owner={owner} busy={busy}
+      purchaseActions={purchaseActions} onAddPurchase={destination => openPurchase(null, destination)} />
+      : <section className="panel purchase-log">
       <LedgerHeading title={t('purchaseList')} action={t('addPurchase')} busy={busy}
-        onAdd={() => { setEditing(null); save.reset(); setEditorOpen(true) }} />
+        onAdd={() => openPurchase(null)} />
       {summary.data && <div className="purchase-total">
         <span className="purchase-total-label"><Wallet size={19} aria-hidden="true" />{t('monthlyPurchases')}</span>
         <strong><Amount value={summary.data.reduce((total, row) => total + Number(row.total_minor), 0) / 100} /></strong>
@@ -223,7 +250,7 @@ export function PurchaseWorkspace({ client, owner }: { client: PurchaseClient; o
         })}
       </ul> : <p className="empty-state">{t('noPurchases')}</p>)}
       <Pages label={t('purchasePages')} page={page} hasNext={(list.data?.length ?? 0) > purchasePageSize} onPage={setPage} />
-    </section>
+    </section>}
     {removing && <ArchivePurchase expense={removing} busy={archive.isPending}
       error={changeError(archive.error, 'purchaseRemoveFailed')}
       onArchive={() => archive.mutate(removing)} onClose={() => setRemoving(null)} />}
