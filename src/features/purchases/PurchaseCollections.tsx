@@ -90,7 +90,7 @@ export function PurchaseCollections({ client, owner, busy, onAddPurchase, purcha
       totalMinor(item.purchases) + item.sections.reduce((sum, subfolder) => sum + totalMinor(subfolder.purchases), 0),
       () => { setActiveSection(undefined); setActiveGroup(item.id) }))}</div>}
     {group && <>
-      <div className="purchase-folder-header">
+      <div className="purchase-folder-header" data-root-group={!section || undefined}>
         <button type="button" className="purchase-folder-back" aria-label={section ? undefined : t('purchaseCollections')}
           onClick={() => section ? setActiveSection(undefined) : setActiveGroup(undefined)}>
           <ArrowLeft size={18} aria-hidden="true" />{section && <bdi>{group.name}</bdi>}
@@ -115,9 +115,13 @@ export function PurchaseCollections({ client, owner, busy, onAddPurchase, purcha
         </div>
       </div>
       {expenses.length === 0 && (section || group.sections.length === 0) && <p className="muted">{t('noFolderPurchases')}</p>}
-      {!section && group.sections.length > 0 && <div className="purchase-folder-list purchase-section-list">
-        {group.sections.map(item => folderRow(item.id, item.name, totalMinor(item.purchases), () => setActiveSection(item.id)))}
-      </div>}
+      {!section && group.sections.length > 0 && <>
+        <h3 className="purchase-group-section-label">{t('purchaseGroupSections')}</h3>
+        <div className="purchase-folder-list purchase-section-list">
+          {group.sections.map(item => folderRow(item.id, item.name, totalMinor(item.purchases), () => setActiveSection(item.id)))}
+        </div>
+        {expenses.length > 0 && <h3 className="purchase-group-section-label">{t('purchaseGroupDirect')}</h3>}
+      </>}
       {expenses.length > 0 && <ul className="purchase-folder-expenses">
         {expenses.map(expense => <li key={expense.id}>
           <div className="purchase-group-copy" id={'folder-expense-' + expense.id}>
