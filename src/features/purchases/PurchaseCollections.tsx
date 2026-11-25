@@ -90,28 +90,31 @@ export function PurchaseCollections({ client, owner, busy, onAddPurchase, purcha
       totalMinor(item.purchases) + item.sections.reduce((sum, subfolder) => sum + totalMinor(subfolder.purchases), 0),
       () => { setActiveSection(undefined); setActiveGroup(item.id) }))}</div>}
     {group && <>
-      <button type="button" className="purchase-folder-back" onClick={() => section ? setActiveSection(undefined) : setActiveGroup(undefined)}>
-        <ArrowLeft size={16} aria-hidden="true" /><bdi>{section ? group.name : t('purchaseCollections')}</bdi>
-      </button>
-      <div className="purchase-folder-heading">
-        <div className="purchase-folder-heading-name">
-          <span className="purchase-record-icon" aria-hidden="true"><Folder size={19} /></span>
-          <h2><bdi>{section?.name ?? group.name}</bdi></h2>
-        </div>
-        <div className="purchase-folder-total">
-          <small>{t('purchaseFolderTotal')}</small><strong><Amount value={total / 100} /></strong>
-        </div>
-      </div>
-      <div className="purchase-folder-actions">
-        <button className="primary purchase-collection-add" type="button" disabled={busy}
-          onClick={() => onAddPurchase({ kind: section ? 'section' : 'collection', id: section?.id ?? group.id,
-            name: section?.name ?? group.name, collection: group.name })}>
-          <Plus size={16} aria-hidden="true" />{t('addFolderPurchase')}
+      <div className="purchase-folder-header" data-subfolder={!!section}>
+        <button type="button" className="purchase-folder-back" onClick={() => section ? setActiveSection(undefined) : setActiveGroup(undefined)}>
+          <ArrowLeft size={16} aria-hidden="true" /><bdi>{section ? group.name : t('purchaseCollections')}</bdi>
         </button>
-        {!section && <button className="secondary purchase-collection-add" type="button" disabled={busy || create.isPending}
-          onClick={() => openEditor(group.id)}>
-          <FolderPlus size={17} aria-hidden="true" />{t('addPurchaseSection')}
-        </button>}
+        <div className="purchase-folder-heading">
+          <div className="purchase-folder-heading-name">
+            {!section && <span className="purchase-record-icon" aria-hidden="true"><Folder size={19} /></span>}
+            <h2><bdi>{section?.name ?? group.name}</bdi></h2>
+          </div>
+          <div className="purchase-folder-total">
+            <small>{t(section ? 'purchaseSectionTotal' : 'purchaseFolderTotal')}</small>
+            <strong><Amount value={total / 100} /></strong>
+          </div>
+        </div>
+        <div className="purchase-folder-actions">
+          <button className="primary purchase-collection-add" type="button" disabled={busy}
+            onClick={() => onAddPurchase({ kind: section ? 'section' : 'collection', id: section?.id ?? group.id,
+              name: section?.name ?? group.name, collection: group.name })}>
+            <Plus size={16} aria-hidden="true" />{t('addFolderPurchase')}
+          </button>
+          {!section && <button className="secondary purchase-collection-add" type="button" disabled={busy || create.isPending}
+            onClick={() => openEditor(group.id)}>
+            <FolderPlus size={17} aria-hidden="true" />{t('addPurchaseSection')}
+          </button>}
+        </div>
       </div>
       {expenses.length === 0 && (section || group.sections.length === 0) && <p className="muted">{t('noFolderPurchases')}</p>}
       {!section && group.sections.length > 0 && <div className="purchase-folder-list">

@@ -126,6 +126,12 @@
 .purchase-folder-total small { font-size: .75rem }
 .purchase-folder-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: end; gap: 8px; margin-block: 10px }
 .purchase-folder-actions button { padding: 4px 9px; font-size: .8rem }
+.purchase-folder-header[data-subfolder="true"] { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 10px }
+.purchase-folder-header[data-subfolder="true"] .purchase-folder-back { grid-area: 1 / 1; justify-self: start; min-inline-size: 0 }
+.purchase-folder-header[data-subfolder="true"] .purchase-folder-back bdi { overflow-wrap: anywhere }
+.purchase-folder-header[data-subfolder="true"] .purchase-folder-actions { grid-area: 1 / 2; margin: 0 }
+.purchase-folder-header[data-subfolder="true"] .purchase-folder-heading { grid-area: 2 / 1 / auto / -1; border: 0; padding: 0 0 10px; background: transparent; color: inherit }
+.purchase-folder-header[data-subfolder="true"] .purchase-folder-total { display: flex; flex-wrap: wrap; justify-content: end; align-items: baseline; gap: 3px 6px }
 .purchase-collections .amount, .purchase-folder-row strong { white-space: normal; overflow-wrap: anywhere }
 .purchase-folder-expenses { list-style: none; margin: 0; padding: 0 }
 .purchase-folder-expenses li { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 6px 10px; padding-block: 10px; border-block-start: 1px solid var(--line) }
