@@ -1,6 +1,6 @@
 .debt-stack { display: grid; min-inline-size: 0; gap: var(--space-4) }
-.debt-entry { --panel-fill: var(--lavender-panel) }
-.debt-form { display: grid; min-inline-size: 0; gap: var(--space-3); margin: 0; padding: 0; border: 0; color-scheme: light; --surface: var(--paper); --text: var(--ink); --picker-focus: var(--purple) }
+.debt-entry { --panel-fill: var(--lavender-surface) }
+.debt-form { display: grid; min-inline-size: 0; gap: var(--space-3); margin: 0; padding: 0; border: 0 }
 .debt-form label { display: grid; min-inline-size: 0; gap: 6px; font-weight: 700 }
 .debt-form :is(input:not([type="hidden"]), select) { inline-size: 100% }
 .debt-pair, .debt-balances { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 145px), 1fr)); gap: var(--space-2) }
@@ -10,22 +10,22 @@
 .debt-list-link { min-block-size: 44px }
 .debt-row, .debt-actions { flex-wrap: wrap }
 .debt-actions { display: flex; align-items: center; gap: var(--space-2); margin-block-start: var(--space-2) }
-.debt-dialog { inline-size: min(100% - 2 * var(--gutter), 460px); color: var(--ink) }
+.debt-dialog { inline-size: min(100% - 2 * var(--gutter), 460px) }
 .debt-dialog::backdrop { background: rgb(33 30 38 / .64) }
 .debt-detail-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-block-end: 18px }
 .debt-person { display: flex; align-items: center; gap: 10px; min-inline-size: 0; flex: 1 1 140px }
 .debt-person h2 { margin: 0; font-size: 1.25rem; min-inline-size: 0 }
-.debt-avatar { display: grid; place-items: center; inline-size: 40px; block-size: 40px; flex: none; border: var(--stroke); border-radius: 11px; background: var(--lavender-panel); font-weight: 850; font-size: 1.15rem }
+.debt-avatar { display: grid; place-items: center; inline-size: 40px; block-size: 40px; flex: none; border: var(--stroke); border-radius: 11px; background: var(--lavender-panel); color: var(--ink); font-weight: 850; font-size: 1.15rem }
 .debt-back { display: flex; align-items: center; gap: 6px; font-size: .8rem; padding-inline: 10px }
 .debt-back:dir(rtl) svg, .debt-contact-arrow:dir(rtl) { transform: scaleX(-1) }
-.debt-balance-summary { display: grid; gap: 12px; padding: 18px; border: var(--stroke); border-radius: var(--radius-sm); background: var(--mint-panel) }
-.debt-balance-summary[data-direction="owe"] { background: var(--peach-panel) }
+.debt-balance-summary { display: grid; gap: 12px; padding: 18px; border: var(--stroke); border-radius: var(--radius-sm); background: var(--mint-surface) }
+.debt-balance-summary[data-direction="owe"] { background: var(--peach-surface) }
 .debt-balance-summary .row { flex-wrap: wrap; gap: 8px }
 .debt-remaining-label, .debt-due { font-size: .875rem }
 .debt-remaining { font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.2; font-weight: 850 }
 .debt-remaining .amount, .debt-detail-totals .amount { white-space: normal; overflow-wrap: anywhere }
 .debt-progress { overflow: hidden; block-size: 9px; border: 1px solid var(--ink); border-radius: 4px; background: var(--card-surface) }
-.debt-progress span { display: block; block-size: 100%; background: var(--purple) }
+.debt-progress span { display: block; block-size: 100%; background: var(--link) }
 .debt-detail-totals { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); margin-block: 16px; gap: 16px }
 .debt-detail-totals > div + div { border-inline-start: 1px solid var(--line); padding-inline-start: 16px }
 .debt-detail-totals dt { color: var(--muted); font-size: .8rem; margin-block-end: 4px }
@@ -34,7 +34,7 @@
 .debt-detail-tools button { display: flex; align-items: center; justify-content: center; gap: 7px; font-size: .875rem }
 .debt-detail-tools .primary { flex: 1 }
 .debt-detail-tools .debt-archive-action { inline-size: 42px; padding: 0; margin-inline-start: auto }
-.debt-payment-editor { --panel-fill: var(--lavender-panel) }
+.debt-payment-editor { --panel-fill: var(--lavender-surface) }
 .debt-payment-editor > p { margin-block-end: 18px }
 .debt-list .ledger { display: grid; gap: 10px }
 .debt-list .ledger > li { padding: 0; border: 0 }
@@ -62,7 +62,7 @@
 }
 @media (hover: hover) {
   .debt-contact-card:hover { background: var(--inset-surface) }
-  .debt-detail-tools .debt-archive-action:hover { background: var(--peach-panel) }
+  .debt-detail-tools .debt-archive-action:hover { background: var(--peach-panel); color: var(--ink) }
 }
 @media (width < 420px) {
   .debt-detail-tools button { font-size: .8rem; padding-inline: 9px }

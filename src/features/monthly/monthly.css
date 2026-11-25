@@ -4,12 +4,12 @@
 .monthly-toolbar .month-picker-trigger, .monthly-add { min-block-size: 44px }
 .monthly-add { display: inline-flex; align-items: center; gap: 6px }
 .monthly-add svg { flex: none }
-.monthly-summary { display: grid; gap: 10px; margin-block-end: 18px; padding: 14px; border: var(--stroke); border-radius: var(--radius-sm); background: var(--mint-panel) }
+.monthly-summary { display: grid; gap: 10px; margin-block-end: 18px; padding: 14px; border: var(--stroke); border-radius: var(--radius-sm); background: var(--mint-surface) }
 .monthly-summary-main { display: flex; justify-content: space-between; align-items: end; flex-wrap: wrap; gap: 6px 14px }
 .monthly-summary-main > div { display: grid; gap: 2px; min-inline-size: 0 }
 .monthly-summary-main strong { font-size: clamp(1.4rem, 4vw, 2rem); line-height: 1.2 }
 .monthly-summary-main p, .monthly-totals dt { font-size: .8rem; margin: 0 }
-.monthly-summary progress { inline-size: 100%; block-size: 9px; accent-color: var(--purple); }
+.monthly-summary progress { inline-size: 100%; block-size: 9px; accent-color: var(--link); }
 .monthly-totals { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 0; padding-block-start: 3px }
 .monthly-totals dd { margin: 2px 0 0; font-weight: 800 }
 .monthly-summary .amount, .monthly-item-amount .amount { white-space: normal; overflow-wrap: anywhere }
@@ -21,13 +21,13 @@
 .monthly-item-title, .monthly-item-meta { display: flex; flex-wrap: wrap; gap: 3px 10px }
 .monthly-item-title { justify-content: space-between }
 .monthly-item-meta, .monthly-item-copy > small { color: var(--muted); font-size: .8rem }
-.monthly-overdue { color: var(--danger); font-weight: 750 }
+.monthly-overdue { color: var(--invalid); font-weight: 750 }
 .monthly-item-detail { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 10px; min-block-size: 44px; padding: 0; text-align: start; border: 0; background: transparent; border-radius: 6px }
 .monthly-check-box { display: grid; place-items: center; inline-size: 28px; block-size: 28px; border: var(--stroke); border-radius: 6px; background: var(--lavender-panel); color: var(--ink) }
 .monthly-item[data-paid="true"] .monthly-check-box { background: var(--mint-panel) }
 .monthly-menu, .monthly-undo { padding: 0; inline-size: 44px; display: grid; place-items: center }
 .monthly-menu { box-shadow: none }
-.monthly-editor { --panel-fill: var(--mint-panel) }
+.monthly-editor { --panel-fill: var(--mint-surface) }
 .monthly-editor h2 { font-size: 1.3rem }
 .monthly-editor-name { font-weight: 750; overflow-wrap: anywhere }
 .monthly-editor form, .monthly-editor label, .monthly-date { display: grid; gap: 8px }
@@ -36,7 +36,7 @@
 .monthly-date > button { justify-content: center }
 .monthly-help { font-size: .8rem; margin: 0 }
 .monthly-editor-actions { display: flex; flex-wrap: wrap; justify-content: end; gap: 10px; margin-block-start: 8px }
-.monthly-error { color: var(--danger); margin: 0 }
+.monthly-error { color: var(--invalid); margin: 0 }
 .monthly-manage-options { display: grid; gap: 10px }
 .monthly-manage-options button { display: flex; justify-content: start; align-items: center; gap: 8px }
 .monthly-editor button.monthly-remove { color: var(--danger); background: var(--danger-surface) }

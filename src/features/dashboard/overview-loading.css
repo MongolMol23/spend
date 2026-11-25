@@ -32,8 +32,8 @@
 .overview-loading-bars > span:nth-child(3) { background: var(--lavender); transform: scaleY(.8) }
 .overview-loading-preview { display: grid; gap: var(--space-3) }
 .overview-loading-budget, .overview-loading-spending { display: grid; gap: var(--space-2) }
-.overview-loading-budget { --panel-fill: var(--mint-panel) }
-.overview-loading-spending { --panel-fill: var(--amber-panel) }
+.overview-loading-budget { --panel-fill: var(--mint-surface) }
+.overview-loading-spending { --panel-fill: var(--amber-surface) }
 .overview-loading-line, .overview-loading-number, .overview-loading-totals > span {
   display: block;
   border-radius: var(--radius-sm);

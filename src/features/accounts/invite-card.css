@@ -114,7 +114,7 @@
 .profile-layout .profile-invite[data-dragging]:active { translate: none; box-shadow: var(--shadow-control) }
 @media (hover: hover) {
   .profile-layout .profile-invite:hover:not(:disabled) {
-    background: var(--lavender-panel);
+    background: var(--lavender-surface);
     color: var(--text);
   }
   .profile-invite:hover .profile-invite-thumb { background: var(--mint) }

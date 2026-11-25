@@ -6,10 +6,10 @@
   align-content: start;
   gap: 6px 8px;
   padding: clamp(12px, 2vw, 22px);
-  --panel-fill: var(--amber-panel);
+  --panel-fill: var(--amber-surface);
 }
-.metric:nth-child(2) { --panel-fill: var(--mint-panel) }
-.metric:nth-child(3) { --panel-fill: var(--peach-panel) }
+.metric:nth-child(2) { --panel-fill: var(--mint-surface) }
+.metric:nth-child(3) { --panel-fill: var(--peach-surface) }
 .metric-label { font-weight: 700; line-height: 1.25 }
 .metric strong { grid-column: 1 / -1; font-size: clamp(1.3rem, 3.2vw, 2.55rem); font-weight: var(--weight-display); line-height: 1.2 }
 :lang(en) .metric strong { letter-spacing: -.045em }
@@ -37,14 +37,14 @@
 .overview-plan-totals dt { min-inline-size: 0; font-size: .85rem }
 .overview-plan-totals dd { margin: 0; text-align: end; font-weight: 750 }
 .overview-plan-totals > div:first-child dd { font-size: 1.2rem }
-.overview-savings { --panel-fill: var(--mint-panel) }
+.overview-savings { --panel-fill: var(--mint-surface) }
 .overview-savings .icon-tile { --icon-fill: var(--mint) }
-.overview-installments { --panel-fill: var(--amber-panel) }
+.overview-installments { --panel-fill: var(--amber-surface) }
 .overview-installments .icon-tile { --icon-fill: var(--yellow) }
 .overview-plan > .follow-item { margin-block-start: 8px }
 .spending-detail .icon-tile { --icon-fill: var(--lavender) }
 .purchases .icon-tile { --icon-fill: var(--mint) }
-.follow-up { grid-column: 1 / -1; --panel-fill: var(--lavender-panel) }
+.follow-up { grid-column: 1 / -1; --panel-fill: var(--lavender-surface) }
 .follow-up .icon-tile { --icon-fill: var(--yellow) }
 .follow-item { padding: var(--space-2); border: var(--stroke); border-radius: var(--radius-sm); background: var(--card-surface); color: inherit }
 .follow-item + .follow-item { margin-block-start: var(--space-2) }

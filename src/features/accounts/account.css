@@ -25,7 +25,7 @@ main.account-shell {
   overflow: hidden;
   padding: clamp(24px, 4vw, 42px);
   min-block-size: 460px;
-  --panel-fill: var(--lavender-panel);
+  --panel-fill: var(--lavender-surface);
 }
 .account-story-brand {
   display: inline-flex;
@@ -135,7 +135,7 @@ main.account-shell {
   padding: 8px 10px;
   border: 1px solid var(--edge);
   border-radius: var(--radius-sm);
-  background: var(--lavender-panel);
+  background: var(--lavender-surface);
   text-align: start;
 }
 .account-switch a { gap: 6px; border-radius: 9px; padding-inline: 10px }
@@ -150,7 +150,7 @@ main.account-shell {
 .profile-intro, .profile-meta { min-inline-size: 0 }
 .profile-intro { display: flex; align-items: center; gap: 10px }
 .profile-intro .profile-identity { flex: 1 }
-.profile-edit { --button-fill: var(--lavender-panel); display: grid; place-items: center; flex: none; inline-size: 44px; padding: 0 }
+.profile-edit { --button-fill: var(--lavender-panel); --button-text: var(--ink); display: grid; place-items: center; flex: none; inline-size: 44px; padding: 0 }
 .profile-retry { justify-self: start }
 .profile-meta {
   display: grid;
@@ -196,9 +196,9 @@ main.account-shell {
   text-align: start;
 }
 .profile-option svg { flex: none }
-.profile-option[data-accent="yellow"] { --button-fill: var(--amber-panel) }
-.profile-option[data-accent="mint"] { --button-fill: var(--mint-panel) }
-.profile-option[data-accent="lavender"] { --button-fill: var(--lavender-panel) }
+.profile-option[data-accent="yellow"] { --button-fill: var(--amber-surface) }
+.profile-option[data-accent="mint"] { --button-fill: var(--mint-surface) }
+.profile-option[data-accent="lavender"] { --button-fill: var(--lavender-surface) }
 .profile-option[aria-busy="true"] > svg { display: none }
 @media (max-width: 500px) {
   .profile-option { flex-direction: column; flex-wrap: nowrap; justify-content: center; text-align: center }
@@ -215,10 +215,10 @@ main.account-shell {
 .profile-signout:dir(rtl) svg { scale: -1 1 }
 .profile-signout[aria-busy="true"] > svg { display: none }
 @media (hover: hover) {
-  .profile-copy:hover, .profile-option:hover:not(:disabled) { background: var(--inset-surface) }
+  .profile-copy:hover, .profile-option:hover:not(:disabled) { background: var(--inset-surface); color: var(--text) }
   .profile-layout .profile-signout:hover:not(:disabled) { background: var(--danger-surface); color: var(--ink) }
 }
-.profile-details { --panel-fill: var(--lavender-panel) }
+.profile-details { --panel-fill: var(--lavender-surface) }
 .profile-details .account-form { min-inline-size: 0; padding: 0; border: 0; margin-inline: 0 }
 
 @media (max-width: 820px) and (min-width: 721px) {

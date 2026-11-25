@@ -21,7 +21,7 @@
 .admin-filter.secondary[aria-pressed="true"] { background: var(--filter-color); color: var(--text) }
 @media (hover: hover) {
   .admin-filters .admin-filter.secondary:hover { background: var(--filter-color); color: var(--text) }
-  .admin-user-actions .admin-reject.secondary:hover:not(:disabled) { background: var(--peach-panel); color: var(--text) }
+  .admin-user-actions .admin-reject.secondary:hover:not(:disabled) { background: var(--peach-panel); color: var(--ink) }
 }
 .admin-directory-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding-block-end: 16px; border-block-end: var(--stroke) }
 .admin-directory-header h2 { margin: 0; font-size: 1.25rem }

@@ -4,7 +4,7 @@
 }
 
 .landing-hero {
-  --panel-fill: var(--lavender-panel);
+  --panel-fill: var(--lavender-surface);
   padding: clamp(24px, 5vw, 64px);
 }
 
@@ -28,8 +28,7 @@
 .landing-hero p { max-inline-size: 52ch; margin-block-start: var(--space-3); }
 .landing-hero .primary { --button-fill: var(--yellow); --button-text: var(--ink); }
 .landing-hero .secondary {
-  --button-fill: var(--inset-surface, var(--paper));
-  --button-text: var(--ink);
+  --button-fill: var(--inset-surface);
 }
 
 @media (min-width: 700px) {
@@ -56,10 +55,10 @@
   list-style: none;
 }
 
-.landing-features > li:nth-child(1) { --panel-fill: var(--amber-panel); }
-.landing-features > li:nth-child(2) { --panel-fill: var(--peach-panel); }
-.landing-features > li:nth-child(3) { --panel-fill: var(--mint-panel); }
-.landing-features > li:nth-child(4) { --panel-fill: var(--lavender-panel); }
+.landing-features > li:nth-child(1) { --panel-fill: var(--amber-surface); }
+.landing-features > li:nth-child(2) { --panel-fill: var(--peach-surface); }
+.landing-features > li:nth-child(3) { --panel-fill: var(--mint-surface); }
+.landing-features > li:nth-child(4) { --panel-fill: var(--lavender-surface); }
 .landing-features p { margin-block-end: 0; }
 
 @media (min-width: 1050px) {
@@ -238,7 +237,9 @@
   background: transparent;
   font-size: .875rem;
   font-weight: 750;
+  color: var(--text);
 }
+.landing-perspective button[aria-pressed="true"] { color: var(--ink) }
 
 @media (forced-colors: active) {
   .landing-perspective button[aria-pressed="true"] { border-color: Highlight; }
@@ -307,7 +308,7 @@
   margin-block-start: clamp(32px, 5vw, 64px);
 }
 
-.landing-privacy { --panel-fill: var(--lavender-panel); }
+.landing-privacy { --panel-fill: var(--lavender-surface); }
 .landing-privacy ul { list-style: none; padding: 0; margin: 0; }
 .landing-privacy li {
   display: grid;

@@ -127,7 +127,7 @@
   padding: 16px;
   border: var(--stroke);
   border-radius: var(--radius-sm);
-  background: var(--mint-panel);
+  background: var(--mint-surface);
   box-shadow: var(--shadow-control);
 }
 .friend-result-identity { display: flex; align-items: center; gap: 12px; min-inline-size: 0; flex: 1 1 200px }
@@ -198,7 +198,7 @@
   padding: 16px;
   border: var(--stroke);
   border-radius: var(--radius-sm);
-  background: var(--amber-panel);
+  background: var(--amber-surface);
 }
 .request-detail-summary .request-amount { line-height: 1.25; overflow-wrap: anywhere; max-inline-size: 100% }
 .request-detail-summary .reason { margin: 0; font-weight: 700; overflow-wrap: anywhere }
@@ -208,7 +208,7 @@
 .request-participants dd { margin: 0; font-weight: 700; overflow-wrap: anywhere; line-height: 1.4 }
 .request-detail-actions { padding-block: 12px; margin-block: 0 12px; border-block-start: 1px solid var(--line) }
 .request-detail-actions button { flex: 1 }
-.request-detail-actions button[data-decision="accepted"] { background: var(--mint-panel) }
+.request-detail-actions button[data-decision="accepted"] { background: var(--mint-panel); color: var(--ink) }
 @media (hover: hover) {
   .request-detail-actions button:is([data-decision="cancelled"], [data-decision="declined"]):hover {
     background: var(--danger-surface);
@@ -278,16 +278,16 @@
 .request-list-end:dir(rtl) svg { transform: scaleX(-1) }
 .request-list-link { border: 1px solid transparent }
 @media (hover: hover) {
-  .request-list-link:hover { border-color: var(--edge); background: var(--mint-panel) }
+  .request-list-link:hover { border-color: var(--edge); background: var(--mint-surface) }
 }
 @media (min-width: 900px) {
   .request-filters { grid-template-columns: repeat(4, minmax(0, 1fr)) }
 }
 .payment-section { border-block-start: var(--stroke); margin-block-start: var(--space-3); padding-block-start: var(--space-3) }
 .payment-totals { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 116px), 1fr)); gap: var(--space-1); margin: 0 }
-.payment-totals > div { padding: 8px 10px; border: var(--stroke); border-radius: var(--radius-sm); background: var(--mint-panel) }
-.payment-totals > div:nth-child(2) { background: var(--lavender-panel) }
-.payment-totals > div:nth-child(3) { background: var(--amber-panel) }
+.payment-totals > div { padding: 8px 10px; border: var(--stroke); border-radius: var(--radius-sm); background: var(--mint-surface) }
+.payment-totals > div:nth-child(2) { background: var(--lavender-surface) }
+.payment-totals > div:nth-child(3) { background: var(--amber-surface) }
 .payment-totals dt { font-size: .875rem }
 .payment-totals dd { margin: 0; font-weight: 850 }
 .payment-section > .connection-form { margin-block-start: var(--space-3) }

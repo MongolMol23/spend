@@ -1,9 +1,9 @@
-.savings-entry { --panel-fill: var(--mint-panel) }
-.savings-progress { display: block; inline-size: 100%; accent-color: var(--purple) }
+.savings-entry { --panel-fill: var(--mint-surface) }
+.savings-progress { display: block; inline-size: 100%; accent-color: var(--link) }
 .savings-overview { margin-block-start: var(--space-4) }
 .savings-overview .row { flex-wrap: wrap }
 .savings-detail .debt-avatar, .savings-goal-card .debt-avatar { background: var(--mint-panel) }
-.savings-balance-summary { background: var(--mint-panel) }
+.savings-balance-summary { background: var(--mint-surface) }
 .savings-detail-tools { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, .7fr) auto auto; gap: 8px }
 .savings-detail-tools .savings-icon-action { inline-size: 40px; padding: 0 }
 .savings-movement-editor > p { margin-block-end: 18px }
