@@ -13,6 +13,7 @@ import { useTranslation } from 'react-i18next'
 import { clearRetryKey, retryKey } from '../../data/retryKey'
 import type { Label } from '../../i18n/locales'
 import { Amount } from '../../ui/Amount'
+import { ActiveLinkIndicator } from '../../ui/ActiveLinkIndicator'
 import { Select } from '../../ui/Select'
 import { MonthPicker } from '../../ui/MonthPicker'
 import {
@@ -175,11 +176,12 @@ export function PurchaseWorkspace({ client, owner }: { client: PurchaseClient; o
         }} />
     </LedgerEditor>}
     {notice && <Toast kind={notice.startsWith('budget') ? 'error' : 'success'} message={t(notice)} />}
-    <div className="purchase-view-switch" role="group" aria-label={t('purchases')}>
-      <button type="button" className={view === 'log' ? 'primary' : 'secondary'} aria-pressed={view === 'log'}
-        onClick={() => setView('log')}><ReceiptText size={17} aria-hidden="true" />{t('purchaseList')}</button>
-      <button type="button" className={view === 'collections' ? 'primary' : 'secondary'} aria-pressed={view === 'collections'}
-        onClick={() => setView('collections')}><Layers size={17} aria-hidden="true" />{t('purchaseCollections')}</button>
+    <div className="site-nav purchase-view-switch" role="group" aria-label={t('purchases')}>
+      <ActiveLinkIndicator selection={view} />
+      <button type="button" aria-pressed={view === 'log'}
+        onClick={() => setView('log')}><ReceiptText size={18} aria-hidden="true" />{t('purchaseList')}</button>
+      <button type="button" aria-pressed={view === 'collections'}
+        onClick={() => setView('collections')}><Layers size={18} aria-hidden="true" />{t('purchaseCollections')}</button>
     </div>
     {view === 'collections' ? <PurchaseCollections client={client} owner={owner} busy={busy}
       purchaseActions={purchaseActions} onAddPurchase={destination => openPurchase(null, destination)} />

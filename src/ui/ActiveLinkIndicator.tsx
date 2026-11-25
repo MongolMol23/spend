@@ -11,7 +11,7 @@ export function ActiveLinkIndicator({ selection }: { selection: string }) {
     if (!highlight || !container) return
 
     const position = () => {
-      const active = container.querySelector('a[aria-current]')
+      const active = container.querySelector(':scope > a[aria-current], :scope > button[aria-pressed="true"]')
       if (!active?.getClientRects().length) {
         highlight.hidden = true
         return
@@ -30,7 +30,7 @@ export function ActiveLinkIndicator({ selection }: { selection: string }) {
     // Translations and count badges can change link dimensions between selections.
     const observer = new ResizeObserver(position)
     observer.observe(container)
-    for (const link of container.querySelectorAll('a')) observer.observe(link)
+    for (const control of container.querySelectorAll(':scope > a, :scope > button')) observer.observe(control)
     return () => observer.disconnect()
   }, [selection, i18n.language])
 

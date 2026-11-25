@@ -157,7 +157,7 @@ main.shell { padding-block: clamp(24px, 5vw, 50px) clamp(36px, 7vw, 80px) }
 .brand-mark { display: grid; place-items: center; inline-size: 40px; block-size: 40px; background: var(--orange); color: var(--ink); border: var(--stroke); border-radius: 13px; box-shadow: var(--shadow-control) }
 .site-nav { position: relative; display: flex; align-items: center; flex-wrap: wrap; gap: 4px; padding: 4px; border: var(--stroke); border-radius: var(--pill); background: var(--nav-fill); box-shadow: var(--nav-shadow) }
 .site-nav a { position: relative; display: flex; align-items: center; gap: 7px; padding-inline: 13px; border: 2px solid transparent; border-radius: var(--pill); color: var(--nav-text); font-size: .9rem; font-weight: 750; text-decoration: none }
-.site-nav a[aria-current] { background: var(--mint); border-color: var(--nav-active-border); color: var(--ink) }
+.site-nav :is(a[aria-current], button[aria-pressed="true"]) { background: var(--mint); border-color: var(--nav-active-border); color: var(--ink) }
 .nav-indicator {
   position: absolute;
   top: 0;
@@ -169,16 +169,16 @@ main.shell { padding-block: clamp(24px, 5vw, 50px) clamp(36px, 7vw, 80px) }
 }
 @media (prefers-reduced-motion: no-preference) and (forced-colors: none) {
   .nav-indicator { transition: transform 260ms var(--motion-out), width 260ms var(--motion-out), height 260ms var(--motion-out) }
-  .site-nav:has(> .nav-indicator:not([hidden])) a[aria-current] { background: transparent; border-color: transparent }
+  .site-nav:has(> .nav-indicator:not([hidden])) :is(a[aria-current], button[aria-pressed="true"]) { background: transparent; border-color: transparent }
 }
 @media (prefers-reduced-motion: reduce), (forced-colors: active) {
   .nav-indicator { display: none }
 }
 @media (forced-colors: active) {
-  .site-nav a[aria-current] { border-color: Highlight }
+  .site-nav :is(a[aria-current], button[aria-pressed="true"]) { border-color: Highlight }
 }
-.site-nav a:focus-visible { outline-color: var(--nav-focus); outline-offset: -2px; outline-style: dashed }
-.site-nav a[aria-current]:focus-visible { outline-color: var(--purple) }
+.site-nav :is(a, button):focus-visible { outline-color: var(--nav-focus); outline-offset: -2px; outline-style: dashed }
+.site-nav :is(a[aria-current], button[aria-pressed="true"]):focus-visible { outline-color: var(--purple) }
 .nav-short-label, .top[data-expanded-nav] .header-nav > .nav-more { display: none }
 
 .top:not([data-expanded-nav]) > .header-nav {
@@ -195,7 +195,7 @@ main.shell { padding-block: clamp(24px, 5vw, 50px) clamp(36px, 7vw, 80px) }
 }
 .top:not([data-expanded-nav]) .header-nav > .site-nav :is(.nav-secondary, .nav-full-label) { display: none }
 .top:not([data-expanded-nav]) .header-nav .nav-short-label { display: inline }
-.top:not([data-expanded-nav]) .header-nav .site-nav a {
+.top:not([data-expanded-nav]) .header-nav .site-nav a, .purchase-view-switch > button {
   display: flex;
   flex-direction: column;
   justify-content: center;

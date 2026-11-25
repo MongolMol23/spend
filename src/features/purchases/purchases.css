@@ -96,12 +96,10 @@
 }
 .purchase-group-payments .purchase-record-actions { grid-column: 2; flex-wrap: wrap }
 .purchase-group-note { grid-column: 1 / -1; margin: 0; color: var(--muted); font-size: .875rem }
-.purchase-view-switch { display: flex; gap: 4px; padding: 3px; margin-block-end: 12px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--inset-surface) }
-.purchase-view-switch button, .purchase-collection-add { display: inline-flex; align-items: center; justify-content: center; gap: 6px }
-.purchase-view-switch button { flex: 1; min-inline-size: 0; padding: 4px 6px; border: 1px solid transparent; border-radius: 8px; box-shadow: none; font-size: .8rem }
-.purchase-view-switch button[aria-pressed="true"] { border-color: var(--edge) }
-.purchase-view-switch button[aria-pressed="false"] { background: transparent }
-.purchase-view-switch button:active { translate: none }
+.purchase-view-switch { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2px; margin-block-end: 12px; border-radius: var(--radius) }
+.purchase-view-switch > button { position: relative; min-inline-size: 0; border: 2px solid transparent; background: transparent; color: var(--nav-text) }
+.purchase-view-switch > .nav-indicator { border-radius: var(--radius-sm) }
+.purchase-collection-add { display: inline-flex; align-items: center; justify-content: center; gap: 6px }
 .purchase-folder-list { display: grid; gap: 8px; margin-block: 12px }
 .purchase-folder-row {
   display: grid;
