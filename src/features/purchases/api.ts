@@ -59,6 +59,16 @@ export async function listPurchases(
   return data
 }
 
+export async function listPurchaseGroups(
+  client: PurchaseClient, month: string, category: string, page: number, signal: AbortSignal,
+) {
+  const { data, error } = await client.rpc('purchase_list_groups', {
+    p_month: month + '-01', p_category: category || null, p_offset: page * purchasePageSize,
+  }).abortSignal(signal)
+  if (error) throw error
+  return data
+}
+
 export async function purchaseHistory(client: PurchaseClient, page: number, signal: AbortSignal, from: string, until: string) {
   const first = page * purchasePageSize
   const { data, error } = await client.from('personal_activity').select('*').eq('entity_type', 'purchase')

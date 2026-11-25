@@ -141,6 +141,9 @@ select is((select paid_minor from public.monthly_expense_balances((now() at time
  100000::bigint,'two payments cover the expected amount');
 select is((select jsonb_array_length(payments) from public.monthly_expense_balances((now() at time zone 'Africa/Cairo')::date)),
  2,'payment history contains two distinct entries');
+select is((select jsonb_array_length(purchases) from public.purchase_list_groups(
+ date_trunc('month',now() at time zone 'Africa/Cairo')::date,'other',0) where group_key like 'monthly:%'),
+ 2,'purchase log groups both payments into one entry');
 select lives_ok($$select public.monthly_expense_unpay(
  (select id from public.monthly_expense_dues where item_id='10000000-0000-4000-8000-000000000050'),
  '10000000-0000-4000-8000-000000000051')$$,'undo only one payment');

@@ -70,6 +70,32 @@
 .purchase-record-actions { display: flex; justify-content: end; gap: 6px; grid-column: 3 }
 .purchase-record-actions button { display: grid; place-items: center; padding: 0; inline-size: 40px; min-block-size: 40px }
 .purchase-record-note { grid-column: 2 / -1; margin: 0; padding-block-start: 8px; border-block-start: 1px solid var(--line); color: var(--muted); font-size: .875rem }
+.purchase-log .ledger > .purchase-group { padding: 0; border: var(--stroke); border-radius: var(--radius-sm); background: var(--card-surface) }
+.purchase-group summary {
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr) minmax(0, auto) 17px;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  list-style: none;
+}
+.purchase-group summary::-webkit-details-marker { display: none }
+.purchase-group-chevron { color: var(--muted) }
+.purchase-group details[open] .purchase-group-chevron { rotate: 180deg }
+.purchase-group-copy { display: grid; gap: 3px; min-inline-size: 0; overflow-wrap: anywhere }
+.purchase-group-copy small { font-size: .8rem; color: var(--muted) }
+.purchase-group-payments { list-style: none; margin: 0; padding: 0 12px }
+.purchase-group .purchase-group-payments > li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  border-block-start: 1px solid var(--line);
+  border-block-end: 0;
+}
+.purchase-group-payments .purchase-record-actions { grid-column: 2; flex-wrap: wrap }
+.purchase-group-note { grid-column: 1 / -1; margin: 0; color: var(--muted); font-size: .875rem }
 .purchase-toolbar .purchase-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: stretch }
 .purchase-filters .month-picker-trigger { min-inline-size: 0; gap: 6px; padding-inline: 10px; font-size: .875rem }
 .purchase-filters .select-control { display: flex; min-inline-size: 0 }

@@ -289,6 +289,9 @@ isOneToOne: false
             [_ in never]: never
           }
           Functions: {
+            purchase_list_groups: { Args: { p_month: string; p_category: string | null; p_offset: number }; Returns: {
+              group_key: string; purchases: Database['public']['Tables']['expenses']['Row'][]
+            }[] }
             monthly_expense_add: { Args: { p_id: string; p_name: string; p_amount: number; p_day: number | null; p_category: string }; Returns: undefined }
             monthly_expense_list: { Args: { p_month: string }; Returns: {
               id: string; item_id: string; name: string; expected_minor: number; category: string; due_on: string | null;
