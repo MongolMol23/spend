@@ -14,6 +14,13 @@ export const signupProfileSchema = profileSchema.pick({ username: true, language
   name_en: z.string().trim().min(1).max(80).regex(/\p{Script=Latin}/u),
 })
 
+export const profileEditSchema = signupProfileSchema.extend({
+  display_language: profileSchema.shape.language,
+}).transform(({ display_language, ...profile }) => ({
+  ...profile,
+  display_name: display_language === 'ar' ? profile.name_ar : profile.name_en,
+}))
+
 export const signupFields = ['name_ar', 'name_en', 'username', 'email', 'password', 'confirm_password'] as const
 export type AccountField = typeof signupFields[number]
 

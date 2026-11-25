@@ -7,8 +7,9 @@ import { Link } from 'react-router'
 import type { Label } from '../../i18n/locales'
 import { supabase } from '../../data/supabase'
 import { LedgerEditor } from '../../ui/LedgerEditor'
+import { Select } from '../../ui/Select'
 import { InviteCard } from './InviteCard'
-import { signupProfileSchema } from './validation'
+import { profileEditSchema, signupProfileSchema } from './validation'
 
 export function ProfileSettings({ userId, email, emailVerified, createdAt }: {
   userId: string; email?: string; emailVerified: boolean; createdAt: string
@@ -40,11 +41,13 @@ export function ProfileSettings({ userId, email, emailVerified, createdAt }: {
     },
   })
   const details = profile.data
-  const localizedName = i18n.language === 'ar' ? details?.name_ar : details?.name_en
-  const name = localizedName || details?.display_name || details?.username
+  const name = details?.display_name || details?.username
   const initial = name ? Array.from(name)[0]?.toLocaleUpperCase() : undefined
   const arabicName = details?.name_ar ?? signupProfileSchema.shape.name_ar.safeParse(details?.display_name).data
   const englishName = details?.name_en ?? signupProfileSchema.shape.name_en.safeParse(details?.display_name).data
+  const displayLanguage = details?.display_name === arabicName && arabicName !== englishName ? 'ar'
+    : details?.display_name === englishName && arabicName !== englishName ? 'en'
+    : details?.language ?? i18n.language
   const joined = new Date(createdAt)
   const joinedLabel = Number.isFinite(joined.getTime()) ? new Intl.DateTimeFormat(
     i18n.language === 'ar' ? 'ar-EG' : 'en-EG',
@@ -83,7 +86,7 @@ export function ProfileSettings({ userId, email, emailVerified, createdAt }: {
     event.preventDefault()
     if (busy) return
     const values = new FormData(event.currentTarget)
-    const result = signupProfileSchema.safeParse({
+    const result = profileEditSchema.safeParse({
       ...Object.fromEntries(values),
       language: profile.data?.language ?? i18n.language,
     })
@@ -95,9 +98,7 @@ export function ProfileSettings({ userId, email, emailVerified, createdAt }: {
     }
     setPending('save')
     try {
-      const { language, name_ar, name_en } = result.data
-      // Connections still use the single display_name returned by their database functions.
-      const updated = { id: userId, ...result.data, display_name: language === 'ar' ? name_ar : name_en }
+      const updated = { id: userId, ...result.data }
       const { error: failure } = await client.from('profiles').upsert(updated)
       if (failure?.code === '23505') return setError('usernameTaken')
       if (failure) throw failure
@@ -177,6 +178,13 @@ export function ProfileSettings({ userId, email, emailVerified, createdAt }: {
             <label>{t('username')}<input name="username" defaultValue={details?.username} autoComplete="username" required dir="ltr" /></label>
             <label>{t('nameArabic')}<input name="name_ar" defaultValue={arabicName} maxLength={80} required dir="rtl" /></label>
             <label>{t('nameEnglish')}<input name="name_en" defaultValue={englishName} maxLength={80} required dir="ltr" /></label>
+            <label>{t('displayNameLanguage')}
+              <Select name="display_language" defaultValue={displayLanguage} aria-describedby="profile-display-name-hint">
+                <option value="ar">{t('displayNameArabic')}</option>
+                <option value="en">{t('displayNameEnglish')}</option>
+              </Select>
+            </label>
+            <small id="profile-display-name-hint">{t('displayNameHint')}</small>
             {error && <Toast message={t(error)} />}
             <button type="submit" className="primary" aria-busy={pending === 'save'}>{t('saveProfile')}</button>
           </fieldset>
