@@ -90,17 +90,15 @@ export function PurchaseCollections({ client, owner, busy, onAddPurchase, purcha
       totalMinor(item.purchases) + item.sections.reduce((sum, subfolder) => sum + totalMinor(subfolder.purchases), 0),
       () => { setActiveSection(undefined); setActiveGroup(item.id) }))}</div>}
     {group && <>
-      <div className="purchase-folder-header" data-subfolder={!!section}>
-        <button type="button" className="purchase-folder-back" onClick={() => section ? setActiveSection(undefined) : setActiveGroup(undefined)}>
-          <ArrowLeft size={16} aria-hidden="true" /><bdi>{section ? group.name : t('purchaseCollections')}</bdi>
+      <div className="purchase-folder-header">
+        <button type="button" className="purchase-folder-back" aria-label={section ? undefined : t('purchaseCollections')}
+          onClick={() => section ? setActiveSection(undefined) : setActiveGroup(undefined)}>
+          <ArrowLeft size={18} aria-hidden="true" />{section && <bdi>{group.name}</bdi>}
         </button>
         <div className="purchase-folder-heading">
-          <div className="purchase-folder-heading-name">
-            {!section && <span className="purchase-record-icon" aria-hidden="true"><Folder size={19} /></span>}
-            <h2><bdi>{section?.name ?? group.name}</bdi></h2>
-          </div>
+          <h2><bdi>{section?.name ?? group.name}</bdi></h2>
           <div className="purchase-folder-total">
-            <small>{t(section ? 'purchaseSectionTotal' : 'purchaseFolderTotal')}</small>
+            <small>{t('purchaseSectionTotal')}</small>
             <strong><Amount value={total / 100} /></strong>
           </div>
         </div>
@@ -117,7 +115,7 @@ export function PurchaseCollections({ client, owner, busy, onAddPurchase, purcha
         </div>
       </div>
       {expenses.length === 0 && (section || group.sections.length === 0) && <p className="muted">{t('noFolderPurchases')}</p>}
-      {!section && group.sections.length > 0 && <div className="purchase-folder-list">
+      {!section && group.sections.length > 0 && <div className="purchase-folder-list purchase-section-list">
         {group.sections.map(item => folderRow(item.id, item.name, totalMinor(item.purchases), () => setActiveSection(item.id)))}
       </div>}
       {expenses.length > 0 && <ul className="purchase-folder-expenses">
