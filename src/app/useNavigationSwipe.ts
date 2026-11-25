@@ -61,8 +61,10 @@ export function useNavigationSwipe(header: RefObject<HTMLDivElement | null>, ena
       const touch = event.touches[0]
       const main = document.getElementById('main')
       const scope = target instanceof Element ? target.closest('[data-page-swipe-scope]') : null
-      const localNav = scope?.querySelector<HTMLElement>('[data-page-swipe-nav]')
-        ?? main?.querySelector<HTMLElement>('[data-page-swipe-nav]')
+      const localNav = scope instanceof HTMLElement && scope.hasAttribute('data-page-swipe-nav')
+        ? scope
+        : scope?.querySelector<HTMLElement>('[data-page-swipe-nav]')
+          ?? main?.querySelector<HTMLElement>('[data-page-swipe-nav]:not([data-page-swipe-scope], [data-page-swipe-scope] *)')
       const group = localNav?.dataset.pageSwipeNav
       const links = localNav ?? nav
       const limit = localNav ?? more
