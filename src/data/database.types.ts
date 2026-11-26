@@ -329,7 +329,7 @@ isOneToOne: false
             archive_installment_plan: { Args: { p_id: string; p_version: number }; Returns: undefined }
             signup_username_available: { Args: { requested_username: string }; Returns: boolean }
             spend_is_admin: { Args: never; Returns: boolean }
-            spend_save_budget: { Args: { p_amount: number; p_end: string }; Returns: undefined }
+            spend_save_budget: { Args: { p_amount: number; p_end: string; p_restart?: boolean }; Returns: undefined }
             spend_budget_overview: { Args: never; Returns: {
               amount_minor: number; starts_on: string; ends_on: string; today: string; spent_minor: number; today_minor: number
             }[] }

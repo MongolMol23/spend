@@ -19,8 +19,10 @@ export function BudgetCard({ client }: { client: PurchaseClient }) {
   const { date, money } = useFormats()
   const cache = useQueryClient()
   const [editing, setEditing] = useState(false)
+  const [restart, setRestart] = useState(false)
   const [endDate, setEndDate] = useState('')
   const endDateId = useId()
+  const restartHintId = useId()
   const [invalid, setInvalid] = useState(false)
   const budget = useQuery({
     queryKey: budgetKey,
@@ -28,8 +30,10 @@ export function BudgetCard({ client }: { client: PurchaseClient }) {
     refetchInterval: 30_000,
   })
   const save = useMutation({
-    mutationFn: async ({ amount, end }: { amount: number; end: string }) => {
-      const { error } = await client.rpc('spend_save_budget', { p_amount: amount, p_end: end })
+    mutationFn: async ({ amount, end, restart }: { amount: number; end: string; restart: boolean }) => {
+      const { error } = await client.rpc('spend_save_budget', {
+        p_amount: amount, p_end: end, ...(restart ? { p_restart: true } : {}),
+      })
       if (error) throw error
     },
     onSuccess: () => {
@@ -40,7 +44,7 @@ export function BudgetCard({ client }: { client: PurchaseClient }) {
   const data = budget.data
   const progress = data ? budgetProgress(data) : undefined
   const today = data?.today ?? ledgerToday()
-  const maxEnd = shiftLedgerDay(progress?.days && data ? data.starts_on : today, 365)
+  const maxEnd = shiftLedgerDay(!restart && progress?.days && data ? data.starts_on : today, 365)
   const warning = !progress ? undefined
     : progress.balance < 0 ? 'budgetOverTotal'
     : progress.days && progress.balance === 0 ? 'budgetUsedUp'
@@ -58,7 +62,7 @@ export function BudgetCard({ client }: { client: PurchaseClient }) {
       return
     }
     setInvalid(false)
-    save.mutate({ amount, end })
+    save.mutate({ amount, end, restart })
   }
 
   return <section className="panel budget-card" aria-labelledby="budget-title">
@@ -66,6 +70,7 @@ export function BudgetCard({ client }: { client: PurchaseClient }) {
       <h2 id="budget-title" className="section-heading"><span className="icon-tile" aria-hidden="true"><Wallet size={19} /></span>{t('budgetTitle')}</h2>
       {budget.isSuccess && <button type="button" className="secondary" onClick={() => {
         setInvalid(false)
+        setRestart(false)
         save.reset()
         setEndDate(data && progress?.days ? data.ends_on : shiftLedgerDay(today, 9))
         setEditing(true)
@@ -100,7 +105,7 @@ export function BudgetCard({ client }: { client: PurchaseClient }) {
     </>}
     {editing && <LedgerEditor titleId="budget-edit-title" busy={save.isPending} onClose={() => setEditing(false)}>
       <section className="panel">
-        <h2 id="budget-edit-title">{t(progress?.days ? 'budgetEdit' : 'budgetStart')}</h2>
+        <h2 id="budget-edit-title">{t(restart ? 'budgetRestartTitle' : progress?.days ? 'budgetEdit' : 'budgetStart')}</h2>
         <form className="budget-form" onSubmit={submit}>
           <label>{t('budgetAmount')}<input name="amount" inputMode="decimal" dir="ltr" required
             defaultValue={data && progress?.days ? (data.amount_minor / 100).toFixed(2) : ''} /></label>
@@ -109,9 +114,22 @@ export function BudgetCard({ client }: { client: PurchaseClient }) {
             <HistoryCalendar day={endDate} today={today} min={today} max={maxEnd}
               label={t('budgetEnd')} triggerId={endDateId} selectDay={setEndDate} />
           </div>
+          {progress && progress.days > 0 && <div className="budget-restart">
+            <label>
+              <input type="checkbox" checked={restart} disabled={save.isPending} aria-describedby={restartHintId}
+                onChange={event => {
+                  const checked = event.target.checked
+                  setRestart(checked)
+                  setInvalid(false)
+                  if (!checked && data && endDate > shiftLedgerDay(data.starts_on, 365)) setEndDate(data.ends_on)
+                }} />
+              {t('budgetRestart')}
+            </label>
+            <small id={restartHintId}>{t('budgetRestartHint')}</small>
+          </div>}
           {invalid && <p role="alert">{t('budgetInvalid')}</p>}
           {save.isError && <Toast message={t('failed')} />}
-          <button className="primary" disabled={save.isPending} aria-busy={save.isPending}>{t('budgetSave')}</button>
+          <button className="primary" disabled={save.isPending} aria-busy={save.isPending}>{t(restart ? 'budgetRestartTitle' : 'budgetSave')}</button>
         </form>
       </section>
     </LedgerEditor>}

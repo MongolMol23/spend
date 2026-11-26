@@ -17,6 +17,10 @@
 .budget-pace, .budget-finished { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 16px }
 .budget-warning { padding: var(--space-2); border: var(--stroke); border-radius: var(--radius-sm); background: var(--peach-surface) }
 .budget-form, .budget-form label, .budget-date-field { display: grid; gap: var(--space-2) }
-.budget-form input { inline-size: 100% }
+.budget-form input[name="amount"] { inline-size: 100% }
+.budget-restart { padding: 8px 10px; border: 1px solid var(--edge); border-radius: var(--radius-sm); background: var(--inset-surface) }
+.budget-form .budget-restart label { display: flex; align-items: center; min-block-size: 44px; font-weight: 750; cursor: pointer }
+.budget-restart input { flex: none; margin: 0; inline-size: 18px; block-size: 18px; accent-color: var(--link) }
+.budget-restart small { display: block; color: var(--muted) }
 .budget-form > button { justify-self: end }
 .budget-date-field > button { justify-content: center; inline-size: 100% }
