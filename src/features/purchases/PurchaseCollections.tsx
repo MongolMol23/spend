@@ -123,7 +123,7 @@ export function PurchaseCollections({ client, owner, busy, month, onMonthChange,
     </button>
   }
 
-  return <section className="panel purchase-collections" data-page-swipe-panel="purchase-view">
+  return <section className="panel purchase-collections" data-page-swipe-panel="purchase-view" data-no-swipe={group ? '' : undefined}>
     {!group && <LedgerHeading title={t('purchaseCollections')} action={t('addPurchaseCollection')} busy={busy || create.isPending}
       onAdd={() => openEditor()} />}
     {list.isPending && <p className="loading-state" role="status">{t('loading')}</p>}
