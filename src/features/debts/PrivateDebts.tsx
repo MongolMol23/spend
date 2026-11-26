@@ -136,7 +136,6 @@ function DebtWorkspace({ client, owner }: { client: DebtClient; owner: string })
               <span className="debt-avatar" aria-hidden="true">{Array.from(debt.contact)[0]?.toLocaleUpperCase()}</span>
               <span className="debt-contact-copy">
                 <strong><bdi>{debt.contact}</bdi></strong>
-                <span className="muted">{t(debt.direction)}</span>
                 {debt.due_on && <time dateTime={debt.due_on}>{date.format(new Date(debt.due_on))}</time>}
               </span>
               <strong className="debt-contact-amount"><Amount value={(debt.amount_minor - debt.paid_minor) / 100} /></strong>

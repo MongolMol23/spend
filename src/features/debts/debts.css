@@ -45,6 +45,16 @@
 .debt-contact-copy :is(time, .muted) { font-size: .8rem }
 .debt-contact-amount { text-align: end }
 .debt-contact-amount .amount { white-space: normal; overflow-wrap: anywhere }
+.debt-list .debt-contact-card {
+  grid-template-columns: auto minmax(0, 1fr) fit-content(43%) auto;
+  gap: 8px;
+  min-block-size: 56px;
+  padding: 8px 10px;
+}
+.debt-list .debt-contact-card .debt-avatar { grid-row: auto; inline-size: 32px; block-size: 32px; border-radius: 9px; font-size: 1rem }
+.debt-list .debt-contact-copy time { color: var(--muted) }
+.debt-list .debt-contact-amount { grid-column: auto; min-inline-size: 0; text-align: end }
+.debt-list .debt-contact-arrow { grid-area: auto }
 @media (prefers-reduced-motion: no-preference) {
   .debt-stack-animated > :is(.debt-detail, .debt-list) {
     animation: debt-screen-enter 240ms var(--motion-out) both;
