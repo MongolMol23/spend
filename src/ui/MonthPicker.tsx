@@ -1,6 +1,6 @@
 import { Modal } from './Modal'
 import { useId, useRef, useState } from 'react'
-import { CalendarDays, Funnel, X } from 'lucide-react'
+import { CalendarDays, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { ledgerToday } from '../data/calendar'
 import './history.css'
@@ -30,7 +30,7 @@ export function MonthPicker({ value, onChange, iconOnly = false }: {
       aria-label={label} title={iconOnly ? label : undefined}
       data-icon-only={iconOnly || undefined} data-filtered={iconOnly && value !== current ? true : undefined}
       onClick={() => { setYear(value.slice(0, 4)); dialog.current?.showModal() }}>
-      {iconOnly ? <Funnel size={18} aria-hidden="true" /> : <>{selected}<CalendarDays size={18} aria-hidden="true" /></>}
+      {!iconOnly && selected}<CalendarDays size={18} aria-hidden="true" />
     </button>
     <Modal ref={dialog} className="panel history-calendar-dialog" aria-labelledby={title}>
       <header>
