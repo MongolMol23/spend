@@ -3,10 +3,11 @@ import { useTranslation } from 'react-i18next'
 import { NavLink, useLocation } from 'react-router'
 import { ActiveLinkIndicator } from '../ui/ActiveLinkIndicator'
 
-export function Navigation({ label, onNavigate, showIndicator }: {
+export function Navigation({ label, onNavigate, showIndicator, showAccount = true }: {
   label?: string
   onNavigate?: () => void
   showIndicator?: boolean
+  showAccount?: boolean
 }) {
   const { t } = useTranslation()
   const { pathname } = useLocation()
@@ -23,7 +24,7 @@ export function Navigation({ label, onNavigate, showIndicator }: {
       <NavLink className="nav-secondary" to="/installments" onClick={onNavigate}><CalendarDays size={18} aria-hidden="true" />{t('installments')}</NavLink>
       <NavLink className="nav-secondary" to="/monthly-expenses" onClick={onNavigate}><CalendarCheck size={18} aria-hidden="true" />{t('monthlyExpenses')}</NavLink>
       <NavLink className="nav-secondary" to="/analytics" onClick={onNavigate}><ChartColumn size={18} aria-hidden="true" />{t('analytics')}</NavLink>
-      <NavLink className="nav-secondary" to="/account" onClick={onNavigate}><CircleUserRound size={18} aria-hidden="true" />{t('account')}</NavLink>
+      {showAccount && <NavLink className="nav-secondary" to="/account" onClick={onNavigate}><CircleUserRound size={18} aria-hidden="true" />{t('account')}</NavLink>}
       <NavLink className="nav-secondary" to="/connections" onClick={onNavigate}><UsersRound size={18} aria-hidden="true" />{t('connections')}</NavLink>
     </nav>
   )

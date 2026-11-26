@@ -1,8 +1,8 @@
 import { Modal } from '../ui/Modal'
 import { useEffect, useLayoutEffect, useRef, useState, type MouseEvent } from 'react'
 import { useTranslation } from 'react-i18next'
-import { LogOut, Menu, X } from 'lucide-react'
-import { Link, useNavigate } from 'react-router'
+import { LogOut, Menu, UserRound, X } from 'lucide-react'
+import { Link, NavLink, useNavigate } from 'react-router'
 import { HeaderPreferences } from '../ui/HeaderPreferences'
 import { Brand } from '../ui/Brand'
 import { Navigation } from './Navigation'
@@ -119,13 +119,17 @@ export function AppHeader({ admin = false, authPage = false }: { admin?: boolean
             <X size={20} aria-hidden="true" />
           </button>
         </div>
-        <Navigation label={t('sidebarNavigation')} onNavigate={() => sidebar.current?.close()} />
-        {userId && <footer className="sidebar-actions">
-          <button type="button" className="secondary" disabled={!!signingOut} aria-busy={signingOut === 'sidebar'} onClick={() => void signOut('sidebar')}>
-            <LogOut size={17} aria-hidden="true" />{t('signout')}
-          </button>
+        <Navigation label={t('sidebarNavigation')} showAccount={false} onNavigate={() => sidebar.current?.close()} />
+        <footer className="sidebar-actions">
+          <NavLink className="secondary sidebar-profile" to="/account" onClick={() => sidebar.current?.close()}>
+            <span className="icon-tile sidebar-profile-avatar" aria-hidden="true"><UserRound size={19} /></span>
+            <span>{t('account')}</span>
+          </NavLink>
+          {userId && <button type="button" className="secondary sidebar-signout" disabled={!!signingOut} aria-busy={signingOut === 'sidebar'} onClick={() => void signOut('sidebar')}>
+            <LogOut size={17} aria-hidden="true" /><span>{t('signout')}</span>
+          </button>}
           {signOutFailed === 'sidebar' && <Toast message={t('accountError')} />}
-        </footer>}
+        </footer>
       </div>
     </Modal>}
   </>
