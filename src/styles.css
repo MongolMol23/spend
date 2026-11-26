@@ -280,16 +280,47 @@ main.shell { padding-block: clamp(24px, 5vw, 50px) clamp(36px, 7vw, 80px) }
 .sidebar-content { min-block-size: 100%; padding: var(--space-4); display: flex; flex-direction: column; gap: var(--space-4) }
 .sidebar-content h2 { margin: 0 }
 .sidebar-content .site-nav { display: grid; border-radius: var(--radius); padding: var(--space-1) }
-.sidebar-actions { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; margin-block-start: auto; padding-block-start: var(--space-3); border-block-start: 1px solid var(--line) }
-.sidebar-actions .sidebar-profile { display: flex; justify-content: flex-start; gap: 6px; padding: 5px 8px; min-inline-size: 0; font-size: .875rem }
+.sidebar-actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  margin-block-start: auto;
+  padding: 6px;
+  border: var(--stroke);
+  border-radius: var(--radius-sm);
+  background: var(--card-surface);
+  box-shadow: var(--shadow-control);
+}
+.sidebar-actions .sidebar-profile {
+  display: flex;
+  justify-content: flex-start;
+  gap: 9px;
+  min-inline-size: 0;
+  padding: 4px 6px;
+  border: 0;
+  border-radius: 8px;
+  box-shadow: none;
+  background: var(--button-fill, transparent);
+  text-align: start;
+}
 .sidebar-profile[aria-current] { --button-fill: var(--mint-surface) }
-.sidebar-profile .sidebar-profile-avatar { --icon-fill: var(--mint); inline-size: 34px; block-size: 34px; border-radius: 50% }
-.sidebar-actions .sidebar-signout { gap: 6px; padding-inline: 8px; font-size: .8rem }
+.sidebar-profile .sidebar-profile-avatar { --icon-fill: var(--mint); inline-size: 36px; block-size: 36px; border-radius: 50% }
+.sidebar-actions .sidebar-signout {
+  --button-fill: var(--peach-panel);
+  --button-text: var(--ink);
+  inline-size: 44px;
+  block-size: 44px;
+  padding: 0;
+  border-radius: 9px;
+}
 .sidebar-signout svg { flex: none }
 .sidebar-signout:dir(rtl) svg { scale: -1 1 }
 .sidebar-signout[aria-busy="true"] > svg { display: none }
 @media (hover: hover) {
-  :is(.sidebar-signout, .header-signout):hover:not(:disabled) { background: var(--peach-panel); color: var(--ink) }
+  .sidebar-actions .sidebar-profile:hover { background: var(--mint-surface); color: var(--text) }
+  .sidebar-actions .sidebar-signout:hover:not(:disabled) { background: var(--danger-surface); color: var(--ink) }
+  .header-signout:hover:not(:disabled) { background: var(--peach-panel); color: var(--ink) }
 }
 @media (prefers-reduced-motion: no-preference) {
   .sidebar[data-pointer="true"] {

@@ -125,8 +125,9 @@ export function AppHeader({ admin = false, authPage = false }: { admin?: boolean
             <span className="icon-tile sidebar-profile-avatar" aria-hidden="true"><UserRound size={19} /></span>
             <span>{t('account')}</span>
           </NavLink>
-          {userId && <button type="button" className="secondary sidebar-signout" disabled={!!signingOut} aria-busy={signingOut === 'sidebar'} onClick={() => void signOut('sidebar')}>
-            <LogOut size={17} aria-hidden="true" /><span>{t('signout')}</span>
+          {userId && <button type="button" className="secondary sidebar-signout" aria-label={t('signout')} title={t('signout')}
+            disabled={!!signingOut} aria-busy={signingOut === 'sidebar'} onClick={() => void signOut('sidebar')}>
+            <LogOut size={18} aria-hidden="true" />
           </button>}
           {signOutFailed === 'sidebar' && <Toast message={t('accountError')} />}
         </footer>
