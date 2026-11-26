@@ -188,16 +188,13 @@ function AnalyticsWorkspace({ client }: { client: PurchaseClient }) {
             <span className="icon-tile" aria-hidden="true"><ReceiptText size={18} /></span>
             {t('purchases')}
           </h2>
-          <Link className="analytics-manage analytics-text-action" to="/purchases">
-            <span>{t('analyticsManage')}</span><ArrowUpRight size={15} aria-hidden="true" />
-          </Link>
-        </div>
-        <div className="analytics-picker analytics-purchase-filter" data-active={Boolean(category)}>
-          <Funnel className="analytics-picker-icon" size={16} aria-hidden="true" />
-          <Select aria-label={t('purchaseCategory')} value={category} onChange={event => selectCategory(event.target.value)}>
-            <option value="">{t('allCategories')}</option>
-            {expenseCategories.map(value => <option value={value} key={value}>{t(value)}</option>)}
-          </Select>
+          <div className="analytics-picker analytics-purchase-filter" data-active={Boolean(category)}>
+            <Funnel className="analytics-picker-icon" size={16} aria-hidden="true" />
+            <Select aria-label={t('purchaseCategory')} value={category} onChange={event => selectCategory(event.target.value)}>
+              <option value="">{t('allCategories')}</option>
+              {expenseCategories.map(value => <option value={value} key={value}>{t(value)}</option>)}
+            </Select>
+          </div>
         </div>
         {purchases.isPending && <p className="loading-state" role="status">{t('loading')}</p>}
         {purchases.isError && <><Toast message={t('failed')} />

@@ -4,15 +4,23 @@
 .analytics-month-filter { max-inline-size: 55% }
 .analytics-picker .select-control { display: grid }
 .analytics-picker .select-control select {
+  position: relative;
+  align-items: center;
+  justify-content: center;
   min-block-size: 44px;
   padding-block: 7px;
-  padding-inline-start: 33px;
+  padding-inline: 33px;
+  gap: 0;
   translate: none;
   font-size: .8rem;
+  text-align: center;
+  text-align-last: center;
   text-overflow: ellipsis;
 }
+.analytics-picker .select-control select::picker-icon { position: absolute; inset-inline-end: 11px }
 .analytics-picker .select-control select:focus-visible { outline: 2px solid var(--link); outline-offset: 2px }
-.analytics-picker-icon { position: absolute; z-index: 1; inset-block-start: 14px; inset-inline-start: 11px; pointer-events: none }
+.analytics-picker .select-control select:focus + svg { translate: none }
+.analytics-picker-icon { position: absolute; z-index: 1; inset-block-start: 50%; inset-inline-start: 11px; translate: 0 -50%; pointer-events: none }
 .analytics-sections { display: none }
 .analytics-category-results { display: none }
 .analytics-detail { grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); align-items: start; }
@@ -147,7 +155,7 @@
   border-radius: 3px;
   background: var(--category-fill);
 }
-.analytics-panel-title { margin: 0 }
+.section-heading.analytics-panel-title { margin: 0 }
 .analytics-category-list { margin-block-start: var(--space-3) }
 .analytics-category-list li { padding: 0; border: 0 }
 .analytics-category-list li + li { margin-block-start: 7px }
@@ -177,12 +185,11 @@
 .analytics-purchase-amount { font-size: .875rem; text-align: end }
 .analytics-purchase-amount .amount, .analytics-category-line .amount { white-space: normal; overflow-wrap: anywhere }
 .analytics-workspace .secondary { --button-fill: var(--inset-surface); }
-.analytics-purchases-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-block-end: var(--space-2) }
+.analytics-purchases-heading { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 8px; margin-block-end: var(--space-2) }
 .analytics-text-action { align-items: center; gap: 4px; min-block-size: 44px; color: var(--link); font-size: .8rem; font-weight: 750; text-decoration: none }
 .analytics-text-action:hover { text-decoration: underline }
 .analytics-text-action:dir(rtl) > svg { scale: -1 1 }
-.analytics-manage { display: inline-flex; margin-inline-start: auto }
-.analytics-purchase-filter { inline-size: fit-content; max-inline-size: 100%; margin-block-end: var(--space-1) }
+.analytics-purchase-filter { justify-self: end; max-inline-size: 100% }
 .analytics-purchase-filter[data-active="true"] select:not(:focus, :hover) { background: var(--mint-surface) }
 @media (width < 760px) {
   .analytics-detail { display: contents }
