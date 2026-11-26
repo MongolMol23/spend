@@ -157,6 +157,8 @@
 .analytics-purchases-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-block-end: 12px }
 .analytics-purchases-heading h2 { margin: 0; min-inline-size: 0 }
 .analytics-manage { margin-inline-start: auto; font-size: .8rem; padding-inline: 10px }
+.analytics-purchase-filter { display: grid; gap: 6px; max-inline-size: 22rem; margin-block-end: var(--space-2); font-weight: 700 }
+.analytics-purchase-filter select { inline-size: 100%; font-size: .875rem }
 @media (width < 760px) {
   .analytics-detail { display: contents }
   .analytics-category-results { display: inline-flex; margin-block-start: 12px }

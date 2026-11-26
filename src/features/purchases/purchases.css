@@ -1,7 +1,7 @@
 .purchase-entry { --panel-fill: var(--lavender-surface) }
 .purchase-form { display: grid; min-inline-size: 0; gap: var(--space-3); padding: 0; margin: 0; border: 0 }
 .purchase-form-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; gap: var(--space-2) }
-.purchase-form label, .purchase-filters { display: grid; min-inline-size: 0; gap: 6px; font-weight: 700 }
+.purchase-form label { display: grid; min-inline-size: 0; gap: 6px; font-weight: 700 }
 .purchase-form input { inline-size: 100% }
 .purchase-form [aria-invalid="true"] { border-color: var(--invalid) }
 .purchase-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1); margin-block-start: var(--space-1) }
@@ -16,12 +16,6 @@
   border-radius: 50%;
 }
 .purchase-heading-actions .month-picker-trigger[data-filtered] { --button-fill: var(--mint-surface) }
-.purchase-toolbar {
-  margin-block-end: var(--space-2);
-  padding-block-end: var(--space-2);
-  border-block-end: 1px solid var(--line);
-}
-.purchase-toolbar .purchase-filters { max-inline-size: 22rem }
 .purchase-log > .ledger-heading { gap: 10px; margin-block-end: 18px }
 .purchase-log > .ledger-heading h2 { font-size: 1.1rem }
 .purchase-log > .ledger-heading > .primary { font-size: .875rem; padding-inline: 12px }
@@ -147,8 +141,6 @@
 .purchase-folder-expenses .purchase-record-actions { flex-wrap: wrap }
 .purchase-collection-add { padding-inline: 10px; font-size: .875rem }
 .purchase-form-context { margin-block: -4px 12px }
-.purchase-filters .select-control { display: flex; min-inline-size: 0 }
-.purchase-filters select { min-inline-size: 0; inline-size: 100%; font-size: .875rem }
 .purchase-dialog { inline-size: min(100% - 2 * var(--gutter), 460px) }
 .purchase-dialog::backdrop { background: rgb(33 30 38 / .64) }
 

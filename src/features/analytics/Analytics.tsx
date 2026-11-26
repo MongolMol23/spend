@@ -72,11 +72,15 @@ function AnalyticsWorkspace({ client }: { client: PurchaseClient }) {
   const selected = summary.data?.find(row => row.key === month)
   const peak = Math.max(1, ...(summary.data ?? []).map(row => row.total))
 
+  function selectCategory(key: string) {
+    setCategory(key)
+    setPage(0)
+  }
+
   function selectMonth(key: string) {
     if (month === key) return
     setMonth(key)
-    setCategory('')
-    setPage(0)
+    selectCategory('')
   }
 
   const heading = <FeatureHeading title={t('analytics')} icon={ChartColumn} accent="lavender">
@@ -154,11 +158,11 @@ function AnalyticsWorkspace({ client }: { client: PurchaseClient }) {
         <h2 className="section-heading"><span className="icon-tile" aria-hidden="true"><PieChart size={18} /></span>{t('breakdown')}</h2>
         {selected.categories.length ? <>
           <button type="button" className="secondary" aria-pressed={!category}
-            onClick={() => { setCategory(''); setPage(0) }}>{t('allCategories')}</button>
+            onClick={() => selectCategory('')}>{t('allCategories')}</button>
           <ul className="ledger">
             {selected.categories.map(row => <li key={row.category}>
               <button type="button" data-swipe-control data-category={categoryLabel(row.category)} aria-pressed={row.category === category}
-                onClick={() => { setCategory(row.category); setPage(0) }}>
+                onClick={() => selectCategory(row.category)}>
                 <span className="row"><span>{t(categoryLabel(row.category))}</span><Amount value={Number(row.total_minor) / 100} /></span>
                 <span className="analytics-category-share">
                   <span className="analytics-category-track" aria-hidden="true">
@@ -176,10 +180,16 @@ function AnalyticsWorkspace({ client }: { client: PurchaseClient }) {
         <div className="analytics-purchases-heading">
           <h2 id="analytics-purchases-title" className="section-heading">
             <span className="icon-tile" aria-hidden="true"><ReceiptText size={18} /></span>
-            <span>{t('purchases')}{category && ' · ' + t(categoryLabel(category))}</span>
+            {t('purchases')}
           </h2>
           <Link className="secondary analytics-manage" to="/purchases">{t('analyticsManage')}</Link>
         </div>
+        <label className="analytics-purchase-filter">{t('purchaseCategory')}
+          <Select value={category} onChange={event => selectCategory(event.target.value)}>
+            <option value="">{t('allCategories')}</option>
+            {expenseCategories.map(value => <option value={value} key={value}>{t(value)}</option>)}
+          </Select>
+        </label>
         {purchases.isPending && <p className="loading-state" role="status">{t('loading')}</p>}
         {purchases.isError && <><Toast message={t('failed')} />
           <button className="secondary" type="button" disabled={purchases.isFetching} aria-busy={purchases.isFetching} onClick={() => void purchases.refetch()}>{t('retry')}</button></>}

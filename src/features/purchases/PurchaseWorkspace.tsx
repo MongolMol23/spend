@@ -15,10 +15,9 @@ import { clearRetryKey, retryKey } from '../../data/retryKey'
 import type { Label } from '../../i18n/locales'
 import { Amount } from '../../ui/Amount'
 import { ActiveLinkIndicator } from '../../ui/ActiveLinkIndicator'
-import { Select } from '../../ui/Select'
 import { MonthPicker } from '../../ui/MonthPicker'
 import {
-  categoryLabel, expenseCategories, listPurchaseGroups, monthlyPurchases, purchaseHistory, purchasePageSize,
+  categoryLabel, listPurchaseGroups, monthlyPurchases, purchaseHistory, purchasePageSize,
   purchasesKey, purchaseToday, type Expense, type PurchaseClient, type PurchaseInput,
 } from './api'
 import { ArchivePurchase } from './ArchivePurchase'
@@ -50,7 +49,6 @@ export function PurchaseWorkspace({ client, owner }: { client: PurchaseClient; o
   const date = new Intl.DateTimeFormat(locale, { dateStyle: 'medium', timeZone: 'UTC' })
   const queryClient = useQueryClient()
   const [month, setMonth] = useState(() => purchaseToday().slice(0, 7))
-  const [category, setCategory] = useState('')
   const [page, setPage] = useState(0)
   const historyDates = useHistoryDates()
   const { from, until } = historyDates
@@ -67,8 +65,8 @@ export function PurchaseWorkspace({ client, owner }: { client: PurchaseClient; o
   const [notice, setNotice] = useState<Label>()
 
   const list = useQuery({
-    queryKey: [...purchasesKey, 'groups', month, category, page],
-    queryFn: ({ signal }) => listPurchaseGroups(client, month, category, page, signal),
+    queryKey: [...purchasesKey, 'groups', month, page],
+    queryFn: ({ signal }) => listPurchaseGroups(client, month, page, signal),
     enabled: view === 'log',
   })
   const summary = useQuery({
@@ -102,9 +100,7 @@ export function PurchaseWorkspace({ client, owner }: { client: PurchaseClient; o
       setEditorOpen(false)
       setEditing(null)
       setDestination(undefined)
-      setMonth(input.spentOn.slice(0, 7))
-      setCategory('')
-      setPage(0)
+      changeMonth(input.spentOn.slice(0, 7))
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: purchasesKey }),
         queryClient.invalidateQueries({ queryKey: budgetKey }),
@@ -210,14 +206,6 @@ export function PurchaseWorkspace({ client, owner }: { client: PurchaseClient; o
         <span className="purchase-total-label"><Wallet size={19} aria-hidden="true" />{t('monthlyPurchases')}</span>
         <strong><Amount value={summary.data.reduce((total, row) => total + Number(row.total_minor), 0) / 100} /></strong>
       </div>}
-      <div className="purchase-toolbar">
-        <label className="purchase-filters">{t('purchaseCategory')}
-          <Select value={category} onChange={event => { setCategory(event.target.value); setPage(0) }}>
-            <option value="">{t('allCategories')}</option>
-            {expenseCategories.map(value => <option value={value} key={value}>{t(value)}</option>)}
-          </Select>
-        </label>
-      </div>
       {list.isPending || summary.isPending ? <p className="loading-state" role="status">{t('loading')}</p> : null}
       {(list.isError || summary.isError) && <>
         <Toast message={t('failed')} />

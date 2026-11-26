@@ -60,10 +60,10 @@ export async function listPurchases(
 }
 
 export async function listPurchaseGroups(
-  client: PurchaseClient, month: string, category: string, page: number, signal: AbortSignal,
+  client: PurchaseClient, month: string, page: number, signal: AbortSignal,
 ) {
   const { data, error } = await client.rpc('purchase_list_groups', {
-    p_month: month + '-01', p_category: category || null, p_offset: page * purchasePageSize,
+    p_month: month + '-01', p_category: null, p_offset: page * purchasePageSize,
   }).abortSignal(signal)
   if (error) throw error
   return data
