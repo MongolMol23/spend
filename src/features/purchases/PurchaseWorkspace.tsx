@@ -187,12 +187,12 @@ export function PurchaseWorkspace({ client, owner }: { client: PurchaseClient; o
         }} />
     </LedgerEditor>}
     {notice && <Toast kind={notice.startsWith('budget') ? 'error' : 'success'} message={t(notice)} />}
-    <nav className="site-nav ledger-view-switch purchase-view-switch" data-page-swipe-scope data-page-swipe-nav="purchase-view" aria-label={t('purchases')}>
+    <nav className="site-nav ledger-view-switch purchase-view-switch" data-page-swipe-scope data-page-swipe-nav="purchase-view" data-page-swipe-replace aria-label={t('purchases')}>
       <ActiveLinkIndicator selection={view} />
-      <Link to={{ search: logParams.toString() }} aria-current={view === 'log' ? 'page' : undefined}>
+      <Link replace to={{ search: logParams.toString() }} aria-current={view === 'log' ? 'page' : undefined}>
         <ReceiptText size={18} aria-hidden="true" />{t('purchaseList')}
       </Link>
-      <Link to={{ search: groupsParams.toString() }} aria-current={view === 'groups' ? 'page' : undefined}>
+      <Link replace to={{ search: groupsParams.toString() }} aria-current={view === 'groups' ? 'page' : undefined}>
         <Layers size={18} aria-hidden="true" />{t('purchaseCollections')}
       </Link>
     </nav>

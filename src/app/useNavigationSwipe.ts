@@ -121,7 +121,7 @@ export function useNavigationSwipe(header: RefObject<HTMLDivElement | null>, ena
       start = undefined
       const path = next.pathname + next.search
       swipeDestination.current = { path, offset: dx < 0 ? 26 : -26, group: origin.group, nested: origin.nested }
-      void navigate(path)
+      void navigate(path, { replace: origin.links.hasAttribute('data-page-swipe-replace') })
     }
 
     const options = { passive: true }
