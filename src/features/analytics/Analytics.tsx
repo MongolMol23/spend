@@ -5,7 +5,7 @@ import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { Link, useSearchParams } from 'react-router'
-import { ChartColumn, PieChart, ReceiptText } from 'lucide-react'
+import { ArrowUpRight, CalendarDays, ChartColumn, Funnel, PieChart, ReceiptText } from 'lucide-react'
 import { LedgerQueries, useLedgerOwner } from '../../data/LedgerSession'
 import { ledgerToday } from '../../data/calendar'
 import { supabase } from '../../data/supabase'
@@ -84,9 +84,12 @@ function AnalyticsWorkspace({ client }: { client: PurchaseClient }) {
   }
 
   const heading = <FeatureHeading title={t('analytics')} icon={ChartColumn} accent="lavender">
-    {summary.data && <Select aria-label={t('purchaseMonth')} value={month} onChange={event => selectMonth(event.target.value)}>
-      {[...summary.data].reverse().map(row => <option key={row.key} value={row.key}>{longMonth.format(monthDate(row.key))}</option>)}
-    </Select>}
+    {summary.data && <div className="analytics-picker analytics-month-filter">
+      <CalendarDays className="analytics-picker-icon" size={16} aria-hidden="true" />
+      <Select aria-label={t('purchaseMonth')} value={month} onChange={event => selectMonth(event.target.value)}>
+        {[...summary.data].reverse().map(row => <option key={row.key} value={row.key}>{longMonth.format(monthDate(row.key))}</option>)}
+      </Select>
+    </div>}
   </FeatureHeading>
 
   if (summary.isPending) return <>{heading}<AnalyticsLoading /></>
@@ -155,15 +158,16 @@ function AnalyticsWorkspace({ client }: { client: PurchaseClient }) {
     </section>
     <div className="analytics-detail">
       <section className="panel analytics-categories" data-page-swipe-panel>
-        <h2 className="section-heading"><span className="icon-tile" aria-hidden="true"><PieChart size={18} /></span>{t('breakdown')}</h2>
+        <h2 className="section-heading analytics-panel-title"><span className="icon-tile" aria-hidden="true"><PieChart size={18} /></span>{t('breakdown')}</h2>
         {selected.categories.length ? <>
-          <button type="button" className="secondary" aria-pressed={!category}
-            onClick={() => selectCategory('')}>{t('allCategories')}</button>
-          <ul className="ledger">
+          <ul className="ledger analytics-category-list">
             {selected.categories.map(row => <li key={row.category}>
               <button type="button" data-swipe-control data-category={categoryLabel(row.category)} aria-pressed={row.category === category}
-                onClick={() => selectCategory(row.category)}>
-                <span className="row"><span>{t(categoryLabel(row.category))}</span><Amount value={Number(row.total_minor) / 100} /></span>
+                onClick={() => selectCategory(row.category === category ? '' : row.category)}>
+                <span className="analytics-category-line">
+                  <span className="analytics-category-name">{t(categoryLabel(row.category))}</span>
+                  <Amount value={Number(row.total_minor) / 100} />
+                </span>
                 <span className="analytics-category-share">
                   <span className="analytics-category-track" aria-hidden="true">
                     <span style={{ inlineSize: (Number(row.total_minor) / selected.total) * 100 + '%' }} />
@@ -173,30 +177,40 @@ function AnalyticsWorkspace({ client }: { client: PurchaseClient }) {
               </button>
             </li>)}
           </ul>
-          {category && <Link className="secondary analytics-category-results" to="?section=purchases">{t('analyticsCategoryResults')}</Link>}
+          {category && <Link className="analytics-category-results analytics-text-action" to="?section=purchases">
+            <span>{t('analyticsCategoryResults')}</span><ArrowUpRight size={15} aria-hidden="true" />
+          </Link>}
         </> : <p className="empty-state">{t('noPurchases')}</p>}
       </section>
       <section className="panel analytics-purchases" data-page-swipe-panel aria-labelledby="analytics-purchases-title">
         <div className="analytics-purchases-heading">
-          <h2 id="analytics-purchases-title" className="section-heading">
+          <h2 id="analytics-purchases-title" className="section-heading analytics-panel-title">
             <span className="icon-tile" aria-hidden="true"><ReceiptText size={18} /></span>
             {t('purchases')}
           </h2>
-          <Link className="secondary analytics-manage" to="/purchases">{t('analyticsManage')}</Link>
+          <Link className="analytics-manage analytics-text-action" to="/purchases">
+            <span>{t('analyticsManage')}</span><ArrowUpRight size={15} aria-hidden="true" />
+          </Link>
         </div>
-        <label className="analytics-purchase-filter">{t('purchaseCategory')}
-          <Select value={category} onChange={event => selectCategory(event.target.value)}>
+        <div className="analytics-picker analytics-purchase-filter" data-active={Boolean(category)}>
+          <Funnel className="analytics-picker-icon" size={16} aria-hidden="true" />
+          <Select aria-label={t('purchaseCategory')} value={category} onChange={event => selectCategory(event.target.value)}>
             <option value="">{t('allCategories')}</option>
             {expenseCategories.map(value => <option value={value} key={value}>{t(value)}</option>)}
           </Select>
-        </label>
+        </div>
         {purchases.isPending && <p className="loading-state" role="status">{t('loading')}</p>}
         {purchases.isError && <><Toast message={t('failed')} />
           <button className="secondary" type="button" disabled={purchases.isFetching} aria-busy={purchases.isFetching} onClick={() => void purchases.refetch()}>{t('retry')}</button></>}
-        {purchases.data && (purchases.data.length ? <ul className="ledger">
-          {purchases.data.slice(0, purchasePageSize).map(purchase => <li key={purchase.id} className="row">
-            <div><strong className="reason"><bdi>{purchase.item}</bdi></strong>
-              <time dateTime={purchase.spent_on}>{date.format(new Date(purchase.spent_on))}</time></div>
+        {purchases.data && (purchases.data.length ? <ul className="ledger analytics-purchase-list">
+          {purchases.data.slice(0, purchasePageSize).map(purchase => <li key={purchase.id} data-category={categoryLabel(purchase.category)}>
+            <span className="analytics-purchase-icon" aria-hidden="true"><ReceiptText size={16} /></span>
+            <div className="analytics-purchase-copy"><strong><bdi>{purchase.item}</bdi></strong>
+              <div className="analytics-purchase-meta">
+                <time dateTime={purchase.spent_on}>{date.format(new Date(purchase.spent_on))}</time>
+                {!category && <span>{t(categoryLabel(purchase.category))}</span>}
+              </div>
+            </div>
             <strong className="analytics-purchase-amount"><Amount value={purchase.amount_minor / 100} /></strong>
           </li>)}
         </ul> : <p className="empty-state">{t('noPurchases')}</p>)}
