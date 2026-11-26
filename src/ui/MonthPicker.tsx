@@ -1,11 +1,13 @@
 import { Modal } from './Modal'
 import { useId, useRef, useState } from 'react'
-import { CalendarDays, X } from 'lucide-react'
+import { CalendarDays, Funnel, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { ledgerToday } from '../data/calendar'
 import './history.css'
 
-export function MonthPicker({ value, onChange }: { value: string; onChange: (month: string) => void }) {
+export function MonthPicker({ value, onChange, iconOnly = false }: {
+  value: string; onChange: (month: string) => void; iconOnly?: boolean
+}) {
   const { t, i18n } = useTranslation()
   const dialog = useRef<HTMLDialogElement>(null)
   const title = useId()
@@ -14,6 +16,8 @@ export function MonthPicker({ value, onChange }: { value: string; onChange: (mon
   const format = new Intl.DateTimeFormat(locale, { month: 'long', year: 'numeric', timeZone: 'UTC' })
   const monthName = new Intl.DateTimeFormat(locale, { month: 'short', timeZone: 'UTC' })
   const current = ledgerToday().slice(0, 7)
+  const selected = format.format(new Date(value + '-01'))
+  const label = t('purchaseMonth') + ' · ' + selected
 
   function choose(month: string) {
     onChange(month)
@@ -21,11 +25,12 @@ export function MonthPicker({ value, onChange }: { value: string; onChange: (mon
   }
 
   return <div className="month-picker">
-    <span className="month-picker-label">{t('purchaseMonth')}</span>
+    {!iconOnly && <span className="month-picker-label">{t('purchaseMonth')}</span>}
     <button type="button" className="secondary month-picker-trigger" aria-haspopup="dialog"
-      aria-label={t('purchaseMonth') + ' · ' + format.format(new Date(value + '-01'))}
+      aria-label={label} title={iconOnly ? label : undefined}
+      data-icon-only={iconOnly || undefined} data-filtered={iconOnly && value !== current ? true : undefined}
       onClick={() => { setYear(value.slice(0, 4)); dialog.current?.showModal() }}>
-      {format.format(new Date(value + '-01'))}<CalendarDays size={18} aria-hidden="true" />
+      {iconOnly ? <Funnel size={18} aria-hidden="true" /> : <>{selected}<CalendarDays size={18} aria-hidden="true" /></>}
     </button>
     <Modal ref={dialog} className="panel history-calendar-dialog" aria-labelledby={title}>
       <header>

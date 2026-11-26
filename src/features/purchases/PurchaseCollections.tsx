@@ -7,7 +7,6 @@ import { ledgerToday } from '../../data/calendar'
 import { useFormats } from '../../i18n/useFormats'
 import { Amount } from '../../ui/Amount'
 import { LedgerEditor, LedgerHeading } from '../../ui/LedgerEditor'
-import { MonthPicker } from '../../ui/MonthPicker'
 import { Toast } from '../../ui/Toast'
 import { categoryLabel, purchasesKey, type Expense, type PurchaseClient } from './api'
 
@@ -103,9 +102,6 @@ export function PurchaseCollections({ client, owner, busy, month, onMonthChange,
     {list.isPending && <p className="loading-state" role="status">{t('loading')}</p>}
     {list.isError && <><Toast message={t('failed')} /><button className="secondary" type="button" onClick={() => void list.refetch()}>{t('retry')}</button></>}
     {list.data?.length === 0 && <p className="empty-state">{t('noPurchaseCollections')}</p>}
-    {!group && <div className="purchase-group-month">
-      <MonthPicker value={month} onChange={onMonthChange} />
-    </div>}
     {!!list.data?.length && groups?.length === 0 && <p className="empty-state">{t('noPurchaseGroupsThisMonth')}</p>}
     {!group && <div className="purchase-folder-list">{groups?.map(item => folderRow(item.id, item.name,
       totalMinor(item.purchases) + item.sections.reduce((sum, subfolder) => sum + totalMinor(subfolder.purchases), 0),

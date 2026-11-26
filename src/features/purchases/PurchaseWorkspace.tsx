@@ -161,14 +161,22 @@ export function PurchaseWorkspace({ client, owner }: { client: PurchaseClient; o
     </div>
   }
 
+  function changeMonth(value: string) {
+    setMonth(value)
+    setPage(0)
+  }
+
   return <>
     <FeatureHeading title={t('purchases')} icon={ReceiptText} accent="amber">
-      <HistoryDialog className="purchase-history" title={t('purchaseHistory')} filters={<HistoryDates {...historyDates} />}>
-        {history.isPending && <p className="loading-state" role="status">{t('loading')}</p>}
-        {history.isError && <><Toast message={t('failed')} />
-          <button type="button" className="secondary" disabled={history.isFetching} aria-busy={history.isFetching} onClick={() => void history.refetch()}>{t('retry')}</button></>}
-        {history.data && <PurchaseHistory events={history.data} />}
-      </HistoryDialog>
+      <div className="purchase-heading-actions">
+        <MonthPicker iconOnly value={month} onChange={changeMonth} />
+        <HistoryDialog className="purchase-history" title={t('purchaseHistory')} filters={<HistoryDates {...historyDates} />}>
+          {history.isPending && <p className="loading-state" role="status">{t('loading')}</p>}
+          {history.isError && <><Toast message={t('failed')} />
+            <button type="button" className="secondary" disabled={history.isFetching} aria-busy={history.isFetching} onClick={() => void history.refetch()}>{t('retry')}</button></>}
+          {history.data && <PurchaseHistory events={history.data} />}
+        </HistoryDialog>
+      </div>
     </FeatureHeading>
     {editorOpen && <LedgerEditor titleId="purchase-form-title" busy={busy} onClose={closeEditor}>
       <PurchaseForm key={editing?.id ?? 'new'} expense={editing} busy={busy}
@@ -193,7 +201,7 @@ export function PurchaseWorkspace({ client, owner }: { client: PurchaseClient; o
       </Link>
     </nav>
     {view === 'groups' ? <PurchaseCollections client={client} owner={owner} busy={busy}
-      month={month} onMonthChange={value => { setMonth(value); setPage(0) }}
+      month={month} onMonthChange={changeMonth}
       purchaseActions={purchaseActions} onAddPurchase={destination => openPurchase(null, destination)} />
       : <section className="panel purchase-log" data-page-swipe-panel="purchase-view">
       <LedgerHeading title={t('purchaseList')} action={t('addPurchase')} busy={busy}
@@ -203,15 +211,12 @@ export function PurchaseWorkspace({ client, owner }: { client: PurchaseClient; o
         <strong><Amount value={summary.data.reduce((total, row) => total + Number(row.total_minor), 0) / 100} /></strong>
       </div>}
       <div className="purchase-toolbar">
-        <div className="purchase-form-pair purchase-filters" role="group" aria-label={t('purchaseFilters')}>
-          <MonthPicker value={month} onChange={value => { setMonth(value); setPage(0) }} />
-          <label>{t('purchaseCategory')}
-            <Select value={category} onChange={event => { setCategory(event.target.value); setPage(0) }}>
-              <option value="">{t('allCategories')}</option>
-              {expenseCategories.map(value => <option value={value} key={value}>{t(value)}</option>)}
-            </Select>
-          </label>
-        </div>
+        <label className="purchase-filters">{t('purchaseCategory')}
+          <Select value={category} onChange={event => { setCategory(event.target.value); setPage(0) }}>
+            <option value="">{t('allCategories')}</option>
+            {expenseCategories.map(value => <option value={value} key={value}>{t(value)}</option>)}
+          </Select>
+        </label>
       </div>
       {list.isPending || summary.isPending ? <p className="loading-state" role="status">{t('loading')}</p> : null}
       {(list.isError || summary.isError) && <>

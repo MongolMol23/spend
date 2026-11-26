@@ -1,21 +1,27 @@
 .purchase-entry { --panel-fill: var(--lavender-surface) }
 .purchase-form { display: grid; min-inline-size: 0; gap: var(--space-3); padding: 0; margin: 0; border: 0 }
 .purchase-form-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; gap: var(--space-2) }
-.purchase-form label, .purchase-filters label { display: grid; min-inline-size: 0; gap: 6px; font-weight: 700 }
-.purchase-form input, .purchase-filters input { inline-size: 100% }
+.purchase-form label, .purchase-filters { display: grid; min-inline-size: 0; gap: 6px; font-weight: 700 }
+.purchase-form input { inline-size: 100% }
 .purchase-form [aria-invalid="true"] { border-color: var(--invalid) }
 .purchase-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1); margin-block-start: var(--space-1) }
 .purchase-pages { margin-block-start: var(--space-3) }
+.purchase-shell .feature-heading:has(.purchase-heading-actions) h1 { flex-basis: min-content }
+.purchase-heading-actions { display: flex; align-items: center; gap: 8px; margin-inline-start: auto }
+.purchase-heading-actions .month-picker-trigger[data-icon-only] {
+  justify-content: center;
+  inline-size: 44px;
+  min-block-size: 44px;
+  padding: 0;
+  border-radius: 50%;
+}
+.purchase-heading-actions .month-picker-trigger[data-filtered] { --button-fill: var(--mint-surface) }
 .purchase-toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: end;
-  gap: var(--space-2) var(--space-3);
   margin-block-end: var(--space-2);
   padding-block-end: var(--space-2);
   border-block-end: 1px solid var(--line);
 }
-.purchase-toolbar .purchase-filters { flex: 1 1 22rem; min-inline-size: 0 }
+.purchase-toolbar .purchase-filters { max-inline-size: 22rem }
 .purchase-log > .ledger-heading { gap: 10px; margin-block-end: 18px }
 .purchase-log > .ledger-heading h2 { font-size: 1.1rem }
 .purchase-log > .ledger-heading > .primary { font-size: .875rem; padding-inline: 12px }
@@ -116,9 +122,6 @@
 .purchase-folder-header { display: grid; grid-template-columns: minmax(44px, 1fr) minmax(0, auto); align-items: center; gap: 10px 6px }
 .purchase-folder-back { grid-area: 1 / 1; justify-self: start; min-inline-size: 44px; min-block-size: 44px }
 .purchase-folder-back bdi { overflow-wrap: anywhere }
-.purchase-group-month { margin-block-end: 12px }
-.purchase-group-month .month-picker-label { display: none }
-.purchase-group-month .month-picker-trigger { justify-content: center; min-block-size: 44px; padding: 5px 9px; font-size: .8rem }
 .purchase-group-toolbar { display: flex; flex-wrap: wrap; gap: 8px; margin-block-end: 12px }
 .purchase-group-toolbar > button { flex: 1 1 118px; min-inline-size: 0; padding: 5px 7px; font-size: .8rem }
 .purchase-folder-heading { grid-area: 2 / 1 / auto / -1; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, auto); align-items: center; gap: 10px; padding-block-end: 10px }
@@ -144,8 +147,6 @@
 .purchase-folder-expenses .purchase-record-actions { flex-wrap: wrap }
 .purchase-collection-add { padding-inline: 10px; font-size: .875rem }
 .purchase-form-context { margin-block: -4px 12px }
-.purchase-toolbar .purchase-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: stretch }
-.purchase-filters .month-picker-trigger { min-inline-size: 0; gap: 6px; padding-inline: 10px; font-size: .875rem }
 .purchase-filters .select-control { display: flex; min-inline-size: 0 }
 .purchase-filters select { min-inline-size: 0; inline-size: 100%; font-size: .875rem }
 .purchase-dialog { inline-size: min(100% - 2 * var(--gutter), 460px) }
