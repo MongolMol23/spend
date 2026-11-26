@@ -1,16 +1,12 @@
 .analytics-workspace, .analytics-detail { display: grid; gap: var(--space-4); }
 .analytics-shell .feature-heading h1 { flex-basis: 0; min-inline-size: 0 }
-.analytics-picker { position: relative; min-inline-size: 0; --analytics-picker-fill: var(--inset-surface) }
-.analytics-month-filter { max-inline-size: 55%; --analytics-picker-fill: var(--lavender-surface) }
+.analytics-picker { position: relative; min-inline-size: 0 }
+.analytics-month-filter { max-inline-size: 55% }
 .analytics-picker .select-control { display: grid }
 .analytics-picker .select-control select {
   min-block-size: 44px;
   padding-block: 7px;
   padding-inline-start: 33px;
-  border: 1px solid var(--edge);
-  border-radius: var(--pill);
-  background: var(--analytics-picker-fill);
-  box-shadow: none;
   translate: none;
   font-size: .8rem;
   text-overflow: ellipsis;
@@ -187,7 +183,7 @@
 .analytics-text-action:dir(rtl) > svg { scale: -1 1 }
 .analytics-manage { display: inline-flex; margin-inline-start: auto }
 .analytics-purchase-filter { inline-size: fit-content; max-inline-size: 100%; margin-block-end: var(--space-1) }
-.analytics-purchase-filter[data-active="true"] { --analytics-picker-fill: var(--mint-surface) }
+.analytics-purchase-filter[data-active="true"] select:not(:focus, :hover) { background: var(--mint-surface) }
 @media (width < 760px) {
   .analytics-detail { display: contents }
   .analytics-category-results { display: inline-flex; margin-block-start: 4px }
