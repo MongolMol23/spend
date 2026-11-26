@@ -74,7 +74,7 @@ export function FriendSearch({ client, userId, names, friends, busy, pending, ru
     }} />}
     {searchFailed && <Toast message={t('connectionError')} />}
     {match === null && <p className="empty-state" role="status">{t('noFriendFound')}</p>}
-    {match && <div className="friend-search-result" data-known={Boolean(friendship)}>
+    {match && <div className="friend-search-result" data-friendship={friendship?.state}>
       <div className="friend-result-identity">
         <span className="friend-result-avatar" aria-hidden="true">
           {Array.from(match.display_name || match.username)[0]?.toLocaleUpperCase()}
@@ -83,15 +83,16 @@ export function FriendSearch({ client, userId, names, friends, busy, pending, ru
           <strong><bdi>{match.display_name}</bdi></strong>
           <div className="friend-result-meta">
             <bdi dir="ltr">@{match.username}</bdi>
-            {friendship?.state === 'accepted' && <span className="status friend-result-status" data-state="accepted" role="status">
-              <Check size={13} aria-hidden="true" />{t('alreadyFriends')}
-            </span>}
             {friendship?.state === 'pending' && !incoming && <span className="status friend-result-status" role="status">
               <Clock size={13} aria-hidden="true" />{t('friendRequestPending')}
             </span>}
           </div>
         </div>
       </div>
+      {friendship?.state === 'accepted' && <span className="friend-result-confirmed" role="status">
+        <Check size={15} aria-hidden="true" />
+        <span>{t('alreadyFriends')}</span>
+      </span>}
       {incoming && <Link className="secondary" to="/connections?view=friends">{t('viewIncomingFriendRequest')}</Link>}
       {!friendship && <button type="button" className="primary" disabled={busy} aria-busy={pending === 'add-friend'}
           onClick={() => void run('add-friend', () => client.rpc('send_friend_request', { target_username: match.username }))}>
