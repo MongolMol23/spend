@@ -148,8 +148,9 @@
 .friend-result-name strong { line-height: 1.35 }
 .friend-result-name > span { font-size: .875rem; color: var(--muted) }
 .friend-search-result > button { display: flex; align-items: center; justify-content: center; gap: 8px }
+.friend-result-status { display: inline-flex; align-items: center; gap: 6px }
 @container friend-panel (width < 480px) {
-  .friend-search-result > button { inline-size: 100% }
+  .friend-search-result > :is(button, a) { inline-size: 100% }
 }
 @container friend-panel (width < 360px) {
   .friend-search button { inline-size: 44px; padding-inline: 0 }

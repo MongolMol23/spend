@@ -1,7 +1,8 @@
 import { Toast } from '../../ui/Toast'
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ScanLine, Search, UserPlus, UsersRound } from 'lucide-react'
+import { Check, Clock, ScanLine, Search, UserPlus, UsersRound } from 'lucide-react'
+import { Link } from 'react-router'
 import type { Database } from '../../data/database.types'
 import type { Client, RunAction } from './api'
 import { FriendQrScanner, requestQrCamera } from './FriendQrScanner'
@@ -10,16 +11,20 @@ type Friendship = Database['public']['Tables']['friendships']['Row']
 type Person = Database['public']['Functions']['connection_names']['Returns'][number]
 
 type FriendActions = {
-  client: Client; userId: string; names: Map<string, Person>; busy: boolean; pending?: string; run: RunAction
+  client: Client; userId: string; names: Map<string, Person>; friends: Friendship[]; busy: boolean; pending?: string; run: RunAction
 }
 
-export function FriendSearch({ client, userId, names, busy, pending, run, initialUsername }: FriendActions & { initialUsername?: string }) {
+export function FriendSearch({ client, userId, names, friends, busy, pending, run, initialUsername }: FriendActions & { initialUsername?: string }) {
   const { t } = useTranslation()
   const usernameInput = useRef<HTMLInputElement>(null)
   const [camera, setCamera] = useState<ReturnType<typeof requestQrCamera>>()
   const [match, setMatch] = useState<{ username: string; display_name: string } | null>()
   const [searching, setSearching] = useState(false)
   const [searchFailed, setSearchFailed] = useState(false)
+  const friendship = match && friends.find(friend =>
+    (friend.state === 'accepted' || friend.state === 'pending')
+    && names.get(friend.sender === userId ? friend.recipient : friend.sender)?.username === match.username)
+  const incoming = friendship?.state === 'pending' && friendship.recipient === userId
 
   useEffect(() => () => camera?.stop(), [camera])
 
@@ -79,15 +84,20 @@ export function FriendSearch({ client, userId, names, busy, pending, run, initia
           <span><bdi dir="ltr">@{match.username}</bdi></span>
         </div>
       </div>
-      <button type="button" className="primary" disabled={busy} aria-busy={pending === 'add-friend'}
-        onClick={() => void run('add-friend', () => client.rpc('send_friend_request', { target_username: match.username }), () => setMatch(undefined))}>
-        <UserPlus size={18} aria-hidden="true" />{t('addFriend')}
-      </button>
+      {friendship?.state === 'accepted' ? <span className="status friend-result-status" data-state="accepted" role="status">
+        <Check size={16} aria-hidden="true" />{t('alreadyFriends')}
+      </span> : incoming ? <Link className="secondary" to="/connections?view=friends">{t('viewIncomingFriendRequest')}</Link>
+        : friendship?.state === 'pending' ? <span className="status friend-result-status" role="status">
+          <Clock size={16} aria-hidden="true" />{t('friendRequestPending')}
+        </span> : <button type="button" className="primary" disabled={busy} aria-busy={pending === 'add-friend'}
+          onClick={() => void run('add-friend', () => client.rpc('send_friend_request', { target_username: match.username }))}>
+          <UserPlus size={18} aria-hidden="true" />{t('addFriend')}
+        </button>}
     </div>}
   </section>
 }
 
-export function FriendPanel({ client, userId, friends, names, busy, pending, run }: FriendActions & { friends: Friendship[] }) {
+export function FriendPanel({ client, userId, friends, names, busy, pending, run }: FriendActions) {
   const { t } = useTranslation()
   const active = friends.filter(friend => friend.state === 'pending' || friend.state === 'accepted')
     .sort((first, second) => Number(second.state === 'pending' && second.recipient === userId)
