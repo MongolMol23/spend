@@ -2,6 +2,7 @@ import { useId, useState, type FormEvent, type ReactNode } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { ArrowLeft, ChevronLeft, ChevronRight, Folder, FolderPlus, Plus } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { useLocation, useNavigate } from 'react-router'
 import { clearRetryKey, retryKey } from '../../data/retryKey'
 import { ledgerToday } from '../../data/calendar'
 import { useFormats } from '../../i18n/useFormats'
@@ -25,9 +26,35 @@ export function PurchaseCollections({ client, owner, busy, month, onMonthChange,
   const { date } = useFormats()
   const titleId = useId()
   const queryClient = useQueryClient()
+  const { search, state } = useLocation()
+  const navigate = useNavigate()
   const [editor, setEditor] = useState<{ collection?: string }>()
-  const [activeGroup, setActiveGroup] = useState<string>()
-  const [activeSection, setActiveSection] = useState<string>()
+  const params = new URLSearchParams(search)
+  const activeGroup = params.get('group')
+  const activeSection = params.get('section')
+
+  function folderSearch(groupId?: string, sectionId?: string) {
+    const next = new URLSearchParams(search)
+    next.delete('group')
+    next.delete('section')
+    if (groupId) next.set('group', groupId)
+    if (sectionId) next.set('section', sectionId)
+    return '?' + next.toString()
+  }
+
+  function openFolder(groupId: string, sectionId?: string) {
+    void navigate({ search: folderSearch(groupId, sectionId) }, { state: { purchaseFolderParent: search } })
+  }
+
+  function goUp(groupId?: string) {
+    const parent = folderSearch(groupId)
+    if (state?.purchaseFolderParent === parent) {
+      void navigate(-1)
+    } else {
+      void navigate({ search: parent }, { replace: true })
+    }
+  }
+
   const list = useQuery({
     queryKey: collectionsKey,
     queryFn: async ({ signal }) => {
@@ -49,9 +76,8 @@ export function PurchaseCollections({ client, owner, busy, month, onMonthChange,
     },
     onSuccess: async (id, { collection }) => {
       if (!collection) onMonthChange(ledgerToday().slice(0, 7))
-      setActiveGroup(collection ?? id)
-      setActiveSection(collection ? id : undefined)
       setEditor(undefined)
+      openFolder(collection ?? id, collection ? id : undefined)
       await queryClient.invalidateQueries({ queryKey: collectionsKey })
     },
   })
@@ -75,7 +101,8 @@ export function PurchaseCollections({ client, owner, busy, month, onMonthChange,
     ...item,
     purchases: item.purchases.filter(inMonth),
     sections: item.sections.map(subfolder => ({ ...subfolder, purchases: subfolder.purchases.filter(inMonth) })),
-  })).filter(item => item.created_month === month || item.purchases.length > 0
+  }))
+  const visibleGroups = groups?.filter(item => item.created_month === month || item.purchases.length > 0
     || item.sections.some(subfolder => subfolder.purchases.length > 0))
   const group = groups?.find(item => item.id === activeGroup)
   const section = group?.sections.find(item => item.id === activeSection)
@@ -102,14 +129,14 @@ export function PurchaseCollections({ client, owner, busy, month, onMonthChange,
     {list.isPending && <p className="loading-state" role="status">{t('loading')}</p>}
     {list.isError && <><Toast message={t('failed')} /><button className="secondary" type="button" onClick={() => void list.refetch()}>{t('retry')}</button></>}
     {list.data?.length === 0 && <p className="empty-state">{t('noPurchaseCollections')}</p>}
-    {!!list.data?.length && groups?.length === 0 && <p className="empty-state">{t('noPurchaseGroupsThisMonth')}</p>}
-    {!group && <div className="purchase-folder-list">{groups?.map(item => folderRow(item.id, item.name,
+    {!group && !!list.data?.length && visibleGroups?.length === 0 && <p className="empty-state">{t('noPurchaseGroupsThisMonth')}</p>}
+    {!group && <div className="purchase-folder-list">{visibleGroups?.map(item => folderRow(item.id, item.name,
       totalMinor(item.purchases) + item.sections.reduce((sum, subfolder) => sum + totalMinor(subfolder.purchases), 0),
-      () => { setActiveSection(undefined); setActiveGroup(item.id) }))}</div>}
+      () => openFolder(item.id)))}</div>}
     {group && <>
       <div className="purchase-folder-header" data-root-group={!section || undefined}>
         <button type="button" className="purchase-folder-back" aria-label={section ? undefined : t('purchaseCollections')}
-          onClick={() => section ? setActiveSection(undefined) : setActiveGroup(undefined)}>
+          onClick={() => goUp(section ? group.id : undefined)}>
           {section ? <><ArrowLeft size={18} aria-hidden="true" /><bdi>{group.name}</bdi></>
             : <ChevronLeft size={22} strokeWidth={2.5} aria-hidden="true" />}
         </button>
@@ -148,7 +175,7 @@ export function PurchaseCollections({ client, owner, busy, month, onMonthChange,
           <h3 className="purchase-group-section-label">{t('purchaseGroupSections')}</h3>
         </div>
         <div className="purchase-folder-list purchase-section-list">
-          {group.sections.map(item => folderRow(item.id, item.name, totalMinor(item.purchases), () => setActiveSection(item.id)))}
+          {group.sections.map(item => folderRow(item.id, item.name, totalMinor(item.purchases), () => openFolder(group.id, item.id)))}
         </div>
       </>}
     </>}

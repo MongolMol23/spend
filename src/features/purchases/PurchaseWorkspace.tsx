@@ -57,7 +57,9 @@ export function PurchaseWorkspace({ client, owner }: { client: PurchaseClient; o
   const view = params.get('view') === 'groups' ? 'groups' : 'log'
   const logParams = new URLSearchParams(params)
   logParams.delete('view')
-  const groupsParams = new URLSearchParams(params)
+  logParams.delete('group')
+  logParams.delete('section')
+  const groupsParams = new URLSearchParams(logParams)
   groupsParams.set('view', 'groups')
   const [destination, setDestination] = useState<PurchaseDestination>()
   const [editing, setEditing] = useState<Expense | null>(null)
@@ -192,7 +194,10 @@ export function PurchaseWorkspace({ client, owner }: { client: PurchaseClient; o
       <Link replace to={{ search: logParams.toString() }} aria-current={view === 'log' ? 'page' : undefined}>
         <ReceiptText size={18} aria-hidden="true" />{t('purchaseList')}
       </Link>
-      <Link replace to={{ search: groupsParams.toString() }} aria-current={view === 'groups' ? 'page' : undefined}>
+      <Link replace to={{ search: groupsParams.toString() }} aria-current={view === 'groups' ? 'page' : undefined}
+        onClick={event => {
+          if (view === 'groups' && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) event.preventDefault()
+        }}>
         <Layers size={18} aria-hidden="true" />{t('purchaseCollections')}
       </Link>
     </nav>
