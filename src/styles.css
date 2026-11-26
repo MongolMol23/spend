@@ -210,7 +210,7 @@ main.shell { padding-block: clamp(24px, 5vw, 50px) clamp(36px, 7vw, 80px) }
 }
 .top:not([data-expanded-nav]) .header-nav > .site-nav :is(.nav-secondary, .nav-full-label) { display: none }
 .top:not([data-expanded-nav]) .header-nav .nav-short-label { display: inline }
-.top:not([data-expanded-nav]) .header-nav .site-nav a, .purchase-view-switch > a {
+.top:not([data-expanded-nav]) .header-nav .site-nav a, .ledger-view-switch > a {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -224,6 +224,8 @@ main.shell { padding-block: clamp(24px, 5vw, 50px) clamp(36px, 7vw, 80px) }
   line-height: 1.15;
   text-align: center;
 }
+.site-nav.ledger-view-switch { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2px; margin-block-end: 12px; border-radius: var(--radius) }
+.ledger-view-switch > .nav-indicator { border-radius: var(--radius-sm) }
 .header-nav > .nav-more {
   display: grid;
   place-items: center;

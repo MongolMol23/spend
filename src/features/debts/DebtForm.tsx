@@ -5,8 +5,9 @@ import type { Label } from '../../i18n/locales'
 import { Select } from '../../ui/Select'
 import { debtInput, type DebtChange, type PrivateDebt } from './api'
 
-export function DebtForm({ debt, busy, error, save, cancel }: {
+export function DebtForm({ debt, direction, busy, error, save, cancel }: {
   debt?: PrivateDebt
+  direction: PrivateDebt['direction']
   busy: boolean
   error?: Label
   save: (change: DebtChange) => Promise<boolean>
@@ -43,7 +44,7 @@ export function DebtForm({ debt, busy, error, save, cancel }: {
         {debt && debt.paid_minor > 0 ? <p>{t('debtDirection')} · {t(debt.direction)}
           <input type="hidden" name="direction" value={debt.direction} />
         </p> : <label>{t('debtDirection')}
-          <Select name="direction" defaultValue={debt?.direction ?? 'owed'}>
+          <Select name="direction" defaultValue={debt?.direction ?? direction}>
             <option value="owed">{t('owed')}</option><option value="owe">{t('owe')}</option>
           </Select>
         </label>}

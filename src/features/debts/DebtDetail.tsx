@@ -13,10 +13,11 @@ import { Amount } from '../../ui/Amount'
 import { LedgerEditor } from '../../ui/LedgerEditor'
 import { debtKey, debtPageSize, listDebtPayments, paymentInput, type DebtChange, type DebtClient, type PrivateDebt } from './api'
 
-export function DebtDetail({ client, debt, date, busy, pending, payError, archiveError, save, edit }: {
+export function DebtDetail({ client, debt, date, backTo, busy, pending, payError, archiveError, save, edit }: {
   client: DebtClient
   debt: PrivateDebt
   date: Intl.DateTimeFormat
+  backTo: string
   busy: boolean
   pending?: DebtChange['kind']
   payError?: Label
@@ -59,7 +60,7 @@ export function DebtDetail({ client, debt, date, busy, pending, payError, archiv
         <span className="debt-avatar" aria-hidden="true">{Array.from(debt.contact)[0]?.toLocaleUpperCase()}</span>
         <h2 ref={heading} tabIndex={-1}><bdi>{debt.contact}</bdi></h2>
       </div>
-      <Link className="secondary debt-back" to="/debts"><ArrowLeft size={16} aria-hidden="true" />{t('debtBack')}</Link>
+      <Link className="secondary debt-back" to={backTo}><ArrowLeft size={16} aria-hidden="true" />{t('debtBack')}</Link>
     </div>
     <div className="debt-balance-summary" data-direction={debt.direction}>
       <div className="row">

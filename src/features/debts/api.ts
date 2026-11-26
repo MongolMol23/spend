@@ -61,9 +61,9 @@ export async function debtOverview(client: DebtClient, signal: AbortSignal) {
   return data
 }
 
-export async function listDebts(client: DebtClient, page: number, signal: AbortSignal) {
+export async function listDebts(client: DebtClient, direction: PrivateDebt['direction'], page: number, signal: AbortSignal) {
   const first = page * debtPageSize
-  const { data, error } = await client.from('private_debts').select('*').is('archived_at', null)
+  const { data, error } = await client.from('private_debts').select('*').is('archived_at', null).eq('direction', direction)
     .order('contact').order('id').range(first, first + debtPageSize).abortSignal(signal)
   if (error) throw error
   return data
