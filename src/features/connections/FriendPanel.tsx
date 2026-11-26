@@ -90,7 +90,7 @@ export function FriendSearch({ client, userId, names, friends, busy, pending, ru
         </div>
       </div>
       {friendship?.state === 'accepted' && <span className="friend-result-confirmed" role="status">
-        <Check size={15} aria-hidden="true" />
+        <span className="icon-tile" aria-hidden="true"><Check size={15} /></span>
         <span>{t('alreadyFriends')}</span>
       </span>}
       {incoming && <Link className="secondary" to="/connections?view=friends">{t('viewIncomingFriendRequest')}</Link>}
