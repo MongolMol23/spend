@@ -66,7 +66,7 @@ test('friends exchange a private bilingual money request', async ({ browser, req
     await expect(compose).toBeEnabled({ timeout: 10_000 })
     await compose.click()
     await first.page.getByLabel('Contact name').fill('b_' + suffix)
-    await first.page.locator('.debt-friend-options').getByRole('button', { name: new RegExp('b_' + suffix) }).click()
+    await first.page.getByRole('option', { name: new RegExp('b_' + suffix) }).click()
     await first.page.getByLabel('Total amount (EGP)').fill('٥٠٠')
     await first.page.getByLabel('Request reason').fill('نص حساب العشا')
     await first.page.getByRole('button', { name: 'Send request' }).click()

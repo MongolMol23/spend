@@ -3,10 +3,27 @@
 .debt-form { display: grid; min-inline-size: 0; gap: var(--space-3); margin: 0; padding: 0; border: 0 }
 .debt-form label { display: grid; min-inline-size: 0; gap: 6px; font-weight: 700 }
 .debt-form :is(input:not([type="hidden"]), select) { inline-size: 100% }
-.debt-contact-field > small { display: block; margin-block-start: 6px }
-.debt-friend-options { list-style: none; margin: 8px 0 0; padding: 4px; border: 1px solid var(--edge); border-radius: var(--radius-sm); background: var(--surface) }
-.debt-friend-options button { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 4px 8px; inline-size: 100%; min-block-size: 44px; padding: 7px 8px; border: 0; border-radius: 7px; background: transparent; text-align: start }
-.debt-friend-options button:is(:hover, :focus-visible) { background: var(--mint-surface) }
+.debt-contact-field { display: grid; gap: 6px; min-inline-size: 0 }
+.debt-name-input { position: relative; display: block; min-inline-size: 0 }
+.debt-name-input input[aria-expanded="true"] { border-end-start-radius: 0; border-end-end-radius: 0; box-shadow: none; translate: none }
+.debt-friend-options {
+  position: absolute;
+  z-index: 2;
+  inset: 100% 0 auto;
+  max-block-size: min(180px, 28dvh);
+  overflow-y: auto;
+  list-style: none;
+  margin: 0;
+  padding: 4px;
+  border: var(--stroke);
+  border-block-start: 0;
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+  background: var(--surface);
+  box-shadow: var(--shadow-control);
+  font-weight: 400;
+}
+.debt-friend-options li { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 4px 8px; min-block-size: 44px; padding: 7px 8px; border-radius: 7px; cursor: pointer; overflow-wrap: anywhere }
+.debt-friend-options li:is(:hover, [aria-selected="true"]) { background: var(--mint-surface) }
 .debt-friend-options small { color: var(--muted) }
 .debt-pair, .debt-balances { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 145px), 1fr)); gap: var(--space-2) }
 .debt-balances > div { padding: var(--space-2); border: var(--stroke); border-radius: var(--radius-sm); background: var(--inset-surface) }
