@@ -1,11 +1,12 @@
 import { Toast } from '../../ui/Toast'
-import { useEffect, useId, useRef, useState, type FormEvent, type KeyboardEvent } from 'react'
+import { useEffect, useId, useMemo, useRef, useState, type FormEvent, type KeyboardEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { Label } from '../../i18n/locales'
 import { Select } from '../../ui/Select'
 import { DateField } from '../../ui/DateField'
 import type { Person } from '../connections/api'
 import { debtInput, sharedDebtInput, type DebtChange, type PrivateDebt, type SharedDebtInput } from './api'
+import { indexDebtFriends, searchDebtFriends } from './friendSearch'
 
 export function DebtForm({ debt, direction, busy, error, save, cancel, friends, sendShared, loadingFriends }: {
   debt?: PrivateDebt
@@ -26,10 +27,8 @@ export function DebtForm({ debt, direction, busy, error, save, cancel, friends, 
   const [friend, setFriend] = useState<Person>()
   const [naming, setNaming] = useState(false)
   const [highlighted, setHighlighted] = useState(-1)
-  const search = name.trim().toLocaleLowerCase().replace(/^@/, '')
-  const suggestions = !friend ? (friends ?? []).filter(person =>
-    person.display_name.toLocaleLowerCase().includes(search) || person.username.toLocaleLowerCase().includes(search),
-  ).slice(0, 5) : []
+  const friendIndex = useMemo(() => indexDebtFriends(friends ?? []), [friends])
+  const suggestions = useMemo(() => friend ? [] : searchDebtFriends(friendIndex, name), [friend, friendIndex, name])
   const expanded = naming && suggestions.length > 0
   const message = invalid ?? error
   useEffect(() => { if (debt) contact.current?.focus() }, [debt])
@@ -114,7 +113,7 @@ export function DebtForm({ debt, direction, busy, error, save, cancel, friends, 
               onChange={event => {
                 setName(event.target.value)
                 setFriend(undefined)
-                setNaming(true)
+                setNaming(Boolean(event.target.value.trim()))
                 setHighlighted(-1)
               }} />
             {expanded && <ul id={optionsId} className="debt-friend-options" role="listbox" aria-label={t('friends')}>
@@ -126,7 +125,7 @@ export function DebtForm({ debt, direction, busy, error, save, cancel, friends, 
             </ul>}
           </div>
           {!debt && <small className="muted">{t(friend ? 'sharedDebtNeedsApproval' : 'debtContactOptions')}</small>}
-          {naming && loadingFriends && <small role="status">{t('loading')}</small>}
+          {naming && name.trim() && loadingFriends && <small role="status">{t('loading')}</small>}
         </div>
         {debt && debt.paid_minor > 0 ? <p>{t('debtDirection')} · {t(debt.direction)}
           <input type="hidden" name="direction" value={debt.direction} />
