@@ -23,17 +23,17 @@ export function Dashboard({ ledger, debts }: { ledger: DashboardPurchases; debts
   const monthlyTotal = totalMinor / 100
   const percent = new Intl.NumberFormat(i18n.language, { style: 'percent' })
   const due = debts?.due_id && debts.due_on && debts.due_minor !== null ? debts : undefined
-  const metrics = [['spending', monthlyTotal, Wallet]] as const
+  const metrics = [['spending', monthlyTotal, Wallet, '/purchases']] as const
   const balances = debts ? [
-    ['owed', Number(debts.owed_minor) / 100, Plus],
-    ['owe', Number(debts.owe_minor) / 100, Minus],
+    ['owed', Number(debts.owed_minor) / 100, Plus, '/debts?direction=owed'],
+    ['owe', Number(debts.owe_minor) / 100, Minus, '/debts'],
   ] as const : []
   return <>
-    <div className={debts ? 'metrics' : 'metrics metrics-personal'}>{[...metrics, ...balances].map(([label, value, Icon]) => <div className="metric panel" key={label}>
+    <div className={debts ? 'metrics' : 'metrics metrics-personal'}>{[...metrics, ...balances].map(([label, value, Icon, to]) => <Link className="metric panel" key={label} to={to}>
       <span className="icon-tile" aria-hidden="true"><Icon size={18} /></span>
       <span className="metric-label">{t(label)}</span>
       <strong><Amount value={value} /></strong>
-    </div>)}</div>
+    </Link>)}</div>
     <div className="dashboard-detail">
       <section className="panel spending-detail">
         <div className="overview-card-heading">

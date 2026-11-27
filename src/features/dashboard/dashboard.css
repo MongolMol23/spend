@@ -14,6 +14,13 @@
 .metric strong { grid-column: 1 / -1; font-size: clamp(1.3rem, 3.2vw, 2.55rem); font-weight: var(--weight-display); line-height: 1.2 }
 :lang(en) .metric strong { letter-spacing: -.045em }
 .metric .icon-tile { inline-size: 32px; block-size: 32px }
+a.metric { color: var(--text); text-decoration: none }
+@media (hover: hover) {
+  a.metric:hover .metric-label { text-decoration: underline }
+}
+@media (prefers-reduced-motion: no-preference) {
+  a.metric:active { translate: var(--press-x) 2px; box-shadow: var(--shadow-control) }
+}
 
 .dashboard-detail { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4) }
 .overview-plans { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); margin-block-start: var(--space-4) }
