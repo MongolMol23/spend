@@ -141,14 +141,14 @@ isOneToOne: false
                   ]
                 },"money_requests": {
                   Row: {
-                    "amount_minor": number,"created_at": string,"currency": string,"due_date": string | null,"id": string,"reason": string,"recipient": string,"sender": string,"state": string,"version": number
+                    "amount_minor": number,"created_at": string,"currency": string,"due_date": string | null,"id": string,"is_offer": boolean,"reason": string,"recipient": string,"sender": string,"state": string,"version": number
                   }
                   ComputedFields: never
                   Insert: {
-                    "amount_minor": number,"created_at"?: string,"currency"?: string,"due_date"?: string | null,"id"?: string,"reason": string,"recipient": string,"sender": string,"state"?: string,"version"?: number
+                    "amount_minor": number,"created_at"?: string,"currency"?: string,"due_date"?: string | null,"id"?: string,"is_offer"?: boolean,"reason": string,"recipient": string,"sender": string,"state"?: string,"version"?: number
                   }
                   Update: {
-                    "amount_minor"?: number,"created_at"?: string,"currency"?: string,"due_date"?: string | null,"id"?: string,"reason"?: string,"recipient"?: string,"sender"?: string,"state"?: string,"version"?: number
+                    "amount_minor"?: number,"created_at"?: string,"currency"?: string,"due_date"?: string | null,"id"?: string,"is_offer"?: boolean,"reason"?: string,"recipient"?: string,"sender"?: string,"state"?: string,"version"?: number
                   }
                   Relationships: [
                     {
@@ -407,6 +407,10 @@ isOneToOne: false
 "send_friend_request":
 { Args: { "target_username": string }; Returns: string
                            },
+            create_shared_debt: { Args: { p_id: string; target_id: string; minor_units: number; request_reason: string; i_owe: boolean; deadline?: string }; Returns: string }
+            list_debt_entries: { Args: { p_direction: string; p_offset: number }; Returns: {
+              id: string; source: 'private' | 'shared'; contact: string; remaining_minor: number; due_on: string | null; reason: string | null
+            }[] }
 "send_money_request":
 { Args: { "deadline"?: string,"minor_units": number,"request_reason": string,"target_id": string }; Returns: string
                            }

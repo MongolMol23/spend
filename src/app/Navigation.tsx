@@ -19,7 +19,7 @@ export function Navigation({ label, onNavigate, showIndicator, showAccount = tru
         <LayoutDashboard size={18} aria-hidden="true" />{t('dashboard')}
       </NavLink>
       <NavLink to="/purchases" onClick={onNavigate}><ReceiptText size={18} aria-hidden="true" />{t('purchases')}</NavLink>
-      <NavLink to="/debts" onClick={onNavigate}><Scale size={18} aria-hidden="true" /><span className="nav-full-label">{t('privateDebts')}</span><span className="nav-short-label">{t('navDebts')}</span></NavLink>
+      <NavLink to="/debts" onClick={onNavigate}><Scale size={18} aria-hidden="true" />{t('navDebts')}</NavLink>
       <NavLink to="/savings" onClick={onNavigate}><Vault size={18} aria-hidden="true" /><span className="nav-full-label">{t('savingsGoals')}</span><span className="nav-short-label">{t('navSavings')}</span></NavLink>
       <NavLink className="nav-secondary" to="/installments" onClick={onNavigate}><CalendarDays size={18} aria-hidden="true" />{t('installments')}</NavLink>
       <NavLink className="nav-secondary" to="/monthly-expenses" onClick={onNavigate}><CalendarCheck size={18} aria-hidden="true" />{t('monthlyExpenses')}</NavLink>

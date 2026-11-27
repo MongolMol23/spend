@@ -22,7 +22,8 @@ export function ResponseBadge({ userId }: { userId?: string }) {
           client.from('friendships').select('id', { count: 'exact', head: true })
             .eq('recipient', userId).eq('state', 'pending').abortSignal(controller.signal),
           client.from('money_requests').select('id', { count: 'exact', head: true })
-            .eq('recipient', userId).eq('state', 'pending').abortSignal(controller.signal),
+            .eq('state', 'pending').or('and(is_offer.eq.false,recipient.eq.' + userId + '),and(is_offer.eq.true,sender.eq.' + userId + ')')
+            .abortSignal(controller.signal),
         ])
         if (!controller.signal.aborted && friends.count !== null && requests.count !== null) {
           setResult({ userId, count: friends.count + requests.count })

@@ -69,7 +69,7 @@ export function Dashboard({ ledger, debts }: { ledger: DashboardPurchases; debts
           <span className="status">{new Intl.NumberFormat(i18n.language).format(debts.pending_count)}</span>
         </Link>}
         {due?.due_on && due.due_minor !== null && <Link
-          to={due.due_source === 'private' ? '/debts?debt=' + due.due_id : '/connections?request=' + due.due_id}
+          to={'/debts?' + (due.due_source === 'private' ? 'debt=' : 'request=') + due.due_id}
           className="follow-item follow-link">
           <span className="muted">{t('due')} <time dateTime={due.due_on}>{date.format(new Date(due.due_on))}</time></span>
           <span className="row"><strong className="reason"><bdi>{due.due_label}</bdi></strong><Amount value={due.due_minor / 100} /></span>

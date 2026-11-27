@@ -3,6 +3,7 @@ import { z } from 'zod'
 import type { Database, Tables } from '../../data/database.types'
 import { toMinorUnits } from '../../data/money'
 import { clearRetryKey, retryKey } from '../../data/retryKey'
+import { connectionPeople } from '../connections/api'
 
 export type DebtClient = SupabaseClient<Database>
 export type PrivateDebt = Tables<'private_debts'>
@@ -18,6 +19,30 @@ export const debtInput = z.object({
   dueOn: z.union([date, z.literal('')]),
 })
 export const paymentInput = z.object({ amount, paidOn: date })
+export const sharedDebtInput = debtInput.omit({ contact: true }).extend({
+  friend: z.uuid(),
+  reason: z.string().trim().min(1).max(500),
+})
+export type SharedDebtInput = z.output<typeof sharedDebtInput>
+
+export async function sendSharedDebt(client: DebtClient, owner: string, input: SharedDebtInput) {
+  const scope = owner + ':debt:shared'
+  const result = await client.rpc('create_shared_debt', {
+    p_id: await retryKey(scope, input), target_id: input.friend, minor_units: input.amount,
+    request_reason: input.reason, i_owe: input.direction === 'owe', ...(input.dueOn ? { deadline: input.dueOn } : {}),
+  })
+  if (!result.error) clearRetryKey(scope)
+  return result
+}
+
+export async function listDebtFriends(client: DebtClient, owner: string, signal: AbortSignal) {
+  const [names, friendships] = await Promise.all([
+    client.rpc('connection_names').abortSignal(signal),
+    client.from('friendships').select('*').eq('state', 'accepted').abortSignal(signal),
+  ])
+  if (names.error || friendships.error) throw new Error('debt_friends_load')
+  return connectionPeople({ names: names.data, friendships: friendships.data }, owner).friends
+}
 
 export type DebtChange =
   | { kind: 'save'; debt?: PrivateDebt; input: z.output<typeof debtInput> }
@@ -62,9 +87,8 @@ export async function debtOverview(client: DebtClient, signal: AbortSignal) {
 }
 
 export async function listDebts(client: DebtClient, direction: PrivateDebt['direction'], page: number, signal: AbortSignal) {
-  const first = page * debtPageSize
-  const { data, error } = await client.from('private_debts').select('*').is('archived_at', null).eq('direction', direction)
-    .order('contact').order('id').range(first, first + debtPageSize).abortSignal(signal)
+  const { data, error } = await client.rpc('list_debt_entries', { p_direction: direction, p_offset: page * debtPageSize })
+    .abortSignal(signal)
   if (error) throw error
   return data
 }

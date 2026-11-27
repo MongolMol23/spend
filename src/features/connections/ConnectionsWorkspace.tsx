@@ -1,21 +1,18 @@
 import { Toast } from '../../ui/Toast'
 import { ActiveLinkIndicator } from '../../ui/ActiveLinkIndicator'
-import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
-import { Link, useSearchParams } from 'react-router'
-import { loadConnections, type Client, type RunAction } from './api'
+import { Link, Navigate, useSearchParams } from 'react-router'
+import { connectionPeople, isSharedDebt, loadConnections, requestTarget, sharedDebtPath, type Client } from './api'
 import { FriendPanel, FriendSearch } from './FriendPanel'
 import { HandCoins, UserPlus, UsersRound } from 'lucide-react'
 import { RequestPanel } from './RequestPanel'
 import { inviteUsername } from './friendInvite'
+import { useConnectionAction } from './useConnectionAction'
 
 export function ConnectionsWorkspace({ client, userId }: { client: Client; userId: string }) {
   const { t, i18n } = useTranslation()
   const [params] = useSearchParams()
-  const [pending, setPending] = useState<string>()
-  const busy = pending !== undefined
-  const [feedback, setFeedback] = useState<'connectionSaved' | 'requestSent' | 'connectionError' | 'friendExists' | 'correctionStale' | 'invalidCorrection'>()
   const query = useQuery({
     queryKey: ['connections', userId],
     queryFn: ({ signal }) => loadConnections(client, signal),
@@ -23,42 +20,22 @@ export function ConnectionsWorkspace({ client, userId }: { client: Client; userI
     refetchInterval: 3000,
     refetchIntervalInBackground: true,
   })
-  const run: RunAction = async (action, operation, done) => {
-    if (busy) return
-    setPending(action)
-    setFeedback(undefined)
-    try {
-      const { error } = await operation()
-      if (error) throw error
-      done?.()
-      setFeedback(action === 'send-request' ? 'requestSent' : 'connectionSaved')
-      await query.refetch()
-    } catch (error) {
-      const message = typeof error === 'object' && error !== null && 'message' in error ? error.message : ''
-      setFeedback(message === 'friend_exists' ? 'friendExists' : message === 'stale_correction'
-        ? 'correctionStale' : message === 'invalid_correction' ? 'invalidCorrection' : 'connectionError')
-      await query.refetch()
-    } finally {
-      setPending(undefined)
-    }
-  }
+  const { pending, busy, feedback, run } = useConnectionAction(query.refetch)
 
   if (query.isPending) return <p className="loading-state" role="status">{t('loading')}</p>
   if (query.isError && !query.data) return <div className="panel"><Toast message={t('connectionError')} />
     <button className="primary" disabled={query.isFetching} aria-busy={query.isFetching} onClick={() => void query.refetch()}>{t('retry')}</button></div>
   const data = query.data
   if (!data?.profile) return <div className="panel"><p>{t('profileRequired')}</p><Link className="primary" to="/account">{t('settings')}</Link></div>
-  const names = new Map(data.names.map(person => [person.id, person]))
-  const friends = data.friendships.filter(friend => friend.state === 'accepted').flatMap(friend => {
-    const person = names.get(friend.sender === userId ? friend.recipient : friend.sender)
-    return person ? [person] : []
-  })
+  const { names, friends } = connectionPeople(data, userId)
   const requestId = params.get('request')
   const view = params.get('view')
   const section = !requestId && (view === 'friends' || view === 'add') ? view : 'requests'
   const invitedBy = section === 'add' ? inviteUsername(params.get('friend')) : undefined
   const incomingFriends = data.friendships.filter(friend => friend.state === 'pending' && friend.recipient === userId).length
-  const incomingMoney = data.requests.filter(request => request.state === 'pending' && request.recipient === userId).length
+  const incomingMoney = data.requests.filter(request => request.state === 'pending' && requestTarget(request) === userId).length
+  const request = data.requests.find(item => item.id === requestId)
+  if (request && isSharedDebt(request)) return <Navigate replace to={sharedDebtPath(request, userId)} />
 
   return <>
     <nav className="connection-sections" data-page-swipe-nav="connections" data-compact-swipe aria-label={t('connections')}>

@@ -24,7 +24,7 @@ test('private debts flow through repayment, edits, dashboard balances, and histo
   await expect(page.getByRole('status')).toHaveText('Email confirmed.')
 
   await page.goto('/overview')
-  await page.getByRole('link', { name: 'Private debts' }).click()
+  await page.goto('/debts?direction=owed')
   await page.getByRole('button', { name: 'Add debt', exact: true }).click()
   const entry = page.locator('.debt-entry')
   const detail = page.locator('.debt-detail')
